@@ -63,12 +63,25 @@ namespace CarPartsShopWPF.Application.Services
 
         public void AddSupplierPayment(int supplierId, decimal amount, string paymentMethod = null)
         {
+            if (amount <= 0)
+                throw new ArgumentException("قيمة السداد يجب أن تكون أكبر من الصفر");
+
+            var supplier = _supplierRepo.GetById(supplierId);
+            if (supplier == null)
+                throw new Exception("المورد غير موجود");
+            if (amount > supplier.TotalDebt)
+                throw new InvalidOperationException(
+                    $"قيمة السداد ({Formatting.FormatCurrency(amount)}) تتجاوز المديونية الحالية ({Formatting.FormatCurrency(supplier.TotalDebt)})");
+
             int userId = _auth.GetUserId();
             _supplierRepo.AddSupplierPayment(supplierId, amount, userId, paymentMethod);
         }
 
         public void AddSupplierPurchase(int supplierId, decimal amount, string paymentMethod = null)
         {
+            if (amount <= 0)
+                throw new ArgumentException("قيمة المشتريات يجب أن تكون أكبر من الصفر");
+
             int userId = _auth.GetUserId();
             _supplierRepo.AddSupplierPurchase(supplierId, amount, userId, paymentMethod);
         }

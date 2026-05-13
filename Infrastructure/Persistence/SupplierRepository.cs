@@ -102,6 +102,9 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                 throw new Exception("المورد غير موجود");
 
             decimal currentDebt = SafeConvert.ToDecimal(supplier["total_debt"]);
+            if (amount > currentDebt)
+                throw new InvalidOperationException("قيمة السداد تتجاوز المديونية الحالية للمورد");
+
             decimal balanceBefore = currentDebt;
             decimal balanceAfter = currentDebt - amount;
 

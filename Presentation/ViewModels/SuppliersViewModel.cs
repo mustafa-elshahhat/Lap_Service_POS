@@ -152,6 +152,13 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         {
             if (SelectedSupplier == null) return;
 
+            if (SelectedSupplier.TotalDebt <= 0)
+            {
+                _dialogService.ShowInfo("تنبيه", "لا توجد مديونية على هذا المورد");
+                OnRequestSearchFocus();
+                return;
+            }
+
             if (_dialogService.ShowSupplierPaymentDialog(
                 SelectedSupplier.Name,
                 SelectedSupplier.TotalDebt,
@@ -186,6 +193,9 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             {
                 try
                 {
+                    if (paid > amount)
+                        throw new System.Exception($"المبلغ المقدم ({Shared.Helpers.Formatting.FormatCurrency(paid)}) لا يمكن أن يتجاوز قيمة المشتريات ({Shared.Helpers.Formatting.FormatCurrency(amount)})");
+
                     _supplierService.AddSupplierPurchase(SelectedSupplier.Id, amount, method);
                     if (paid > 0)
                     {

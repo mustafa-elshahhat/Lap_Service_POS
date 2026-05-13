@@ -14,15 +14,12 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         private readonly IDialogService _dialogService;
         private int? _id;
         private string _code;
-        private string _barcode;
         private string _name;
         private decimal _purchasePrice;
         private decimal _sellingPrice;
         private int _quantity;
         private int _minQuantity = 5;
         private string _category;
-        private string _supplierName;
-        private string _description;
         private string _title;
         private string _titleIcon;
 
@@ -38,15 +35,12 @@ namespace CarPartsShopWPF.Presentation.ViewModels
 
                 _id = product.Id;
                 Code = product.Code;
-                Barcode = product.Barcode;
                 Name = product.Name;
                 PurchasePrice = product.PurchasePrice;
                 SellingPrice = product.SellingPrice;
                 Quantity = product.Quantity;
                 MinQuantity = product.MinQuantity;
                 Category = product.Category;
-                SupplierName = product.SupplierName;
-                Description = product.Description;
 
                 Title = "تعديل المنتج";
                 TitleIcon = "✏️";
@@ -80,12 +74,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         {
             get => _code;
             set => SetProperty(ref _code, value);
-        }
-
-        public string Barcode
-        {
-            get => _barcode;
-            set => SetProperty(ref _barcode, value);
         }
 
         public string Name
@@ -124,41 +112,16 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             set => SetProperty(ref _category, value);
         }
 
-        public string SupplierName
-        {
-            get => _supplierName;
-            set => SetProperty(ref _supplierName, value);
-        }
-
-        public string Description
-        {
-            get => _description;
-            set => SetProperty(ref _description, value);
-        }
-
         #endregion
 
         #region Commands
 
-        public ICommand GenerateBarcodeCommand => new RelayCommand(GenerateBarcode);
         public ICommand SaveCommand => new RelayCommand(Save);
         public ICommand CancelCommand => new RelayCommand(Cancel);
 
         #endregion
 
         #region Methods
-
-        private void GenerateBarcode()
-        {
-            try
-            {
-                Barcode = _productService.GenerateBarcode();
-            }
-            catch (System.Exception ex)
-            {
-                _dialogService.ShowError("خطأ", ex.Message);
-            }
-        }
 
         private void Save()
         {
@@ -181,15 +144,15 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                     _productService.Update(
                         _id.Value,
                         code: Code.Trim(),
-                        barcode: string.IsNullOrWhiteSpace(Barcode) ? null : Barcode.Trim(),
+                        barcode: null,
                         name: Name.Trim(),
                         purchasePrice: PurchasePrice,
                         sellingPrice: SellingPrice,
                         quantity: Quantity,
                         minQuantity: MinQuantity,
-                        supplierName: SupplierName?.Trim(),
+                        supplierName: null,
                         category: Category?.Trim(),
-                        description: Description?.Trim()
+                        description: null
                     );
                     _dialogService.ShowSuccess("نجاح", "تم تحديث المنتج بنجاح");
                 }
@@ -201,11 +164,11 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                         purchasePrice: PurchasePrice,
                         sellingPrice: SellingPrice,
                         quantity: Quantity,
-                        barcode: string.IsNullOrWhiteSpace(Barcode) ? null : Barcode.Trim(),
+                        barcode: null,
                         minQuantity: MinQuantity,
-                        supplierName: SupplierName?.Trim(),
+                        supplierName: null,
                         category: Category?.Trim(),
-                        description: Description?.Trim()
+                        description: null
                     );
                     _dialogService.ShowSuccess("نجاح", "تم إضافة المنتج بنجاح");
                 }
