@@ -4,7 +4,6 @@ using System.Windows.Input;
 using CarPartsShopWPF.Application.DTOs;
 using CarPartsShopWPF.Application.Interfaces;
 using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Infrastructure.Data;
 using CarPartsShopWPF.Presentation.Interfaces;
 using CarPartsShopWPF.Shared.Helpers;
 
@@ -295,14 +294,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
 
             try
             {
-                var parts = _maintenanceService.GetDeviceParts(SelectedDevice.Id);
-                foreach (var p in parts)
-                    _maintenanceService.RemovePart(p.Id);
-
-                DatabaseManager.Instance.Execute("DELETE FROM repair_devices WHERE id = @id",
-                    new System.Collections.Generic.Dictionary<string, object> { { "@id", SelectedDevice.Id } });
-
-                _maintenanceService.GetOrder(_orderId);
+                _maintenanceService.RemoveDevice(SelectedDevice.Id, _auth.GetUserId());
                 LoadDevices();
                 RefreshTotals();
             }

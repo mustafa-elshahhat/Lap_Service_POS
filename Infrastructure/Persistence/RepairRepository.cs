@@ -47,19 +47,21 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                     technician_name  = @tech,
                     order_status     = @status,
                     expected_delivery= @delivery,
+                    delivery_date    = COALESCE(@deliveryDate, delivery_date),
                     notes            = @notes,
                     updated_at       = datetime('now','localtime')
                 WHERE id = @id",
                 new Dictionary<string, object>
                 {
-                    { "@id",       order.Id },
-                    { "@cid",      order.CustomerId },
-                    { "@cname",    order.CustomerName },
-                    { "@cphone",   order.CustomerPhone },
-                    { "@tech",     order.TechnicianName },
-                    { "@status",   order.OrderStatus },
-                    { "@delivery", order.ExpectedDelivery?.ToString("yyyy-MM-dd") },
-                    { "@notes",    order.Notes }
+                    { "@id",           order.Id },
+                    { "@cid",          order.CustomerId },
+                    { "@cname",        order.CustomerName },
+                    { "@cphone",       order.CustomerPhone },
+                    { "@tech",         order.TechnicianName },
+                    { "@status",       order.OrderStatus },
+                    { "@delivery",     order.ExpectedDelivery?.ToString("yyyy-MM-dd") },
+                    { "@deliveryDate", order.DeliveryDate?.ToString("yyyy-MM-dd HH:mm:ss") },
+                    { "@notes",        order.Notes }
                 });
         }
 
@@ -90,6 +92,34 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                     { "@status", device.DeviceStatus ?? RepairStatus.Received },
                     { "@diag",   device.DiagnosisNotes },
                     { "@repair", device.RepairNotes }
+                });
+        }
+
+        public RepairDevice GetDevice(long deviceId)
+        {
+            var row = _db.FetchOne("SELECT * FROM repair_devices WHERE id = @id",
+                new Dictionary<string, object> { { "@id", deviceId } });
+            return row == null ? null : MapDevice(row);
+        }
+
+        public void RemoveDevice(long deviceId)
+        {
+            _db.Execute("DELETE FROM repair_devices WHERE id = @id",
+                new Dictionary<string, object> { { "@id", deviceId } });
+        }
+
+        public void UpdateDeviceStatus(long deviceId, string newStatus, string notes)
+        {
+            _db.Execute(@"
+                UPDATE repair_devices
+                SET device_status = @status,
+                    repair_notes  = @notes
+                WHERE id = @id",
+                new Dictionary<string, object>
+                {
+                    { "@id",     deviceId },
+                    { "@status", newStatus },
+                    { "@notes",  notes }
                 });
         }
 
@@ -203,7 +233,7 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                 {
                     { "@total", total },
                     { "@paid",  paid },
-                    { "@rem",   total - paid },
+                    { "@rem",   Math.Max(0, total - paid) },
                     { "@id",    orderId }
                 });
         }

@@ -155,13 +155,10 @@ namespace CarPartsShopWPF.Application.Services
             if (string.IsNullOrWhiteSpace(input.ReportedIssue))
                 throw new InvalidOperationException("وصف المشكلة المبلغ عنها مطلوب.");
 
-            var rows = DatabaseManager.Instance.FetchOne(
-                "SELECT * FROM repair_devices WHERE id = @id",
-                new Dictionary<string, object> { { "@id", deviceId } });
+            var existing = _repo.GetDevice(deviceId)
+                ?? throw new InvalidOperationException("الجهاز غير موجود.");
 
-            if (rows == null) throw new InvalidOperationException("الجهاز غير موجود.");
-
-            long orderId = SafeConvert.ToLong(rows["order_id"]);
+            long orderId = existing.OrderId;
 
             var device = new RepairDevice
             {
@@ -187,26 +184,14 @@ namespace CarPartsShopWPF.Application.Services
 
         public void UpdateDeviceStatus(long deviceId, string newStatus, string notes)
         {
-            var row = DatabaseManager.Instance.FetchOne(
-                "SELECT * FROM repair_devices WHERE id = @id",
-                new Dictionary<string, object> { { "@id", deviceId } });
+            var device = _repo.GetDevice(deviceId)
+                ?? throw new InvalidOperationException("الجهاز غير موجود.");
 
-            if (row == null) throw new InvalidOperationException("الجهاز غير موجود.");
+            if (!RepairStatus.CanTransitionTo(device.DeviceStatus, newStatus))
+                throw new InvalidOperationException(
+                    $"لا يمكن الانتقال من حالة '{RepairStatus.ToArabic(device.DeviceStatus)}' إلى '{RepairStatus.ToArabic(newStatus)}'.");
 
-            string current = SafeConvert.ToString(row["device_status"]);
-
-            if (!RepairStatus.CanTransitionTo(current, newStatus))
-                throw new InvalidOperationException($"لا يمكن الانتقال من حالة '{RepairStatus.ToArabic(current)}' إلى '{RepairStatus.ToArabic(newStatus)}'.");
-
-            DatabaseManager.Instance.Execute(@"
-                UPDATE repair_devices SET device_status = @status, repair_notes = COALESCE(@notes, repair_notes)
-                WHERE id = @id",
-                new Dictionary<string, object>
-                {
-                    { "@id",     deviceId },
-                    { "@status", newStatus },
-                    { "@notes",  notes }
-                });
+            _repo.UpdateDeviceStatus(deviceId, newStatus, notes);
         }
 
         public void AddInventoryPart(long deviceId, long orderId, int productId, int qty, decimal unitCost)
@@ -385,14 +370,45 @@ namespace CarPartsShopWPF.Application.Services
             order.DeliveryDate = DateTime.Now;
             _repo.UpdateOrder(order);
 
-            DatabaseManager.Instance.Execute(
-                "UPDATE repair_orders SET delivery_date = datetime('now','localtime') WHERE id = @id",
-                new Dictionary<string, object> { { "@id", orderId } });
-
             DatabaseManager.Instance.LogActivity(userId, "deliver_repair_order", "repair_orders",
                 (int)orderId, $"Order {order.OrderNumber} delivered.");
 
             Logger.LogInfo($"MaintenanceService: Order {order.OrderNumber} marked as delivered.");
+        }
+
+        public void RemoveDevice(long deviceId, int userId)
+        {
+            var device = _repo.GetDevice(deviceId)
+                ?? throw new InvalidOperationException("الجهاز غير موجود.");
+
+            long orderId = device.OrderId;
+
+            _txManager.BeginTransaction();
+            try
+            {
+                foreach (var part in _repo.GetParts(deviceId))
+                {
+                    if (part.IsFromInventory && part.ProductId.HasValue)
+                    {
+                        var product = _productRepo.GetById(part.ProductId.Value);
+                        if (product != null)
+                        {
+                            _productRepo.SetQuantity(part.ProductId.Value, product.Quantity + part.Quantity);
+                            Logger.LogInfo($"MaintenanceService: RemoveDevice restored '{product.Name}' x{part.Quantity} to inventory.");
+                        }
+                    }
+                }
+
+                _repo.RemoveDevice(deviceId);
+                _repo.RecalculateOrderTotals(orderId);
+                _txManager.CommitTransaction();
+                Logger.LogInfo($"MaintenanceService: Device {deviceId} removed from order {orderId}.");
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public RepairOrder GetOrder(long orderId)              => _repo.GetOrder(orderId);

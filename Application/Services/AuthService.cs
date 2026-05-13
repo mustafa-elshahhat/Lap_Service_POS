@@ -92,7 +92,7 @@ namespace CarPartsShopWPF.Application.Services
         {
             if (!IsAdmin) throw new UnauthorizedAccessException("ليس لديك صلاحية تعديل المستخدمين");
 
-            var user = new User { Id = userId };
+            var user = new User { Id = userId, MaxDiscountPercent = -1.0, MaxMarkupPercent = -1.0 };
             if (fullName != null) user.FullName = fullName;
             if (role != null) user.Role = role;
             if (maxDiscount.HasValue) user.MaxDiscountPercent = maxDiscount.Value;

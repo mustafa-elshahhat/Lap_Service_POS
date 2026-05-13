@@ -336,7 +336,10 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                 }
 
                 int saleId = (int)_sale.Id;
-                var result = _saleService.CreateReturn(saleId, returnItems, AuthService.Instance.GetUserId(), reason);
+                string refundMethod = PaymentMethods != null && PaymentMethods.Count > 0
+                    ? PaymentMethods.OrderByDescending(p => p.Value).First().Key
+                    : Shared.Helpers.PaymentMethods.Cash;
+                var result = _saleService.CreateReturn(saleId, returnItems, AuthService.Instance.GetUserId(), reason, refundMethod);
 
                 _dialogService.ShowSuccess("نجاح", $"تم تسجيل المرتجع رقم {result["return_number"]} بنجاح");
 

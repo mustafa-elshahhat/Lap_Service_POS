@@ -94,10 +94,10 @@ namespace CarPartsShopWPF.Presentation
 
                 try
                 {
-                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration001_PaymentMethodEnum.Execute();
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration002_BusinessDateLocalRepair.Execute();
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration003_AddCashRefundToReturns.Execute();
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration004_RepairOrdersFullSchema.Execute();
+                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration005_DropDeadPaymentMethodSchema.Execute();
                 }
                 catch (Exception migrationEx)
                 {

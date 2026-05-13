@@ -62,7 +62,7 @@ namespace CarPartsShopWPF.Infrastructure.Data
             CreateTables();
         }
 
-        public void InitializeForTests(string connectionString = "Data Source=:memory:;Version=3;")
+        public void InitializeForTests(string connectionString = "Data Source=:memory:;Version=3;Pooling=False;")
         {
             lock (_lock)
             {

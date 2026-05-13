@@ -204,9 +204,9 @@ namespace CarPartsShopWPF.Application.Services
         {
             if (string.IsNullOrWhiteSpace(name)) return null;
 
-            var existing = !string.IsNullOrEmpty(phone?.Trim())
-                ? _customerService.SearchCustomers(phone.Trim()).Find(c => c.Phone == phone.Trim())
-                  ?? _customerService.GetAllCustomers().Find(c => c.Phone == phone.Trim())
+            var normalizedPhone = phone?.Trim();
+            var existing = !string.IsNullOrEmpty(normalizedPhone)
+                ? _customerService.GetByPhone(normalizedPhone)
                 : null;
 
             if (existing != null)
@@ -220,7 +220,7 @@ namespace CarPartsShopWPF.Application.Services
             }
 
             return (int)_customerService.CreateCustomer(
-                new Customer { Name = name.Trim(), Phone = phone?.Trim() });
+                new Customer { Name = name.Trim(), Phone = normalizedPhone });
         }
 
         private List<SaleItem> ValidateItems(List<SaleItem> items)

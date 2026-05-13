@@ -10,7 +10,7 @@ namespace CarPartsShopWPF.Shared.Helpers
     {
         private const int SaltSize = 16;
         private const int KeySize = 32;
-        private const int Iterations = 10000;
+        private const int Iterations = 100_000;
 
         public static string HashPassword(string password)
         {
@@ -31,6 +31,12 @@ namespace CarPartsShopWPF.Shared.Helpers
 
         public static bool VerifyPassword(string password, string hashedPassword)
         {
+            return TryVerify(password, hashedPassword, Iterations)
+                || TryVerify(password, hashedPassword, 10_000);
+        }
+
+        private static bool TryVerify(string password, string hashedPassword, int iterations)
+        {
             try
             {
                 byte[] hashBytes = Convert.FromBase64String(hashedPassword);
@@ -45,7 +51,7 @@ namespace CarPartsShopWPF.Shared.Helpers
                 byte[] keyToCheck = Rfc2898DeriveBytes.Pbkdf2(
                     password,
                     salt,
-                    Iterations,
+                    iterations,
                     HashAlgorithmName.SHA256,
                     KeySize);
 

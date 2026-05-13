@@ -17,6 +17,7 @@ namespace CarPartsShopWPF.Application.Services
         }
 
         public Customer GetById(int id) => _customerRepo.GetById(id);
+        public Customer GetByPhone(string phone) => _customerRepo.GetByPhone(NormalizePhone(phone ?? string.Empty));
         public List<Customer> SearchCustomers(string query) => _customerRepo.Search(query);
         public List<Customer> GetAllCustomers() => _customerRepo.GetAll();
         public long CreateCustomer(Customer customer)
@@ -36,7 +37,12 @@ namespace CarPartsShopWPF.Application.Services
 
         private static string NormalizePhone(string phone)
             => Regex.Replace(phone.Trim(), @"[\s\-]", "");
-        public void UpdateCustomer(Customer customer) => _customerRepo.Update(customer);
+        public void UpdateCustomer(Customer customer)
+        {
+            if (!string.IsNullOrWhiteSpace(customer.Phone))
+                customer.Phone = NormalizePhone(customer.Phone);
+            _customerRepo.Update(customer);
+        }
         public void DeleteCustomer(int id) => _customerRepo.Delete(id);
     }
 }

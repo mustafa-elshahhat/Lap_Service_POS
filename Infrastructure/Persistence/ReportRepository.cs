@@ -96,7 +96,7 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             var maintenanceDailyQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(total_amount), 0) as maintenance_total
                 FROM repair_orders
-                WHERE order_date >= @start AND order_date < @end", args);
+                WHERE intake_date >= @start AND intake_date < @end", args);
             summary["maintenance_total"] = SafeConvert.ToDecimal(maintenanceDailyQuery["maintenance_total"]);
 
             AddPaymentBreakdowns(summary, args);
@@ -187,7 +187,7 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             var maintenancePeriodQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(total_amount), 0) as maintenance_total
                 FROM repair_orders
-                WHERE order_date >= @start AND order_date < @end", args);
+                WHERE intake_date >= @start AND intake_date < @end", args);
             summary["maintenance_total"] = SafeConvert.ToDecimal(maintenancePeriodQuery["maintenance_total"]);
 
             AddPaymentBreakdowns(summary, args);
