@@ -11,21 +11,15 @@ namespace CarPartsShopWPF.Application.Services
     {
         private readonly ISaleRepository _saleRepo;
         private readonly IProductRepository _productRepo;
-        private readonly ICustomerRepository _customerRepo;
-        private readonly IPaymentService _paymentService;
         private readonly IDbTransactionManager _txManager;
 
         public ReturnService(
             ISaleRepository saleRepo,
             IProductRepository productRepo,
-            ICustomerRepository customerRepo,
-            IPaymentService paymentService,
             IDbTransactionManager txManager)
         {
             _saleRepo = saleRepo;
             _productRepo = productRepo;
-            _customerRepo = customerRepo;
-            _paymentService = paymentService;
             _txManager = txManager;
         }
 
@@ -136,23 +130,6 @@ namespace CarPartsShopWPF.Application.Services
                     decimal newItemRemaining = Math.Max(0, saleItem.RemainingAmount - itemReturnedRemainingParts[i]);
 
                     _saleRepo.UpdateSaleItemFinancials(saleItem.Id, newItemPaid, newItemRemaining);
-                }
-
-                if (sale.CustomerId.HasValue)
-                {
-                    var customer = _customerRepo.GetById(sale.CustomerId.Value);
-                    decimal balanceBefore = customer?.TotalCredit ?? 0;
-
-                    if (debtDeduction > 0)
-                        _customerRepo.UpdateCredit(sale.CustomerId.Value, -debtDeduction);
-
-                    if (debtDeduction > 0)
-                    {
-                        decimal balanceAfter = Math.Max(0, balanceBefore - debtDeduction);
-                        _paymentService.AddPaymentHistory(sale.CustomerId.Value, saleId, "return",
-                            debtDeduction, balanceBefore, balanceAfter, userId,
-                            $"مرتجع فاتورة {sale.InvoiceNumber}");
-                    }
                 }
 
                 _saleRepo.LogActivity(userId, "مرتجع", "returns", (int)returnId, $"مرتجع رقم {returnNumber}");

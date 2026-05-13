@@ -111,7 +111,6 @@ namespace CarPartsShopWPF.Shared.Helpers
             switch (saleType?.ToLower())
             {
                 case "cash": return "كاش";
-                case "credit": return "آجل";
                 default: return saleType;
             }
         }

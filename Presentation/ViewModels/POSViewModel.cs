@@ -95,7 +95,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         public ICommand RemoveFromCartCommand => new RelayCommand(RemoveFromCart);
         public ICommand ClearCartCommand => new RelayCommand(ClearCart);
         public ICommand CheckoutCashCommand => new RelayCommand(CheckoutCash);
-        public ICommand CheckoutCreditCommand => new RelayCommand(CheckoutCredit);
         public ICommand ReturnInvoiceCommand => new RelayCommand(ReturnInvoice);
         public ICommand EditQuantityCommand => new RelayCommand(EditQuantity);
         public ICommand EditPriceCommand => new RelayCommand(EditPrice);
@@ -356,49 +355,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                     );
 
                     _dialogService.ShowSuccess("نجاح", $"تم إنشاء الفاتورة بنجاح\nرقم الفاتورة: {result.InvoiceNumber}");
-
-                    var sale = _saleService.GetByInvoiceNumber(result.InvoiceNumber);
-                    if (sale != null)
-                    {
-                         var sItems = _saleService.GetSaleItems((int)sale.Id);
-                         _printService.PrintSaleReceipt(sale, sItems);
-                    }
-
-                    CartItems.Clear();
-                    RecalculateTotal();
-                    TypedMessenger.Send("RefreshReports");
-                }
-                catch (Exception ex)
-                {
-                    _dialogService.ShowError("خطأ", ex.Message);
-                }
-            }
-            RaiseRequestSearchFocus();
-        }
-
-        private void CheckoutCredit()
-        {
-            if (CartItems.Count == 0)
-            {
-                _dialogService.ShowInfo("تنبيه", "السلة فارغة");
-                RaiseRequestSearchFocus();
-                return;
-            }
-
-            if (_dialogService.ShowCreditSaleDialog(CartTotal, out string customerName, out string customerPhone, out decimal paidAmount, out string paymentMethod) == true)
-            {
-                 try
-                {
-                    var items = ConvertCartToSaleItems();
-                    var result = _saleService.CreateCreditSale(
-                        items,
-                        customerName,
-                        customerPhone,
-                        paidAmount,
-                        0, 0, null, 
-                        paymentMethod);
-
-                    _dialogService.ShowSuccess("نجاح", $"تم إنشاء الفاتورة بنجاح\nرقم الفاتورة: {result.InvoiceNumber}\nالمتبقي: {Formatting.FormatCurrency(result.RemainingAmount)}");
 
                     var sale = _saleService.GetByInvoiceNumber(result.InvoiceNumber);
                     if (sale != null)

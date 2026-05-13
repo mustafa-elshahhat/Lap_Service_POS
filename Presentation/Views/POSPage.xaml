@@ -252,41 +252,22 @@
                     </Border>
 
                     
-                    <UniformGrid Columns="2" Margin="16" Height="65">
-                        <Button Style="{DynamicResource SecondaryButton}" 
-                                Height="Auto"
-                                Margin="0,0,4,0"
-                                Command="{Binding CheckoutCashCommand}">
-                            <Button.Content>
-                                <Grid>
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
-                                            <TextBlock Text="💳" FontSize="20" Margin="0,0,8,0"/>
-                                            <TextBlock Text="كاش" FontSize="18" FontWeight="Bold"/>
-                                        </StackPanel>
-                                        <TextBlock Text="دفع فوري" FontSize="11" Opacity="0.8" HorizontalAlignment="Center"/>
+                    <Button Style="{DynamicResource SecondaryButton}" 
+                            Height="65"
+                            Margin="16"
+                            Command="{Binding CheckoutCashCommand}">
+                        <Button.Content>
+                            <Grid>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
+                                        <TextBlock Text="💳" FontSize="20" Margin="0,0,8,0"/>
+                                        <TextBlock Text="كاش" FontSize="18" FontWeight="Bold"/>
                                     </StackPanel>
-                                </Grid>
-                            </Button.Content>
-                        </Button>
-                        
-                        <Button Style="{DynamicResource WarningButton}" 
-                                Height="Auto"
-                                Margin="4,0,0,0"
-                                Command="{Binding CheckoutCreditCommand}">
-                            <Button.Content>
-                                <Grid>
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,2">
-                                            <TextBlock Text="📋" FontSize="20" Margin="0,0,8,0"/>
-                                            <TextBlock Text="آجل" FontSize="18" FontWeight="Bold"/>
-                                        </StackPanel>
-                                        <TextBlock Text="تسجيل مديونية" FontSize="11" Opacity="0.8" HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Button.Content>
-                        </Button>
-                    </UniformGrid>
+                                    <TextBlock Text="دفع فوري" FontSize="11" Opacity="0.8" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

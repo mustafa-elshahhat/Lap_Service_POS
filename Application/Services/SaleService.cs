@@ -83,7 +83,7 @@ namespace CarPartsShopWPF.Application.Services
             decimal totalProfit = DistributeFinancialsToItems(validatedItems, subtotal, totalAmount, paidAmount);
 
             string invoiceNumber = _saleRepo.GenerateInvoiceNumber();
-            string mainPaymentMethod = paymentMethod ?? (remainingAmount == 0 ? "كاش" : "آجل");
+            string mainPaymentMethod = paymentMethod ?? "كاش";
 
             var sale = new Sale
             {
@@ -119,12 +119,7 @@ namespace CarPartsShopWPF.Application.Services
             }
             else if (paidAmount > 0)
             {
-                _saleRepo.AddSalePayment(saleId, mainPaymentMethod == "آجل" ? "كاش" : mainPaymentMethod, paidAmount, "دفعة تلقائية");
-            }
-
-            if (customerId.HasValue && remainingAmount > 0)
-            {
-                _customerRepo.UpdateCredit(customerId.Value, remainingAmount);
+                _saleRepo.AddSalePayment(saleId, mainPaymentMethod, paidAmount, "دفعة تلقائية");
             }
 
             _saleRepo.LogActivity(userId, "عملية بيع", "sales", (int)saleId, $"فاتورة {invoiceNumber} - إجمالي: {totalAmount} - مدفوع: {paidAmount}");
@@ -205,28 +200,6 @@ namespace CarPartsShopWPF.Application.Services
             }
         }
 
-        public SaleOperationResult CreateCreditSale(List<SaleItem> items, string customerName, string customerPhone = null,
-            decimal paidAmount = 0, decimal discountAmount = 0, decimal markupAmount = 0, string notes = null, string paymentMethod = "كاش")
-        {
-            if (string.IsNullOrWhiteSpace(customerName)) throw new ArgumentException("اسم العميل مطلوب لعمليات البيع الآجل");
-
-            _txManager.BeginTransaction();
-            try
-            {
-                int? customerId = HandleCustomer(customerName, customerPhone);
-                var result = CreateSaleInternal("credit", _auth.GetUserId(), ValidateItems(items), customerId,
-                    discountAmount, markupAmount, paidAmount, notes, paymentMethod);
-
-                _txManager.CommitTransaction();
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _txManager.RollbackTransaction();
-                return new SaleOperationResult { Success = false, Message = ex.Message };
-            }
-        }
-
         private int? HandleCustomer(string name, string phone)
         {
             if (string.IsNullOrWhiteSpace(name)) return null;
@@ -264,11 +237,8 @@ namespace CarPartsShopWPF.Application.Services
         public List<SaleItem> GetSaleItems(int saleId) => _saleRepo.GetItems(saleId);
         public List<Sale> GetSales(string query = null) => string.IsNullOrEmpty(query) ? _saleRepo.GetAll() : _saleRepo.Search(query);
         public List<Sale> GetSalesByCustomer(int customerId) => _saleRepo.GetByCustomerId(customerId);
-        public List<Sale> GetUnpaidInvoices(int customerId) => _saleRepo.GetByCustomerId(customerId).Where(s => s.RemainingAmount > 0).ToList();
         public List<Sale> GetSalesReport(string startDate, string endDate) => _saleRepo.GetSalesReport(startDate, endDate);
         public List<Dictionary<string, object>> GetSalePayments(int saleId) => _saleRepo.GetSalePayments(saleId);
-        public void PayInvoiceAmount(int saleId, decimal amount, string method, string notes) => _paymentService.AddPayment(saleId, amount, _auth.GetUserId(), notes, method);
-
         public Sale GetByInvoiceNumber(string invoiceNumber) => _saleRepo.GetByInvoiceNumber(invoiceNumber);
         public Dictionary<int, int> GetReturnedQuantities(int saleId) => _returnService.GetReturnedQuantities(saleId);
         public Dictionary<string, decimal> GetSalePaymentsBreakdown(int saleId) => _paymentService.GetPaymentBreakdown(saleId);

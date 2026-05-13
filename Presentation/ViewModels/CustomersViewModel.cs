@@ -62,10 +62,8 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         #region Commands
 
         public ICommand SearchCommand => new RelayCommand(PerformSearch);
-        public ICommand ShowDebtorsCommand => new RelayCommand(ShowDebtors);
         public ICommand ShowAllCommand => new RelayCommand(() => { LoadCustomers(); OnRequestSearchFocus(); });
         public ICommand ViewDetailsCommand => new RelayCommand(ViewDetails, () => SelectedCustomer != null);
-        public ICommand PayDebtCommand => new RelayCommand(PayDebt, () => SelectedCustomer != null);
         public ICommand AddCustomerCommand => new RelayCommand(AddCustomer);
         public ICommand RefreshCommand => new RelayCommand(LoadCustomers);
 
@@ -100,21 +98,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             }
         }
 
-        private void ShowDebtors()
-        {
-            try
-            {
-                var list = _customerService.GetCustomersWithCredit();
-                UpdateCustomersList(list);
-                OnRequestSearchFocus();
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowError("خطأ", ex.Message);
-                OnRequestSearchFocus();
-            }
-        }
-
         private void UpdateCustomersList(List<Customer> list)
         {
             Customers.Clear();
@@ -140,34 +123,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             {
                  _dialogService.ShowError("خطأ", ex.Message);
                  OnRequestSearchFocus();
-            }
-        }
-
-        private void PayDebt()
-        {
-            if (SelectedCustomer == null)
-            {
-                _dialogService.ShowInfo("تنبيه", "الرجاء اختيار عميل أولاً");
-                return;
-            }
-
-            try
-            {
-                var custDict = new Dictionary<string, object> {
-                    { "id", SelectedCustomer.Id },
-                    { "name", SelectedCustomer.Name },
-                    { "total_credit", SelectedCustomer.TotalCredit }
-                };
-                if (_dialogService.ShowCustomerPaymentDialog(custDict))
-                {
-                    LoadCustomers();
-                }
-                OnRequestSearchFocus();
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowError("خطأ", ex.Message);
-                OnRequestSearchFocus();
             }
         }
 

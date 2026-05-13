@@ -59,8 +59,8 @@ namespace CarPartsShopWPF.Presentation
             AuthService.Instance = authService;
 
             var productService = new ProductService(productRepo);
-            var paymentService = new PaymentService(saleRepo, customerRepo, paymentRepo, txManager);
-            var returnService = new ReturnService(saleRepo, productRepo, customerRepo, paymentService, txManager);
+            var paymentService = new PaymentService(paymentRepo);
+            var returnService = new ReturnService(saleRepo, productRepo, txManager);
             var saleService = new SaleService(saleRepo, productRepo, customerRepo, paymentService, returnService, txManager, authService);
             var expenseService = new ExpenseService(expenseRepo, authService, txManager);
             var supplierService = new SupplierService(supplierRepo, authService);

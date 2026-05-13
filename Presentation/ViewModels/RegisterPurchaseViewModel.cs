@@ -26,7 +26,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             Items = new ObservableCollection<AdHocItemViewModel>();
 
             AvailablePaymentMethods = new ObservableCollection<string>(PaymentMethods.GetAll());
-            AvailablePaymentMethods.Add("آجل");
 
             SelectedPaymentMethod = PaymentMethods.Cash;
 

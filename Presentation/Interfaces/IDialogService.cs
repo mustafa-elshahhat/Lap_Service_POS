@@ -14,13 +14,12 @@ namespace CarPartsShopWPF.Presentation.Interfaces
         bool Confirm(string title, string message);
 
         bool? ShowCashSaleDialog(decimal total, out string customerName, out string customerPhone, out string paymentMethod);
-        bool? ShowCreditSaleDialog(decimal total, out string customerName, out string customerPhone, out decimal paidAmount, out string paymentMethod);
+
         bool? ShowInputDialog(string title, string message, string defaultValue, out string result);
         void ShowInvoiceViewDialog(string invoiceNumber);
         bool? ShowUserFormDialog(UserFormViewModel viewModel);
         bool? ShowProductFormDialog(ProductFormViewModel viewModel);
         void ShowCustomerInvoicesDialog(int customerId, string customerName);
-        bool ShowCustomerPaymentDialog(Dictionary<string, object> customer);
         bool? ShowExpenseDialog(ExpenseFormViewModel viewModel);
         bool? ShowSupplierFormDialog(SupplierFormViewModel viewModel);
         bool? ShowSupplierPurchaseDialog(string supplierName, decimal currentDebt, out decimal purchaseAmount, out string paymentMethod, out decimal paidAmount);

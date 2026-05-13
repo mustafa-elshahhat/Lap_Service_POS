@@ -27,7 +27,6 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                 Phone = SafeConvert.ToString(row["phone"]),
                 Address = SafeConvert.ToString(row["address"]),
                 Notes = SafeConvert.ToString(row["notes"]),
-                TotalCredit = SafeConvert.ToDecimal(row["total_credit"]),
                 CreatedAt = SafeConvert.ToDateTime(row["created_at"]) ?? DateTime.MinValue,
                 UpdatedAt = SafeConvert.ToDateTime(row["updated_at"]) ?? DateTime.MinValue
             };
@@ -65,15 +64,6 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                    { "@address", customer.Address },
                    { "@notes", customer.Notes }
                });
-        }
-
-        public void UpdateCredit(int id, decimal amountDelta)
-        {
-            _db.Execute(@"
-                UPDATE customers 
-                SET total_credit = total_credit + @amount, updated_at = datetime('now')
-                WHERE id = @id",
-                new Dictionary<string, object> { { "@amount", amountDelta }, { "@id", id } });
         }
 
         public void Delete(int id)
@@ -119,16 +109,5 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             return list;
         }
 
-        public List<Customer> GetWithCredit()
-        {
-            var rows = _db.FetchAll(@"
-                SELECT * FROM customers 
-                WHERE total_credit > 0
-                ORDER BY total_credit DESC");
-            
-            var list = new List<Customer>();
-            foreach (var row in rows) list.Add(MapToEntity(row));
-            return list;
-        }
     }
 }

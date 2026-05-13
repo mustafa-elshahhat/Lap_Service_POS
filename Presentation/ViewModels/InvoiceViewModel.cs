@@ -195,7 +195,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             }
             else
             {
-                StatusText = "فاتورة آجلة";
+                StatusText = "غير مدفوعة";
                 StatusForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC2626"));
                 StatusBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FEF2F2"));
             }

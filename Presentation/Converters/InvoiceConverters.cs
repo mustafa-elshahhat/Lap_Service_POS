@@ -15,8 +15,7 @@ namespace CarPartsShopWPF.Presentation.Converters
             if (string.IsNullOrEmpty(type)) return "";
             return type.ToLower() switch
             {
-                "cash" => "كاش",
-                "credit" => "آجل",
+                "cash" => "نقدي",
                 _ => type
             };
         }

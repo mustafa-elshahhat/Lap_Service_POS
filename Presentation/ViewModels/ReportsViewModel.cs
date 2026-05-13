@@ -34,7 +34,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         private readonly IReportService _reportService;
         private readonly IReturnService _returnService;
         private readonly ISupplierService _supplierService;
-        private readonly ICustomerService _customerService;
         private readonly IDialogService _dialogService;
         private readonly IPrintService _printService;
 
@@ -54,7 +53,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             _reportService = ServiceContainer.GetService<IReportService>();
             _returnService = ServiceContainer.GetService<IReturnService>();
             _supplierService = ServiceContainer.GetService<ISupplierService>();
-            _customerService = ServiceContainer.GetService<ICustomerService>();
             _dialogService = dialogService ?? ServiceContainer.GetService<IDialogService>();
             _printService = ServiceContainer.GetService<IPrintService>();
 
@@ -125,9 +123,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                     case "Inventory":
                         LoadInventoryReport();
                         break;
-                    case "Debt":
-                        LoadDebtReport();
-                        break;
                     case "Returns":
                         LoadReturnsReport();
                         break;
@@ -156,7 +151,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])), Icon = "💰", ColorKey = "Primary" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المحصل", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_received"])), Icon = "💵", ColorKey = "Success" });
             KpiCards.Add(new KpiCardViewModel { Title = "سدادات عملاء", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["payments_received"])), Icon = "📥", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "مبيعات آجل", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["credit_sales"])), Icon = "📝", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "قيمة المرتجعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])), Icon = "↩️", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "مبالغ مستردة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_refunds"])), Icon = "📤", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "مصروفات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])), Icon = "💸", ColorKey = "Danger" });
@@ -173,7 +167,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             {
                 new ReportColumn { Header = "الموظف", BindingPath = "UserName" },
                 new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
-                new ReportColumn { Header = "نظام البيع", BindingPath = "SaleType" },
                 new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "N2" },
                 new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "N2" },
                 new ReportColumn { Header = "التفاصيل", BindingPath = "Details" },
@@ -207,7 +200,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي التحصيل", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_received"])), Icon = "💵", ColorKey = "Info" });
             KpiCards.Add(new KpiCardViewModel { Title = "مبالغ مستردة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_refunds"])), Icon = "📤", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "قيمة المرتجعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])), Icon = "↩️", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الديون الجديدة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["credit_sales"])), Icon = "📝", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "تحصيل نقدي", Value = Formatting.FormatCurrency(totalCash), Icon = "💵", ColorKey = "Success" });
             KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي", Value = Formatting.FormatCurrency(totalInstapay), Icon = "🏦", ColorKey = "Primary" });
 
@@ -222,7 +214,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             {
                 new ReportColumn { Header = "الموظف", BindingPath = "UserName" },
                 new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
-                new ReportColumn { Header = "نظام البيع", BindingPath = "SaleType" },
                 new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "N2" },
                 new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "N2" },
                 new ReportColumn { Header = "العميل", BindingPath = "Details" },
@@ -331,29 +322,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                 _currentColumns = new List<ReportColumn>();
                 ColumnsChanged?.Invoke(this, _currentColumns);
             }
-        }
-
-        private void LoadDebtReport()
-        {
-            ReportTitle = "تقرير الديون";
-            ReportSubtitle = "مديونيات العملاء المستحقة";
-            DetailHeader = "العملاء المدينين";
-
-            var customers = _customerService.GetCustomersWithCredit();
-            decimal totalDebt = customers.Sum(c => c.TotalCredit);
-
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الديون", Value = Formatting.FormatCurrency(totalDebt), Icon = "🔴", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "عدد العملاء", Value = customers.Count.ToString(), Icon = "👥", ColorKey = "Primary" });
-
-            ReportData = new ObservableCollection<object>(customers);
-
-            _currentColumns = new List<ReportColumn>
-            {
-                new ReportColumn { Header = "الدين الحالي", BindingPath = "TotalCredit", Format = "N2", IsProperty = true },
-                new ReportColumn { Header = "الهاتف", BindingPath = "Phone", IsProperty = true },
-                new ReportColumn { Header = "العميل", BindingPath = "Name", IsProperty = true }
-            };
-            ColumnsChanged?.Invoke(this, _currentColumns);
         }
 
         private void LoadSuppliersReport()

@@ -96,7 +96,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
 
         public ICommand CloseCommand => new RelayCommand(Close);
         public ICommand ViewDetailsCommand => new RelayCommand(ViewDetails, () => SelectedInvoice != null);
-        public ICommand PayDebtCommand => new RelayCommand(PayDebt, () => SelectedInvoice != null);
         public ICommand PrintCommand => new RelayCommand(Print, () => SelectedInvoice != null);
 
         #endregion
@@ -146,43 +145,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             _dialogService.ShowInvoiceViewDialog(invNum);
         }
 
-        private void PayDebt()
-        {
-             if (SelectedInvoice == null) return;
-
-             decimal remaining = SelectedInvoice.RemainingAmount;
-             if (remaining <= 0)
-             {
-                 _dialogService.ShowInfo("تنبيه", "هذه الفاتورة مدفوعة بالكامل ولا توجد مديونية.");
-                 return;
-             }
-             
-             if (_dialogService.ShowInputDialog("سداد فاتورة", 
-                 $"الفاتورة: {SelectedInvoice.InvoiceNumber}\nالمبلغ المتبقي: {Formatting.FormatCurrency(remaining)}\n\nأدخل مبلغ السداد:",
-                 remaining.ToString("N2"), out string answer) == true)
-             {
-                 if (decimal.TryParse(answer, out decimal amount) && amount > 0)
-                 {
-                     if (amount > remaining)
-                     {
-                         _dialogService.ShowWarning("تنبيه", "المبلغ المدفوع يتجاوز المديونية.");
-                         return;
-                     }
-
-                     try
-                     {
-                         int saleId = (int)SelectedInvoice.Id;
-                         RegisterPayment(saleId, amount);
-                         _dialogService.ShowSuccess("نجاح", "تم تسجيل السداد بنجاح");
-                     }
-                     catch (System.Exception ex)
-                     {
-                         _dialogService.ShowError("خطأ", ex.Message);
-                     }
-                 }
-             }
-        }
-
         public ICommand PrintStatementCommand => new RelayCommand(PrintStatement);
 
         private void Print()
@@ -212,7 +174,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                     {
                         { "رقم الفاتورة", inv.InvoiceNumber },
                         { "التاريخ", inv.SaleDate.ToString("yyyy-MM-dd") },
-                        { "النوع", inv.SaleType == "credit" ? "آجل" : "كاش" },
+                        { "النوع", "كاش" },
                         { "الإجمالي", Formatting.FormatCurrency(inv.TotalAmount) },
                         { "المدفوع", Formatting.FormatCurrency(inv.PaidAmount) },
                         { "المتبقي", Formatting.FormatCurrency(inv.RemainingAmount) }
@@ -247,12 +209,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             {
                 _dialogService.ShowError("خطأ", "فشل الطباعة: " + ex.Message);
             }
-        }
-
-        public void RegisterPayment(int saleId, decimal amount)
-        {
-             _saleService.PayInvoiceAmount(saleId, amount, "كاش", "سداد يدوي من قائمة الفواتير");
-             LoadInvoices();
         }
 
         private void Close()

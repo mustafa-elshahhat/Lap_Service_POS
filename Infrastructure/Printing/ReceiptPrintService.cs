@@ -166,7 +166,7 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             Section mainSection = new Section();
 
             string shopName = DatabaseManager.Instance.GetSetting("shop_name", "محل قطع غيار السيارات");
-            string typeDisplay = sale.SaleType == "credit" ? "بيع / آجل" : "بيع / نقدي";
+            string typeDisplay = "بيع / نقدي";
 
             bool logoLoaded = false;
             try 
@@ -242,7 +242,7 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             mainSection.Blocks.Add(CreateAlignedInfoTable(totalItems, true));
             mainSection.Blocks.Add(CreateSeparator());
 
-            string pMethod = sale.SaleType == "credit" ? "آجل" : "نقدي";
+            string pMethod = string.IsNullOrEmpty(sale.PaymentMethod) ? "نقدي" : sale.PaymentMethod;
             mainSection.Blocks.Add(new Paragraph(new Run($"طريقة الدفع : {pMethod}")) { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 1, 0, 1) });
             mainSection.Blocks.Add(CreateSeparator());
 

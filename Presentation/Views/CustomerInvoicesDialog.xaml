@@ -90,7 +90,6 @@
                                   SelectionChanged="FilterType_SelectionChanged">
                             <ComboBoxItem Content="الكل" IsSelected="True"/>
                             <ComboBoxItem Content="كاش" Tag="cash"/>
-                            <ComboBoxItem Content="آجل" Tag="credit"/>
                         </ComboBox>
                     </StackPanel>
                 </Grid>
@@ -165,7 +164,6 @@
                     <DataGrid.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="عرض تفاصيل الفاتورة" Click="ViewDetails_Click"/>
-                            <MenuItem Header="💰 سداد مديونية" Click="PayDebt_Click" Visibility="{Binding RemainingAmount, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             <Separator/>
                             <MenuItem Header="طباعة الفاتورة" Click="Print_Click"/>
                         </ContextMenu>

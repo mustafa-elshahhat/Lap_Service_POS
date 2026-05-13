@@ -46,35 +46,6 @@ namespace CarPartsShopWPF.Presentation.Services
             return false;
         }
 
-        public bool? ShowCreditSaleDialog(decimal total, out string customerName, out string customerPhone, out decimal paidAmount, out string paymentMethod)
-        {
-            customerName = null;
-            customerPhone = null;
-            paidAmount = 0;
-            paymentMethod = "Credit";
-
-            var vm = new CreditSaleViewModel(total, this, (result) => {});
-            var dialog = new CreditSaleDialog();
-            dialog.DataContext = vm;
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
-
-            vm.CloseAction = (result) =>
-            {
-                dialog.DialogResult = result;
-                dialog.Close();
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                customerName = vm.CustomerName;
-                customerPhone = vm.CustomerPhone;
-                paidAmount = vm.PaidAmount;
-                paymentMethod = vm.PaymentMethod;
-                return true;
-            }
-            return false;
-        }
-
         public bool? ShowInputDialog(string title, string message, string defaultValue, out string result)
         {
             result = null;
@@ -115,14 +86,6 @@ namespace CarPartsShopWPF.Presentation.Services
             var dialog = new CustomerInvoicesDialog(customerId, customerName);
             dialog.Owner = System.Windows.Application.Current.MainWindow;
             dialog.ShowDialog();
-        }
-
-        public bool ShowCustomerPaymentDialog(Dictionary<string, object> customer)
-        {
-            var dialog = new CustomerPaymentDialog(customer);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
-            dialog.ShowDialog();
-            return dialog.DataChanged;
         }
 
         public bool? ShowExpenseDialog(ExpenseFormViewModel viewModel)

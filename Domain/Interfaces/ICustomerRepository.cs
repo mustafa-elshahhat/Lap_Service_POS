@@ -10,11 +10,8 @@ namespace CarPartsShopWPF.Domain.Interfaces
         Customer GetByPhone(string phone);
         List<Customer> Search(string query);
         List<Customer> GetAll();
-        List<Customer> GetWithCredit();
-        
         long Create(Customer customer);
         void Update(Customer customer);
-        void UpdateCredit(int id, decimal amountDelta);
         void Delete(int id);
     }
 }

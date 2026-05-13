@@ -17,7 +17,6 @@ namespace CarPartsShopWPF.Application.Services
         public Customer GetById(int id) => _customerRepo.GetById(id);
         public List<Customer> SearchCustomers(string query) => _customerRepo.Search(query);
         public List<Customer> GetAllCustomers() => _customerRepo.GetAll();
-        public List<Customer> GetCustomersWithCredit() => _customerRepo.GetWithCredit();
         public void CreateCustomer(Customer customer) => _customerRepo.Create(customer);
         public void UpdateCustomer(Customer customer) => _customerRepo.Update(customer);
         public void DeleteCustomer(int id) => _customerRepo.Delete(id);

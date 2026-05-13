@@ -54,12 +54,6 @@ namespace CarPartsShopWPF.Presentation.Views
                 _viewModel.ViewDetailsCommand.Execute(null);
         }
 
-        private void PayDebt_Click(object sender, RoutedEventArgs e)
-        {
-             if (_viewModel.PayDebtCommand.CanExecute(null))
-                _viewModel.PayDebtCommand.Execute(null);
-        }
-
         private void Print_Click(object sender, RoutedEventArgs e)
         {
              if (_viewModel.PrintCommand.CanExecute(null))

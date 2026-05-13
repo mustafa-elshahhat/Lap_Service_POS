@@ -14,8 +14,7 @@ namespace CarPartsShopWPF.Infrastructure.SQLiteMigrations
             db.EnsureColumnExists("returns", "cash_refund", "REAL DEFAULT 0");
             db.EnsureColumnExists("returns", "debt_deduction", "REAL DEFAULT 0");
 
-            db.Execute("UPDATE returns SET cash_refund = total_amount WHERE cash_refund = 0 AND total_amount > 0 AND (payment_method != 'credit' AND payment_method != 'آجل')");
-            db.Execute("UPDATE returns SET debt_deduction = total_amount WHERE debt_deduction = 0 AND total_amount > 0 AND (payment_method = 'credit' OR payment_method = 'آجل')");
+            db.Execute("UPDATE returns SET cash_refund = total_amount WHERE cash_refund = 0 AND total_amount > 0");
 
             db.SetSetting("migration003_applied", "true");
             Logger.LogInfo("Migration003: Return financial columns and backfill applied.");

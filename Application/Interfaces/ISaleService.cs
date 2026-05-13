@@ -17,19 +17,11 @@ namespace CarPartsShopWPF.Application.Interfaces
             decimal discountAmount = 0, decimal markupAmount = 0,
             string notes = null, string paymentMethod = "كاش");
 
-        SaleOperationResult CreateCreditSale(List<SaleItem> items,
-            string customerName, string customerPhone = null,
-            decimal paidAmount = 0, decimal discountAmount = 0, decimal markupAmount = 0,
-            string notes = null, string paymentMethod = "كاش");
-
         Sale GetSaleById(int id);
         List<SaleItem> GetSaleItems(int saleId);
         List<Sale> GetSales(string query = null);
         List<Sale> GetSalesByCustomer(int customerId);
-        List<Sale> GetUnpaidInvoices(int customerId);
         List<Sale> GetSalesReport(string startDate, string endDate);
-        void PayInvoiceAmount(int saleId, decimal amount, string method, string notes);
-
         Sale GetByInvoiceNumber(string invoiceNumber);
         Dictionary<int, int> GetReturnedQuantities(int saleId);
         Dictionary<string, decimal> GetSalePaymentsBreakdown(int saleId);

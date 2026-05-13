@@ -21,8 +21,7 @@ namespace CarPartsShopWPF.Infrastructure.SQLiteMigrations
                 INSERT OR IGNORE INTO payment_methods_ref (id, name, display_name_ar) VALUES
                 (1, 'Cash', 'نقدي'),
                 (2, 'CreditCard', 'فيزا / كريدت كارد'),
-                (3, 'EWallet', 'محافظ إلكترونية'),
-                (4, 'Deferred', 'آجل')");
+                (3, 'EWallet', 'محافظ إلكترونية')");
 
             db.EnsureColumnExists("sales", "payment_method_id", "INTEGER");
             db.EnsureColumnExists("sale_payments", "payment_method_id", "INTEGER");

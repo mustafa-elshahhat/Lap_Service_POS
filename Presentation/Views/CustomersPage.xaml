@@ -43,17 +43,7 @@
                                 Margin="4,0"
                                 Command="{Binding AddCustomerCommand}"/>
 
-                        <Button Content="💰 المدينين"
-                                Style="{DynamicResource WarningButton}"
-                                Width="120"
-                                Margin="4,0"
-                                Command="{Binding ShowDebtorsCommand}"/>
-                        <Button Content="💵 سداد"
-                                Style="{DynamicResource SecondaryButton}"
-                                Width="100"
-                                Margin="4,0"
-                                Command="{Binding PayDebtCommand}"/>
-                        <Button Content="🔄 عرض الكل"
+                        <Button Content=" عرض الكل"
                                 Style="{DynamicResource DarkButton}"
                                 Width="140"
                                 Margin="4,0"
@@ -128,20 +118,11 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="المديونية" Binding="{Binding TotalDebt, StringFormat=N2}" Width="Auto">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
-                                    <Setter Property="Foreground" Value="{DynamicResource WarningDarkBrush}"/>
-                                    <Setter Property="FontWeight" Value="SemiBold"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
                     </DataGrid.Columns>
                     
                     <DataGrid.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="عرض التفاصيل" Command="{Binding ViewDetailsCommand}"/>
-                            <MenuItem Header="سداد دين" Command="{Binding PayDebtCommand}"/>
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
