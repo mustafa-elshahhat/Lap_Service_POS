@@ -119,10 +119,6 @@
                                 
                                 <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="24,12" Opacity="0.1"/>
                                 
-                                <RadioButton Content="📈 تقرير الأرباح" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="Profit"/>
-                                
-                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="24,12" Opacity="0.1"/>
-                                
                                 <RadioButton Content=" ديون الموردين" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="Suppliers"/>
                             </StackPanel>
                         </ScrollViewer>

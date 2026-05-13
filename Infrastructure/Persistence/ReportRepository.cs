@@ -93,6 +93,20 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                                      - SafeConvert.ToDecimal(summary["total_expenses"])
                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
 
+            var maintenanceDailyQuery = _db.FetchOne(@"
+                SELECT COALESCE(SUM(total_amount), 0) as maintenance_total
+                FROM repair_orders
+                WHERE order_date >= @start AND order_date < @end", args);
+            summary["maintenance_total"] = SafeConvert.ToDecimal(maintenanceDailyQuery["maintenance_total"]);
+
+            var dailySalePayments = _db.FetchAll(@"
+                SELECT payment_method, SUM(amount) as total FROM sale_payments
+                WHERE payment_date >= @start AND payment_date < @end GROUP BY payment_method", args);
+            var dailyPayments = new Dictionary<string, decimal>();
+            foreach (var p in dailySalePayments)
+                dailyPayments[SafeConvert.ToString(p["payment_method"])] = SafeConvert.ToDecimal(p["total"]);
+            summary["payment_details"] = dailyPayments;
+
             return summary;
         }
 
@@ -175,6 +189,12 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                                      - SafeConvert.ToDecimal(summary["cash_refunds"]) 
                                      - SafeConvert.ToDecimal(summary["total_expenses"]) 
                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
+
+            var maintenancePeriodQuery = _db.FetchOne(@"
+                SELECT COALESCE(SUM(total_amount), 0) as maintenance_total
+                FROM repair_orders
+                WHERE order_date >= @start AND order_date < @end", args);
+            summary["maintenance_total"] = SafeConvert.ToDecimal(maintenancePeriodQuery["maintenance_total"]);
 
             var salePayments = _db.FetchAll(@"
                 SELECT payment_method, SUM(amount) as total FROM sale_payments

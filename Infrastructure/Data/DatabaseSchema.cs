@@ -211,6 +211,26 @@ namespace CarPartsShopWPF.Infrastructure.Data
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )",
 
+                @"CREATE TABLE IF NOT EXISTS repair_orders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    order_number TEXT UNIQUE NOT NULL,
+                    customer_id INTEGER,
+                    user_id INTEGER NOT NULL,
+                    device_description TEXT,
+                    problem_description TEXT,
+                    service_cost REAL NOT NULL DEFAULT 0,
+                    parts_cost REAL DEFAULT 0,
+                    total_amount REAL NOT NULL DEFAULT 0,
+                    payment_method TEXT DEFAULT 'نقدي',
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    completion_date TIMESTAMP,
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (customer_id) REFERENCES customers(id),
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )",
+
                 "CREATE INDEX IF NOT EXISTS idx_products_code ON products(code)",
                 "CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode)",
                 "CREATE INDEX IF NOT EXISTS idx_products_name ON products(name)",
@@ -224,6 +244,8 @@ namespace CarPartsShopWPF.Infrastructure.Data
                 "CREATE INDEX IF NOT EXISTS idx_supplier_transactions_date ON supplier_transactions(transaction_date)",
                 "CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date)",
                 "CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)",
+                "CREATE INDEX IF NOT EXISTS idx_repair_orders_date ON repair_orders(order_date)",
+                "CREATE INDEX IF NOT EXISTS idx_repair_orders_status ON repair_orders(status)",
             };
         }
     }

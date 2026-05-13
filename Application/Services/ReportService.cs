@@ -30,19 +30,6 @@ namespace CarPartsShopWPF.Application.Services
             return GetPeriodSummary(startDate, endDate);
         }
 
-        public Dictionary<string, object> GetProfitSummary(string startDate, string endDate)
-        {
-            var summary = GetPeriodSummary(startDate, endDate);
-            return new Dictionary<string, object>
-            {
-                { "revenue", summary["gross_sales"] },
-                { "gross_profit", summary["gross_profit"] },
-                { "returns_value", summary["returns_value"] },
-                { "total_expenses", summary["total_expenses"] },
-                { "net_profit", summary["net_profit"] }
-            };
-        }
-
         private Dictionary<string, object> GetPeriodSummary(string startDate, string endDate)
         {
             var data = _reportRepo.GetPeriodSummary(startDate, endDate);
@@ -63,6 +50,7 @@ namespace CarPartsShopWPF.Application.Services
                 { "gross_profit", SafeConvert.ToDecimal(data["gross_profit"]) },
                 { "lost_profit", SafeConvert.ToDecimal(data["lost_profit"]) },
                 { "net_profit", SafeConvert.ToDecimal(data["net_profit"]) },
+                { "maintenance_total", SafeConvert.ToDecimal(data["maintenance_total"]) },
                 { "payment_details", data["payment_details"] }
             };
         }

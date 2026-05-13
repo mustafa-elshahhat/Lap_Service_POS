@@ -126,9 +126,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                     case "Returns":
                         LoadReturnsReport();
                         break;
-                    case "Profit":
-                        LoadProfitReport();
-                        break;
                     case "Suppliers":
                         LoadSuppliersReport();
                         break;
@@ -147,17 +144,22 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             DetailHeader = "العمليات اليومية";
 
             var summary = _reportService.GetDailySummary();
+            var methods = summary["payment_details"] as Dictionary<string, decimal>;
 
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])), Icon = "💰", ColorKey = "Primary" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المحصل", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_received"])), Icon = "💵", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "سدادات عملاء", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["payments_received"])), Icon = "📥", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "قيمة المرتجعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])), Icon = "↩️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "مبالغ مستردة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_refunds"])), Icon = "📤", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "مصروفات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])), Icon = "💸", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "سداد موردين", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_supplier_payments"])), Icon = "🚚", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي حركة الصندوق", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_cash_flow"])), Icon = "🏦", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])), Icon = "📈", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "عدد الفواتير", Value = SafeConvert.ToInt(summary["invoice_count"]).ToString(), Icon = "📄", ColorKey = "Data" });
+            decimal cash     = GetMethodSum(methods, PaymentMethods.Cash, "Cash", "نقد", "كاش", "نقدي");
+            decimal instapay = GetMethodSum(methods, PaymentMethods.InstaPay, "Insta", "إنستا");
+            decimal ewallet  = GetMethodSum(methods, PaymentMethods.EWallet, "Vodafone", "فودافون", "Wallet", "محفظة");
+
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",   Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),           Icon = "💰", ColorKey = "Primary" });
+            KpiCards.Add(new KpiCardViewModel { Title = "أرباح اليوم",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_profit"])),          Icon = "�", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),            Icon = "�", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "التحصيل النقدي",     Value = Formatting.FormatCurrency(cash),                                                    Icon = "💵", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي",           Value = Formatting.FormatCurrency(instapay),                                                Icon = "🏦", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "محافظ إلكترونية",    Value = Formatting.FormatCurrency(ewallet),                                                 Icon = "�", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات",           Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),         Icon = "↩️", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات",           Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),        Icon = "💸", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "سداد الموردين",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_supplier_payments"])), Icon = "�", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة",             Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),     Icon = "�", ColorKey = "Warning" });
 
             string today = DateTime.Today.ToString("yyyy-MM-dd");
             var operations = _reportService.GetOperationsReport(today, today);
@@ -191,17 +193,22 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             var summary = _reportService.GetMonthlySummary(year, month);
             var methods = summary["payment_details"] as Dictionary<string, decimal>;
 
-            decimal totalCash = GetMethodSum(methods, PaymentMethods.Cash, "Cash", "نقد", "كاش", "نقدي");
-            decimal totalWallets = GetMethodSum(methods, PaymentMethods.EWallet, "Vodafone", "فودافون", "Wallet", "محفظة");
+            decimal totalCash     = GetMethodSum(methods, PaymentMethods.Cash, "Cash", "نقد", "كاش", "نقدي");
             decimal totalInstapay = GetMethodSum(methods, PaymentMethods.InstaPay, "Insta", "إنستا");
+            decimal totalWallets  = GetMethodSum(methods, PaymentMethods.EWallet, "Vodafone", "فودافون", "Wallet", "محفظة");
 
-            KpiCards.Add(new KpiCardViewModel { Title = "مبيعات الشهر", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])), Icon = "📅", ColorKey = "Primary" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي الأرباح", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])), Icon = "💎", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي التحصيل", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_received"])), Icon = "💵", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "مبالغ مستردة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["cash_refunds"])), Icon = "📤", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "قيمة المرتجعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])), Icon = "↩️", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "تحصيل نقدي", Value = Formatting.FormatCurrency(totalCash), Icon = "💵", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي", Value = Formatting.FormatCurrency(totalInstapay), Icon = "🏦", ColorKey = "Primary" });
+            decimal totalSupplierDebt = _supplierService.GetAllSuppliers().Sum(s => s.TotalDebt);
+
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),           Icon = "📅", ColorKey = "Primary" });
+            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح الشهري",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),            Icon = "💎", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),         Icon = "↩️", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),        Icon = "�", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي التحصيل النقدي",   Value = Formatting.FormatCurrency(totalCash),                                               Icon = "💵", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي إنستا باي",         Value = Formatting.FormatCurrency(totalInstapay),                                           Icon = "🏦", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المحافظ",           Value = Formatting.FormatCurrency(totalWallets),                                            Icon = "📱", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي سداد الموردين",    Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_supplier_payments"])), Icon = "🚚", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "ديون الموردين",            Value = Formatting.FormatCurrency(totalSupplierDebt),                                       Icon = "⚠️", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الصيانة",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),     Icon = "🔧", ColorKey = "Warning" });
 
             string startDate = $"{year}-{month:D2}-01";
             DateTime endDateTime = new DateTime(year, month, DateTime.DaysInMonth(year, month));
@@ -220,41 +227,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                 new ReportColumn { Header = "التاريخ", BindingPath = "Date", Format = "yyyy-MM-dd HH:mm" },
                 new ReportColumn { Header = "رقم العملية", BindingPath = "Reference" },
                 new ReportColumn { Header = "العملية", BindingPath = "OperationName" }
-            };
-            ColumnsChanged?.Invoke(this, _currentColumns);
-        }
-
-        private void LoadProfitReport()
-        {
-            ReportTitle = "تقرير الأرباح";
-            ReportSubtitle = "تحليل الأداء المالي";
-            DetailHeader = "ملخص الفترة";
-
-            var start = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).ToString("yyyy-MM-dd");
-            var end = DateTime.Today.ToString("yyyy-MM-dd");
-
-            var report = _reportService.GetProfitSummary(start, end);
-
-            KpiCards.Add(new KpiCardViewModel { Title = "الإيرادات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["revenue"])), Icon = "💰", ColorKey = "Primary" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الربح", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["gross_profit"])), Icon = "📈", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "قيمة المرتجعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["returns_value"])), Icon = "↩️", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["total_expenses"])), Icon = "💸", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الربح الصافي", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["net_profit"])), Icon = "💎", ColorKey = "Info" });
-
-            var stats = new List<dynamic>
-            {
-                new { Title = "إجمالي الإيرادات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["revenue"])) },
-                new { Title = "إجمالي الربح من المبيعات", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["gross_profit"])) },
-                new { Title = "قيمة المرتجعات (-)", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["returns_value"])) },
-                new { Title = "إجمالي المصروفات (-)", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["total_expenses"])) },
-                new { Title = "صافي الربح", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(report["net_profit"])) }
-            };
-            ReportData = new ObservableCollection<object>(stats);
-
-            _currentColumns = new List<ReportColumn>
-            {
-                new ReportColumn { Header = "القيمة", BindingPath = "Value", IsProperty = true },
-                new ReportColumn { Header = "البيان", BindingPath = "Title", IsProperty = true }
             };
             ColumnsChanged?.Invoke(this, _currentColumns);
         }

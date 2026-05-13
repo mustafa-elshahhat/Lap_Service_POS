@@ -53,7 +53,6 @@
                                        FontFamily="{DynamicResource MainFontSemibold}"/>
                             
                             <RadioButton x:Name="TabGeneral" Content="🏢 بيانات المحل" Style="{DynamicResource TabRadioButton}" IsChecked="True"/>
-                            <RadioButton x:Name="TabPrinting" Content="🖨️ إعدادات الطباعة" Style="{DynamicResource TabRadioButton}"/>
                             <RadioButton x:Name="TabBackup" Content="🛡️ النسخ الاحتياطي" Style="{DynamicResource TabRadioButton}"/>
                         </StackPanel>
                     </ScrollViewer>
@@ -77,24 +76,6 @@
                               <Label Content="رقم الهاتف للتواصل" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                               <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ShopPhone, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
-                        
-                        
-                        
-                        
-                        
-                        
-                        <StackPanel x:Name="SectionPrinting" Visibility="{Binding IsChecked, ElementName=TabPrinting, Converter={StaticResource BooleanToVisibilityConverter}}">
-                              <TextBlock Text="إعدادات الطباعة" FontSize="28" FontWeight="Bold" FontFamily="{DynamicResource MainFontSemibold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                              <TextBlock Text="تكوين الطابعات الافتراضية للفواتير والتقارير" FontSize="14" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,32"/>
-                              
-                              <Label Content="طابعة الفواتير (Thermal 80mm)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ReceiptPrinterName, UpdateSourceTrigger=PropertyChanged}"/>
-                              <TextBlock Text="اترك الحقل فارغاً لاستخدام طابعة الويندوز الافتراضية" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="4,-15,0,20"/>
-
-                              <Label Content="طابعة التقارير (A4)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ReportPrinterName, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        
                         
                         <StackPanel x:Name="SectionBackup" Visibility="{Binding IsChecked, ElementName=TabBackup, Converter={StaticResource BooleanToVisibilityConverter}}">
                               <TextBlock Text="النسخ الاحتياطي" FontSize="28" FontWeight="Bold" FontFamily="{DynamicResource MainFontSemibold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>

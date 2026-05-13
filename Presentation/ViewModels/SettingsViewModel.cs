@@ -18,9 +18,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         private int _maxDiscountPercent;
         private int _maxMarkupPercent;
         private int _lowStockThreshold;
-        private string _receiptPrinterName;
-        private string _reportPrinterName;
-
         public SettingsViewModel(IDialogService dialogService = null)
         {
             _dialogService = dialogService ?? ServiceContainer.GetService<IDialogService>();
@@ -66,18 +63,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             set => SetProperty(ref _lowStockThreshold, value);
         }
 
-        public string ReceiptPrinterName
-        {
-            get => _receiptPrinterName;
-            set => SetProperty(ref _receiptPrinterName, value);
-        }
-
-        public string ReportPrinterName
-        {
-            get => _reportPrinterName;
-            set => SetProperty(ref _reportPrinterName, value);
-        }
-
         #endregion
 
         #region Commands
@@ -99,8 +84,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             MaxDiscountPercent = (int)SafeConvert.ToDecimal(_settingsService.GetSetting("max_discount_percent", "10.0"));
             MaxMarkupPercent = (int)SafeConvert.ToDecimal(_settingsService.GetSetting("max_markup_percent", "20.0"));
             LowStockThreshold = SafeConvert.ToInt(_settingsService.GetSetting("low_stock_threshold", "5"));
-            ReceiptPrinterName = _settingsService.GetSetting("receipt_printer_name", "");
-            ReportPrinterName = _settingsService.GetSetting("report_printer_name", "");
         }
 
         private void SaveSettings()
@@ -119,9 +102,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                 _settingsService.SetSetting("max_discount_percent", MaxDiscountPercent.ToString());
                 _settingsService.SetSetting("max_markup_percent", MaxMarkupPercent.ToString());
                 _settingsService.SetSetting("low_stock_threshold", LowStockThreshold.ToString());
-                _settingsService.SetSetting("receipt_printer_name", ReceiptPrinterName);
-                _settingsService.SetSetting("report_printer_name", ReportPrinterName);
-
                 _dialogService.ShowSuccess("نجاح", "تم حفظ الإعدادات بنجاح");
             }
             catch (Exception ex)

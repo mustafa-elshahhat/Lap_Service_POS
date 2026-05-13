@@ -6,7 +6,6 @@ namespace CarPartsShopWPF.Application.Interfaces
     {
         Dictionary<string, object> GetDailySummary(string targetDate = null);
         Dictionary<string, object> GetMonthlySummary(int year, int month);
-        Dictionary<string, object> GetProfitSummary(string startDate, string endDate);
         List<Dictionary<string, object>> GetOperationsReport(string startDate, string endDate);
     }
 }
