@@ -17,13 +17,7 @@ namespace AlJohary.ServiceHub.Infrastructure.SQLiteMigrations
 
             try
             {
-                string appPath = AppContext.BaseDirectory;
-                if (string.IsNullOrEmpty(appPath)) appPath = AppDomain.CurrentDomain.BaseDirectory;
-                if (string.IsNullOrEmpty(appPath)) appPath = Directory.GetCurrentDirectory();
-
-                string backupDir = Path.Combine(appPath, "backups", "migrations");
-                if (!Directory.Exists(backupDir)) Directory.CreateDirectory(backupDir);
-
+                string backupDir = AppPaths.MigrationBackups;
                 string backupFile = db.Backup(backupDir);
                 Logger.LogInfo($"Migration002: Safety backup created at {backupFile}");
 

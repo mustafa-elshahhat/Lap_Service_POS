@@ -5,7 +5,7 @@ namespace AlJohary.ServiceHub.Shared.Helpers
 {
     public static class Logger
     {
-        private static readonly string LogPath = Path.Combine(AppContext.BaseDirectory ?? AppDomain.CurrentDomain.BaseDirectory ?? Directory.GetCurrentDirectory(), "AppErrors.log");
+        private static readonly string LogPath = AppPaths.LogFile;
 
         public static void LogException(Exception ex, string context = "")
         {
