@@ -58,11 +58,27 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             var rows = _db.FetchAll(@"
                 SELECT * FROM products 
                 WHERE is_active = 1 
-                AND (name LIKE @search OR code LIKE @search)
-                ORDER BY name
+                AND (
+                    name          LIKE @search OR
+                    code          LIKE @search OR
+                    category      LIKE @search OR
+                    supplier_name LIKE @search OR
+                    description   LIKE @search
+                )
+                ORDER BY
+                    CASE WHEN LOWER(code) = LOWER(@exact) THEN 0
+                         WHEN LOWER(name) LIKE @search     THEN 1
+                         ELSE 2
+                    END,
+                    name
                 LIMIT @limit",
-                new Dictionary<string, object> { { "@search", search }, { "@limit", limit } });
-            
+                new Dictionary<string, object>
+                {
+                    { "@search", search },
+                    { "@exact",  query  },
+                    { "@limit",  limit  }
+                });
+
             var list = new List<Product>();
             foreach (var row in rows) list.Add(MapToEntity(row));
             return list;

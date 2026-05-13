@@ -1,0 +1,154 @@
+<Window x:Class="CarPartsShopWPF.Presentation.Views.RepairDeviceDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="بيانات الجهاز"
+        Width="780" Height="520"
+        MinWidth="700"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        FlowDirection="RightToLeft"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Border Style="{DynamicResource StandardWindowContentBorder}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Button Style="{DynamicResource CloseButton}"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Click="CloseButton_Click"/>
+                <TextBlock Text="🔧 بيانات الجهاز والقطع"
+                           FontFamily="{DynamicResource MainFontSemibold}"
+                           FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryBrush}"
+                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+
+                    <!-- Device Info -->
+                    <Border Background="{DynamicResource BgCardBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                            CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="معلومات الجهاز"
+                                       FontFamily="{DynamicResource MainFontSemibold}"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       Margin="0,0,0,12"/>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <Label Content="نوع الجهاز *"/>
+                                    <ComboBox ItemsSource="{Binding DeviceTypes}"
+                                              SelectedItem="{Binding DeviceType}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Label Content="الماركة"/>
+                                    <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <Label Content="الموديل"/>
+                                    <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <Label Content="الحالة عند الاستلام"/>
+                                    <TextBox Text="{Binding Condition, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Label Content="الملحقات المستلمة"/>
+                                    <TextBox Text="{Binding Accessories, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <Label Content="المشكلة المبلغ عنها *"/>
+                                    <TextBox Text="{Binding ReportedIssue, UpdateSourceTrigger=PropertyChanged}"
+                                             AcceptsReturn="True" Height="52" TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Label Content="أجر العمل"/>
+                                    <TextBox Text="{Binding LaborCost, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <Label Content="الحالة"/>
+                                    <ComboBox ItemsSource="{Binding StatusOptionsAr}"
+                                              SelectedItem="{Binding SelectedStatusAr}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <Label Content="ملاحظات الفحص"/>
+                                    <TextBox Text="{Binding DiagnosisNotes, UpdateSourceTrigger=PropertyChanged}"
+                                             AcceptsReturn="True" Height="52" TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Label Content="ملاحظات الإصلاح"/>
+                                    <TextBox Text="{Binding RepairNotes, UpdateSourceTrigger=PropertyChanged}"
+                                             AcceptsReturn="True" Height="52" TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Footer buttons -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+                <Button Content="💾 حفظ الجهاز"
+                        Style="{DynamicResource PrimaryButton}"
+                        Width="140" Margin="8,0"
+                        Command="{Binding SaveCommand}"/>
+                <Button Content="إغلاق"
+                        Style="{DynamicResource DarkButton}"
+                        Width="100" Margin="8,0"
+                        Click="CloseButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

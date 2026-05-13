@@ -322,6 +322,32 @@ namespace CarPartsShopWPF.Infrastructure.Data
             return $"{prefix}-{datePart}-{seq:D4}";
         }
 
+        public string GenerateRepairOrderNumber()
+        {
+            string prefix = GetSetting("repair_order_prefix", "MNT");
+            string datePart = DateTime.Now.ToString("yyyyMMdd");
+
+            var result = FetchOne(
+                @"SELECT order_number FROM repair_orders 
+                  WHERE order_number LIKE @pattern
+                  ORDER BY id DESC LIMIT 1",
+                new Dictionary<string, object> { { "@pattern", $"{prefix}-{datePart}-%" } });
+
+            int seq = 1;
+            if (result != null)
+            {
+                string lastNumber = result["order_number"]?.ToString();
+                if (!string.IsNullOrEmpty(lastNumber))
+                {
+                    string[] parts = lastNumber.Split('-');
+                    if (parts.Length >= 3 && int.TryParse(parts[parts.Length - 1], out int lastSeq))
+                        seq = lastSeq + 1;
+                }
+            }
+
+            return $"{prefix}-{datePart}-{seq:D4}";
+        }
+
         public void EnsureSchemaExtended()
         {
              EnsureColumnExists("returns", "payment_method", "TEXT DEFAULT 'نقدي'");
@@ -430,7 +456,7 @@ namespace CarPartsShopWPF.Infrastructure.Data
         {
             var defaultSettings = new Dictionary<string, (string value, string description)>
             {
-                { "shop_name", ("محل قطع غيار السيارات", "اسم المحل") },
+                { "shop_name", ("الجوهري", "اسم المحل") },
                 { "shop_address", ("", "عنوان المحل") },
                 { "shop_phone", ("", "رقم هاتف المحل") },
                 { "max_discount_percent", ("10.0", "الحد الأقصى للخصم (%)") },
@@ -448,6 +474,18 @@ namespace CarPartsShopWPF.Infrastructure.Data
                         { "@value", setting.Value.value },
                         { "@desc", setting.Value.description }
                     });
+            }
+
+            MigrateBranding();
+        }
+
+        private void MigrateBranding()
+        {
+            var oldDefaults = new[] { "محل قطع غيار السيارات", "الهندسية", "خدمة الصيانة", "نظام إدارة قطع الغيار" };
+            foreach (var old in oldDefaults)
+            {
+                Execute(@"UPDATE settings SET value = 'الجوهري' WHERE key = 'shop_name' AND value = @old",
+                    new Dictionary<string, object> { { "@old", old } });
             }
         }
     }

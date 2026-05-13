@@ -99,13 +99,7 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                 WHERE order_date >= @start AND order_date < @end", args);
             summary["maintenance_total"] = SafeConvert.ToDecimal(maintenanceDailyQuery["maintenance_total"]);
 
-            var dailySalePayments = _db.FetchAll(@"
-                SELECT payment_method, SUM(amount) as total FROM sale_payments
-                WHERE payment_date >= @start AND payment_date < @end GROUP BY payment_method", args);
-            var dailyPayments = new Dictionary<string, decimal>();
-            foreach (var p in dailySalePayments)
-                dailyPayments[SafeConvert.ToString(p["payment_method"])] = SafeConvert.ToDecimal(p["total"]);
-            summary["payment_details"] = dailyPayments;
+            AddPaymentBreakdowns(summary, args);
 
             return summary;
         }
@@ -196,13 +190,7 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                 WHERE order_date >= @start AND order_date < @end", args);
             summary["maintenance_total"] = SafeConvert.ToDecimal(maintenancePeriodQuery["maintenance_total"]);
 
-            var salePayments = _db.FetchAll(@"
-                SELECT payment_method, SUM(amount) as total FROM sale_payments
-                WHERE payment_date >= @start AND payment_date < @end GROUP BY payment_method", args);
-            var payments = new Dictionary<string, decimal>();
-            foreach (var p in salePayments)
-                payments[SafeConvert.ToString(p["payment_method"])] = SafeConvert.ToDecimal(p["total"]);
-            summary["payment_details"] = payments;
+            AddPaymentBreakdowns(summary, args);
 
             return summary;
         }
@@ -258,6 +246,40 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
 
                 ORDER BY Date DESC",
                 args);
+        }
+
+        private void AddPaymentBreakdowns(Dictionary<string, object> summary, Dictionary<string, object> args)
+        {
+            var inflowRows = _db.FetchAll(@"
+                SELECT payment_method, SUM(amount) as total FROM (
+                    SELECT payment_method, amount FROM sale_payments
+                    WHERE payment_date >= @start AND payment_date < @end
+                    UNION ALL
+                    SELECT payment_method, amount FROM repair_payments
+                    WHERE payment_date >= @start AND payment_date < @end
+                ) GROUP BY payment_method", args);
+
+            var inflows = new Dictionary<string, decimal>();
+            foreach (var r in inflowRows)
+                inflows[SafeConvert.ToString(r["payment_method"])] = SafeConvert.ToDecimal(r["total"]);
+
+            var outflowRows = _db.FetchAll(@"
+                SELECT payment_method, SUM(amount) as total FROM (
+                    SELECT payment_method, amount FROM expenses
+                    WHERE expense_date >= @start AND expense_date < @end
+                    UNION ALL
+                    SELECT payment_method, amount FROM supplier_transactions
+                    WHERE transaction_type = 'payment'
+                    AND transaction_date >= @start AND transaction_date < @end
+                ) GROUP BY payment_method", args);
+
+            var outflows = new Dictionary<string, decimal>();
+            foreach (var r in outflowRows)
+                outflows[SafeConvert.ToString(r["payment_method"])] = SafeConvert.ToDecimal(r["total"]);
+
+            summary["payment_inflows"]  = inflows;
+            summary["payment_outflows"] = outflows;
+            summary["payment_details"]  = inflows;
         }
 
         private (string start, string end) GetDateRange(string date)

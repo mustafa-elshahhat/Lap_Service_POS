@@ -6,6 +6,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using CarPartsShopWPF.Domain.Entities;
 using CarPartsShopWPF.Infrastructure.Data;
+using System.Linq;
 
 using System.Printing;
 
@@ -23,6 +24,18 @@ namespace CarPartsShopWPF.Infrastructure.Printing
         {
             var doc = CreateReturnDocument(@return, items);
             PrintDocument(doc, "ReturnReceipt_" + @return.ReturnNumber);
+        }
+
+        public void PrintRepairIntake(RepairOrder order, List<RepairDevice> devices)
+        {
+            var doc = CreateRepairIntakeDocument(order, devices);
+            PrintDocument(doc, "RepairIntake_" + order.OrderNumber);
+        }
+
+        public void PrintRepairInvoice(RepairOrder order, List<RepairDevice> devices, List<RepairPart> parts, List<RepairPayment> payments)
+        {
+            var doc = CreateRepairInvoiceDocument(order, devices, parts, payments);
+            PrintDocument(doc, "RepairInvoice_" + order.OrderNumber, 1120);
         }
 
         private void PrintDocument(FlowDocument doc, string jobName, double? fixedHeight = null)
@@ -129,7 +142,7 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             
             Section mainSection = new Section();
 
-            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "محل قطع غيار السيارات");
+            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
             string typeDisplay = "بيع / نقدي";
 
             bool logoLoaded = false;
@@ -283,7 +296,7 @@ namespace CarPartsShopWPF.Infrastructure.Printing
 
             Section mainSection = new Section();
 
-            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "محل قطع غيار السيارات");
+            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
             
             bool logoLoaded = false;
             try 
@@ -361,6 +374,139 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             mainSection.Blocks.Add(CreateSeparator());
 
             doc.Blocks.Add(mainSection);
+            return doc;
+        }
+
+        private FlowDocument CreateRepairIntakeDocument(RepairOrder order, List<RepairDevice> devices)
+        {
+            FlowDocument doc = new FlowDocument();
+            doc.FontFamily = new FontFamily("Courier New");
+            doc.FontSize = 10;
+            doc.FlowDirection = FlowDirection.RightToLeft;
+            doc.IsOptimalParagraphEnabled = false;
+            doc.IsHyphenationEnabled = false;
+
+            Section s = new Section();
+            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
+
+            s.Blocks.Add(new Paragraph(new Run(shopName)) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 4) });
+            s.Blocks.Add(new Paragraph(new Run("إيصال استلام جهاز للصيانة")) { FontSize = 11, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2) });
+            s.Blocks.Add(CreateSeparator());
+
+            var info = new List<(string, string)>
+            {
+                ("رقم الطلب",       order.OrderNumber),
+                ("التاريخ",         order.IntakeDate.ToString("yyyy-MM-dd")),
+                ("العميل",          order.CustomerName ?? "-"),
+                ("الهاتف",          order.CustomerPhone ?? "-"),
+                ("الفني",           order.TechnicianName ?? "-"),
+                ("التسليم المتوقع", order.ExpectedDelivery?.ToString("yyyy-MM-dd") ?? "-")
+            };
+            s.Blocks.Add(CreateAlignedInfoTable(info));
+            s.Blocks.Add(CreateSeparator());
+
+            s.Blocks.Add(new Paragraph(new Run("الأجهزة المستلمة")) { FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2) });
+
+            foreach (var d in devices)
+            {
+                var deviceInfo = new List<(string, string)>
+                {
+                    ("النوع",      $"{d.DeviceType} {d.Brand} {d.Model}".Trim()),
+                    ("السيريال",   string.IsNullOrEmpty(d.SerialNumber) ? "-" : d.SerialNumber),
+                    ("الحالة",     string.IsNullOrEmpty(d.Condition) ? "-" : d.Condition),
+                    ("المشكلة",    d.ReportedIssue),
+                    ("الملحقات",   string.IsNullOrEmpty(d.Accessories) ? "-" : d.Accessories)
+                };
+                s.Blocks.Add(CreateAlignedInfoTable(deviceInfo));
+                s.Blocks.Add(new Paragraph(new Run("· · ·")) { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 1, 0, 1) });
+            }
+
+            s.Blocks.Add(CreateSeparator());
+            if (!string.IsNullOrEmpty(order.Notes))
+                s.Blocks.Add(new Paragraph(new Run("ملاحظات: " + order.Notes)) { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 2, 0, 2) });
+
+            s.Blocks.Add(new Paragraph(new Run("توقيع العميل: ___________________")) { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 8, 0, 2) });
+            s.Blocks.Add(CreateSeparator());
+            s.Blocks.Add(new Paragraph(new Run("شكراً لثقتكم بنا")) { TextAlignment = TextAlignment.Center, FontWeight = FontWeights.Bold });
+            s.Blocks.Add(CreateSeparator());
+
+            doc.Blocks.Add(s);
+            return doc;
+        }
+
+        private FlowDocument CreateRepairInvoiceDocument(RepairOrder order, List<RepairDevice> devices, List<RepairPart> parts, List<RepairPayment> payments)
+        {
+            FlowDocument doc = new FlowDocument();
+            doc.FontFamily = new FontFamily("Courier New");
+            doc.FontSize = 10;
+            doc.FlowDirection = FlowDirection.RightToLeft;
+            doc.IsOptimalParagraphEnabled = false;
+            doc.IsHyphenationEnabled = false;
+            doc.PageWidth = 580;
+            doc.PagePadding = new Thickness(20);
+
+            Section s = new Section();
+            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
+
+            s.Blocks.Add(new Paragraph(new Run(shopName)) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 4) });
+            s.Blocks.Add(new Paragraph(new Run("فاتورة صيانة")) { FontSize = 12, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2) });
+            s.Blocks.Add(CreateSeparator());
+
+            var info = new List<(string, string)>
+            {
+                ("رقم الطلب",  order.OrderNumber),
+                ("التاريخ",    order.IntakeDate.ToString("yyyy-MM-dd")),
+                ("التسليم",    order.DeliveryDate?.ToString("yyyy-MM-dd") ?? order.IntakeDate.ToString("yyyy-MM-dd")),
+                ("العميل",     order.CustomerName ?? "-"),
+                ("الهاتف",     order.CustomerPhone ?? "-"),
+                ("الفني",      order.TechnicianName ?? "-")
+            };
+            s.Blocks.Add(CreateAlignedInfoTable(info));
+            s.Blocks.Add(CreateSeparator());
+
+            s.Blocks.Add(new Paragraph(new Run("الأجهزة والخدمات")) { FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 2, 0, 2) });
+
+            foreach (var d in devices)
+            {
+                s.Blocks.Add(new Paragraph(new Run($"▪ {d.DisplayName} — {d.ReportedIssue}")) { Margin = new Thickness(0, 1, 0, 0) });
+                if (!string.IsNullOrEmpty(d.RepairNotes))
+                    s.Blocks.Add(new Paragraph(new Run($"  الإصلاح: {d.RepairNotes}")) { Margin = new Thickness(0, 0, 0, 0), FontSize = 9 });
+
+                var deviceParts = parts.FindAll(p => p.DeviceId == d.Id);
+                if (deviceParts.Count > 0)
+                {
+                    foreach (var p in deviceParts)
+                        s.Blocks.Add(new Paragraph(new Run($"  • {p.PartName} x{p.Quantity} = {p.TotalCost:N2}")) { Margin = new Thickness(0), FontSize = 9 });
+                }
+
+                if (d.LaborCost > 0)
+                    s.Blocks.Add(new Paragraph(new Run($"  أجر العمل: {d.LaborCost:N2}")) { Margin = new Thickness(0), FontSize = 9 });
+            }
+
+            s.Blocks.Add(CreateSeparator());
+
+            var totals = new List<(string, string)>
+            {
+                ("الإجمالي",  order.TotalAmount.ToString("N2") + " ج.م"),
+                ("المدفوع",   order.PaidAmount.ToString("N2") + " ج.م"),
+                ("المتبقي",   order.RemainingAmount.ToString("N2") + " ج.م")
+            };
+            s.Blocks.Add(CreateAlignedInfoTable(totals, true));
+            s.Blocks.Add(CreateSeparator());
+
+            if (payments.Count > 0)
+            {
+                s.Blocks.Add(new Paragraph(new Run("سجل المدفوعات")) { FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 2, 0, 2) });
+                foreach (var p in payments)
+                    s.Blocks.Add(new Paragraph(new Run($"  {p.PaymentDate:yyyy-MM-dd}  |  {p.PaymentMethod}  |  {p.Amount:N2} ج.م")) { Margin = new Thickness(0), FontSize = 9 });
+                s.Blocks.Add(CreateSeparator());
+            }
+
+            s.Blocks.Add(new Paragraph(new Run("توقيع العميل: ___________________")) { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 8, 0, 2) });
+            s.Blocks.Add(new Paragraph(new Run("شكراً لثقتكم بنا")) { TextAlignment = TextAlignment.Center, FontWeight = FontWeights.Bold });
+            s.Blocks.Add(CreateSeparator());
+
+            doc.Blocks.Add(s);
             return doc;
         }
     }

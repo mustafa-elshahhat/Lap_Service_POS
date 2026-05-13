@@ -1,0 +1,330 @@
+<Window x:Class="CarPartsShopWPF.Presentation.Views.RepairOrderDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="860" Height="700"
+        MinWidth="800" MinHeight="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        FlowDirection="RightToLeft"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Window.Title>
+        <Binding Path="Title"/>
+    </Window.Title>
+
+    <Border Style="{DynamicResource StandardWindowContentBorder}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Button Style="{DynamicResource CloseButton}"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Click="CloseButton_Click"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="🔧 "
+                               FontSize="18" Foreground="{DynamicResource PrimaryBrush}"/>
+                    <TextBlock Text="{Binding Title}"
+                               FontFamily="{DynamicResource MainFontSemibold}"
+                               FontSize="18" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryBrush}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Tab Control -->
+            <TabControl Grid.Row="1"
+                        Style="{DynamicResource ModernTabControl}"
+                        SelectedIndex="{Binding SelectedTabIndex}">
+
+                <!-- Tab 1: Order Info -->
+                <TabItem Header="بيانات الطلب">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4">
+                        <StackPanel Margin="0,8,0,0">
+
+                            <!-- Customer search -->
+                            <Border Background="{DynamicResource BgCardBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="بيانات العميل"
+                                               FontFamily="{DynamicResource MainFontSemibold}"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               Margin="0,0,0,12"/>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <Label Content="بحث عن عميل موجود"/>
+                                            <TextBox Text="{Binding CustomerSearch, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                                            <ComboBox ItemsSource="{Binding SearchedCustomers}"
+                                                      SelectedItem="{Binding SelectedCustomer}"
+                                                      DisplayMemberPath="Name"
+                                                      MinWidth="200"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <Label Content="اسم العميل *"/>
+                                            <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <Label Content="رقم الهاتف"/>
+                                            <TextBox Text="{Binding CustomerPhone, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Order details -->
+                            <Border Background="{DynamicResource BgCardBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="بيانات الطلب"
+                                               FontFamily="{DynamicResource MainFontSemibold}"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               Margin="0,0,0,12"/>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <Label Content="اسم الفني"/>
+                                            <TextBox Text="{Binding TechnicianName, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <Label Content="تاريخ التسليم المتوقع"/>
+                                            <DatePicker SelectedDate="{Binding ExpectedDelivery}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <Label Content="ملاحظات"/>
+                                            <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Initial payment (new order only) -->
+                            <Border Background="{DynamicResource BgCardBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <TextBlock Text="دفعة مقدمة (اختياري)"
+                                               FontFamily="{DynamicResource MainFontSemibold}"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextMutedBrush}"
+                                               Margin="0,0,0,12"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <Label Content="المبلغ"/>
+                                            <TextBox Text="{Binding InitialPayment, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <Label Content="طريقة الدفع"/>
+                                            <ComboBox ItemsSource="{Binding PaymentMethods}"
+                                                      SelectedItem="{Binding InitialPaymentMethod}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Button Content="💾 حفظ بيانات الطلب"
+                                    Style="{DynamicResource PrimaryButton}"
+                                    Width="200" HorizontalAlignment="Center"
+                                    Command="{Binding SaveOrderInfoCommand}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Tab 2: Devices -->
+                <TabItem Header="الأجهزة">
+                    <Grid Margin="0,8,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                            <Button Content="➕ إضافة جهاز"
+                                    Style="{DynamicResource PrimaryButton}"
+                                    Width="140" Margin="4,0"
+                                    Command="{Binding AddDeviceCommand}"/>
+                            <Button Content="🔩 قطع"
+                                    Style="{DynamicResource WarningButton}"
+                                    Width="100" Margin="4,0"
+                                    ToolTip="إدارة قطع الجهاز المحدد"
+                                    Command="{Binding ManagePartsCommand}"/>
+                            <Button Content="✏️ تعديل"
+                                    Style="{DynamicResource DarkButton}"
+                                    Width="100" Margin="4,0"
+                                    Command="{Binding EditDeviceCommand}"/>
+                            <Button Content="🗑 حذف"
+                                    Style="{DynamicResource DangerButton}"
+                                    Width="100" Margin="4,0"
+                                    Command="{Binding RemoveDeviceCommand}"/>
+                        </StackPanel>
+
+                        <DataGrid Grid.Row="1"
+                                  Style="{DynamicResource MainDataGrid}"
+                                  ItemsSource="{Binding Devices}"
+                                  SelectedItem="{Binding SelectedDevice}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True" CanUserAddRows="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="النوع"      Binding="{Binding DeviceType}"    Width="80"/>
+                                <DataGridTextColumn Header="الجهاز"     Binding="{Binding DisplayName}"   Width="*"/>
+                                <DataGridTextColumn Header="المشكلة"    Binding="{Binding ReportedIssue}" Width="*"/>
+                                <DataGridTextColumn Header="الحالة"     Binding="{Binding DeviceStatusAr}" Width="100"/>
+                                <DataGridTextColumn Header="أجر العمل"  Binding="{Binding LaborCost, StringFormat=N2}" Width="90"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Grid.Row="2" Text="💡 احفظ بيانات الطلب أولاً ثم أضف الأجهزة"
+                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="12"
+                                   HorizontalAlignment="Center" Margin="0,8,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsEditMode}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 3: Payments -->
+                <TabItem Header="المدفوعات">
+                    <Grid Margin="0,8,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Add payment form -->
+                        <Border Grid.Row="0"
+                                Background="{DynamicResource BgCardBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <Label Content="المبلغ"/>
+                                    <TextBox Text="{Binding AddPaymentAmount, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Label Content="طريقة الدفع"/>
+                                    <ComboBox ItemsSource="{Binding PaymentMethods}"
+                                              SelectedItem="{Binding AddPaymentMethod}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <Label Content="ملاحظات"/>
+                                    <TextBox Text="{Binding AddPaymentNotes, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <Button Grid.Column="6" Content="تسجيل الدفعة"
+                                        Style="{DynamicResource PrimaryButton}"
+                                        VerticalAlignment="Bottom" Height="36"
+                                        Command="{Binding RegisterPaymentCommand}"/>
+                            </Grid>
+                        </Border>
+
+                        <DataGrid Grid.Row="1"
+                                  Style="{DynamicResource MainDataGrid}"
+                                  ItemsSource="{Binding Payments}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True" CanUserAddRows="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="المبلغ"       Binding="{Binding Amount, StringFormat=N2}"  Width="100"/>
+                                <DataGridTextColumn Header="طريقة الدفع"  Binding="{Binding PaymentMethod}"            Width="120"/>
+                                <DataGridTextColumn Header="التاريخ"      Binding="{Binding PaymentDate}"              Width="140"/>
+                                <DataGridTextColumn Header="ملاحظات"      Binding="{Binding Notes}"                   Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Totals -->
+                        <Border Grid.Row="2"
+                                Background="{DynamicResource BgCardBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="12" Margin="0,8,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel HorizontalAlignment="Center" Margin="0,0,32,0">
+                                    <TextBlock Text="الإجمالي" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OrderTotal, StringFormat=N2}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center" Margin="0,0,32,0">
+                                    <TextBlock Text="المدفوع" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OrderPaid, StringFormat=N2}" Foreground="{DynamicResource SuccessBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="المتبقي" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OrderRemaining, StringFormat=N2}" Foreground="{DynamicResource DangerBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+            <!-- Footer -->
+            <Button Grid.Row="2" Content="إغلاق"
+                    Style="{DynamicResource DarkButton}"
+                    Width="120" HorizontalAlignment="Center" Margin="0,12,0,0"
+                    Click="CloseButton_Click"/>
+        </Grid>
+    </Border>
+</Window>

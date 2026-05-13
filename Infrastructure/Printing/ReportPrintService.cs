@@ -11,7 +11,7 @@ using CarPartsShopWPF.Application.DTOs;
 namespace CarPartsShopWPF.Infrastructure.Printing
 {
 
-    public class ReportPrintService
+    public class ReportPrintService : A4PrintBase
     {
         public void Print(string title, IEnumerable<Dictionary<string, object>> data, string[] columns, string[] headers)
         {
@@ -25,45 +25,6 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             PrintFlowDocument(doc, title);
         }
 
-        private void PrintFlowDocument(FlowDocument doc, string title)
-        {
-             try
-             {
-                 PrintDialog printDialog = new PrintDialog();
-                 if (printDialog.ShowDialog() == true)
-                 {
-                     double a4Width = 794;
-                     double a4Height = 1123;
-                     double pageWidth = (printDialog.PrintableAreaWidth > 500) ? printDialog.PrintableAreaWidth : a4Width;
-                     double pageHeight = (printDialog.PrintableAreaHeight > 800) ? printDialog.PrintableAreaHeight : a4Height;
-
-                     doc.PageHeight = pageHeight;
-                     doc.PageWidth = pageWidth;
-                     doc.PagePadding = new Thickness(40);
-                     doc.ColumnGap = 0;
-                     doc.ColumnWidth = pageWidth - (doc.PagePadding.Left + doc.PagePadding.Right);
-                     doc.FlowDirection = FlowDirection.RightToLeft;
-
-                     IDocumentPaginatorSource idpSource = doc;
-                     printDialog.PrintDocument(idpSource.DocumentPaginator, title);
-                 }
-             }
-             catch (Exception ex)
-             {
-                 MessageBox.Show("خطأ أثناء الطباعة: " + ex.Message, "خطأ طباعة", MessageBoxButton.OK, MessageBoxImage.Error);
-             }
-        }
-
-        private FlowDocument InitializeDocument()
-        {
-            FlowDocument doc = new FlowDocument();
-            doc.FontFamily = new FontFamily("Segoe UI");
-            doc.FontSize = 12;
-            doc.FlowDirection = FlowDirection.RightToLeft;
-            doc.Background = Brushes.White;
-            doc.PagePadding = new Thickness(40);
-            return doc;
-        }
 
         private void AddHeader(FlowDocument doc, string title)
         {
@@ -80,7 +41,7 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             
             StackPanel shopPanel = new StackPanel() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left };
 
-            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الهندسية");
+            string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
 
             UIElement logoElement = null;
             try 
@@ -134,35 +95,6 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             });
         }
 
-        private void AddFooter(FlowDocument doc)
-        {
-
-            StackPanel footerPanel = new StackPanel { Margin = new Thickness(0, 30, 0, 0) };
-
-            footerPanel.Children.Add(new TextBlock(new Run("--- نهاية التقرير ---")) { FontSize = 10, Foreground = Brushes.LightGray, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 10) });
-
-            Border bottomBar = new Border() { 
-                BorderThickness = new Thickness(0, 1, 0, 0), 
-                BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2563EB")),
-                Padding = new Thickness(0, 5, 0, 0)
-            };
-            Grid footerGrid = new Grid();
-            footerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            footerGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-
-            TextBlock userTxt = new TextBlock(new Run($"طبع بواسطة: {Environment.UserName}")) { FontSize = 10, Foreground = Brushes.Gray, HorizontalAlignment = HorizontalAlignment.Left };
-            Grid.SetColumn(userTxt, 0);
-            footerGrid.Children.Add(userTxt);
-
-            TextBlock sysTxt = new TextBlock(new Run("نظام إدارة قطع الغيار - محل قطع غيار السيارات")) { FontSize = 10, FontWeight = FontWeights.Bold, Foreground = Brushes.Gray, HorizontalAlignment = HorizontalAlignment.Right };
-            Grid.SetColumn(sysTxt, 1);
-            footerGrid.Children.Add(sysTxt);
-
-            bottomBar.Child = footerGrid;
-            footerPanel.Children.Add(bottomBar);
-            
-            doc.Blocks.Add(new BlockUIContainer(footerPanel));
-        }
 
         private FlowDocument CreateReportDocument(string title, IEnumerable<Dictionary<string, object>> data, string[] columns, string[] headers)
         {
@@ -205,7 +137,7 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             table.RowGroups.Add(group);
             doc.Blocks.Add(table);
 
-            AddFooter(doc);
+            AddDocumentFooter(doc, "--- نهاية التقرير ---");
             return doc;
         }
 
@@ -272,7 +204,7 @@ namespace CarPartsShopWPF.Infrastructure.Printing
                 }
             }
 
-            AddFooter(doc);
+            AddDocumentFooter(doc, "--- نهاية التقرير ---");
             return doc;
         }
     }

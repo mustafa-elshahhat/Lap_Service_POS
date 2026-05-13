@@ -10,5 +10,7 @@ namespace CarPartsShopWPF.Application.Interfaces
         void PrintReturnReceipt(Return @return, List<ReturnItem> items);
         void PrintReport(string title, IEnumerable<Dictionary<string, object>> data, string[] columns, string[] headers);
         void PrintGroupedReport(string title, IEnumerable<GroupedReportItem> data, string[] itemColumns, string[] itemHeaders);
+        void PrintRepairIntake(RepairOrder order, List<RepairDevice> devices);
+        void PrintRepairInvoice(RepairOrder order, List<RepairDevice> devices, List<RepairPart> parts, List<RepairPayment> payments);
     }
 }

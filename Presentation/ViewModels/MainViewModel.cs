@@ -114,6 +114,9 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                 case "Settings":
                      if (CheckAdmin()) SetPage("⚙️", "الإعدادات", new SettingsPage());
                     break;
+                case "Maintenance":
+                    SetPage("🔧", "الصيانة", new MaintenancePage());
+                    break;
             }
         }
 

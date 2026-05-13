@@ -14,7 +14,7 @@ namespace CarPartsShopWPF.Application.Services
     {
         private readonly ISaleRepository _saleRepo;
         private readonly IProductRepository _productRepo;
-        private readonly ICustomerRepository _customerRepo;
+        private readonly ICustomerService _customerService;
         private readonly IPaymentService _paymentService;
         private readonly IReturnService _returnService;
         private readonly IDbTransactionManager _txManager;
@@ -23,19 +23,19 @@ namespace CarPartsShopWPF.Application.Services
         public SaleService(
             ISaleRepository saleRepo,
             IProductRepository productRepo,
-            ICustomerRepository customerRepo,
+            ICustomerService customerService,
             IPaymentService paymentService,
             IReturnService returnService,
             IDbTransactionManager txManager,
             IAuthService auth)
         {
-            _saleRepo = saleRepo;
-            _productRepo = productRepo;
-            _customerRepo = customerRepo;
-            _paymentService = paymentService;
-            _returnService = returnService;
-            _txManager = txManager;
-            _auth = auth;
+            _saleRepo        = saleRepo;
+            _productRepo     = productRepo;
+            _customerService = customerService;
+            _paymentService  = paymentService;
+            _returnService   = returnService;
+            _txManager       = txManager;
+            _auth            = auth;
         }
 
         public SaleOperationResult CreateSale(string saleType, int userId, List<SaleItem> items,
@@ -204,18 +204,23 @@ namespace CarPartsShopWPF.Application.Services
         {
             if (string.IsNullOrWhiteSpace(name)) return null;
 
-            var customer = !string.IsNullOrEmpty(phone) ? _customerRepo.GetByPhone(phone) : null;
-            if (customer == null)
+            var existing = !string.IsNullOrEmpty(phone?.Trim())
+                ? _customerService.SearchCustomers(phone.Trim()).Find(c => c.Phone == phone.Trim())
+                  ?? _customerService.GetAllCustomers().Find(c => c.Phone == phone.Trim())
+                : null;
+
+            if (existing != null)
             {
-                return (int)_customerRepo.Create(new Customer { Name = name.Trim(), Phone = phone?.Trim() });
+                if (existing.Name != name.Trim())
+                {
+                    existing.Name = name.Trim();
+                    _customerService.UpdateCustomer(existing);
+                }
+                return existing.Id;
             }
 
-            if (customer.Name != name.Trim())
-            {
-                customer.Name = name.Trim();
-                _customerRepo.Update(customer);
-            }
-            return customer.Id;
+            return (int)_customerService.CreateCustomer(
+                new Customer { Name = name.Trim(), Phone = phone?.Trim() });
         }
 
         private List<SaleItem> ValidateItems(List<SaleItem> items)
@@ -247,8 +252,8 @@ namespace CarPartsShopWPF.Application.Services
 
         public void SaveCustomer(Customer customer)
         {
-            if (customer.Id > 0) _customerRepo.Update(customer);
-            else _customerRepo.Create(customer);
+            if (customer.Id > 0) _customerService.UpdateCustomer(customer);
+            else _customerService.CreateCustomer(customer);
         }
     }
 }

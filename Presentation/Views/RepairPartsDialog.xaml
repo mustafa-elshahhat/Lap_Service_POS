@@ -1,0 +1,201 @@
+<Window x:Class="CarPartsShopWPF.Presentation.Views.RepairPartsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="إدارة القطع"
+        Width="880" Height="680"
+        MinWidth="760" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        FlowDirection="RightToLeft"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Border Style="{DynamicResource StandardWindowContentBorder}">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,14">
+                <Button Style="{DynamicResource CloseButton}"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Click="CloseButton_Click"/>
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="🔩 إدارة القطع المستخدمة"
+                               FontFamily="{DynamicResource MainFontSemibold}"
+                               FontSize="18" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryBrush}"/>
+                    <TextBlock Text="{Binding DeviceTitle}"
+                               FontSize="12"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               HorizontalAlignment="Right"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Unified Add Part Form -->
+            <Border Grid.Row="1"
+                    Background="{DynamicResource BgCardBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="10" Padding="16" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="إضافة قطعة"
+                               FontSize="12" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               Margin="0,0,0,10"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="75"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Source dropdown -->
+                        <StackPanel Grid.Column="0">
+                            <Label Content="مصدر القطعة" Padding="0,0,0,2"/>
+                            <ComboBox ItemsSource="{Binding PartSources}"
+                                      SelectedItem="{Binding SelectedPartSource}"/>
+                        </StackPanel>
+
+                        <!-- Inventory: search + product select -->
+                        <StackPanel Grid.Column="2">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsInventorySource}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Label Content="بحث بالاسم / الكود" Padding="0,0,0,2"/>
+                            <TextBox Text="{Binding ProductSearch, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding SearchedProducts}"
+                                      SelectedItem="{Binding SelectedProduct}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Custom: part name -->
+                        <StackPanel Grid.Column="2">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCustomSource}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Label Content="اسم القطعة" Padding="0,0,0,2"/>
+                            <TextBox Text="{Binding CustomPartName, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Qty -->
+                        <StackPanel Grid.Column="4">
+                            <Label Content="الكمية" Padding="0,0,0,2"/>
+                            <TextBox Text="{Binding PartQty, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Cost -->
+                        <StackPanel Grid.Column="6">
+                            <Label Content="سعر الوحدة" Padding="0,0,0,2"/>
+                            <TextBox Text="{Binding PartCost, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Add button -->
+                        <Button Grid.Column="8" Content="➕ إضافة"
+                                Style="{DynamicResource PrimaryButton}"
+                                VerticalAlignment="Bottom" Height="36" Width="90"
+                                Command="{Binding AddPartCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Parts DataGrid -->
+            <Border Grid.Row="2"
+                    Background="{DynamicResource BgCardBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="10" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="0"
+                              Style="{DynamicResource MainDataGrid}"
+                              ItemsSource="{Binding Parts}"
+                              SelectedItem="{Binding SelectedPart}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="القطعة"      Binding="{Binding PartName}"                    Width="*"/>
+                            <DataGridTextColumn Header="الكمية"      Binding="{Binding Quantity}"                    Width="65"/>
+                            <DataGridTextColumn Header="سعر الوحدة"  Binding="{Binding UnitCost, StringFormat=N2}"   Width="110"/>
+                            <DataGridTextColumn Header="الإجمالي"    Binding="{Binding TotalCost, StringFormat=N2}"  Width="110"/>
+                            <DataGridTextColumn Header="المصدر"      Binding="{Binding SourceLabel}"                 Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Footer bar -->
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource BgMainBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
+                            CornerRadius="0,0,10,10"
+                            Padding="14,10">
+                        <Grid>
+                            <Button Content="🗑 حذف القطعة المحددة"
+                                    Style="{DynamicResource DangerButton}"
+                                    HorizontalAlignment="Right"
+                                    Height="36" Padding="14,0"
+                                    Command="{Binding RemovePartCommand}"/>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="إجمالي القطع: "
+                                           Foreground="{DynamicResource TextMutedBrush}"
+                                           FontSize="13" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalPartsCost, StringFormat=N2}"
+                                           Foreground="{DynamicResource PrimaryBrush}"
+                                           FontSize="16" FontWeight="Bold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text=" ج.م"
+                                           Foreground="{DynamicResource TextMutedBrush}"
+                                           FontSize="13" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Close -->
+            <Button Grid.Row="3" Content="إغلاق"
+                    Style="{DynamicResource DarkButton}"
+                    Width="120" HorizontalAlignment="Center"
+                    Margin="0,12,0,0"
+                    Click="CloseButton_Click"/>
+        </Grid>
+    </Border>
+</Window>

@@ -54,18 +54,20 @@ namespace CarPartsShopWPF.Presentation
             var expenseRepo = new ExpenseRepository();
             var supplierRepo = new SupplierRepository();
             var reportRepo = new ReportRepository();
+            var repairRepo = new RepairRepository();
 
             var authService = new AuthService(userRepo);
             AuthService.Instance = authService;
 
-            var productService = new ProductService(productRepo);
-            var paymentService = new PaymentService(paymentRepo);
-            var returnService = new ReturnService(saleRepo, productRepo, txManager);
-            var saleService = new SaleService(saleRepo, productRepo, customerRepo, paymentService, returnService, txManager, authService);
-            var expenseService = new ExpenseService(expenseRepo, authService, txManager);
-            var supplierService = new SupplierService(supplierRepo, authService);
+            var productService  = new ProductService(productRepo);
             var customerService = new CustomerService(customerRepo);
-            var reportService = new ReportService(reportRepo);
+            var paymentService  = new PaymentService(paymentRepo);
+            var returnService   = new ReturnService(saleRepo, productRepo, txManager);
+            var saleService     = new SaleService(saleRepo, productRepo, customerService, paymentService, returnService, txManager, authService);
+            var expenseService  = new ExpenseService(expenseRepo, authService, txManager);
+            var supplierService = new SupplierService(supplierRepo, authService);
+            var reportService   = new ReportService(reportRepo);
+            var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerRepo, txManager);
 
             var dialogService = new DialogService();
 
@@ -79,6 +81,7 @@ namespace CarPartsShopWPF.Presentation
             ServiceContainer.Register<ISupplierService>(supplierService);
             ServiceContainer.Register<ICustomerService>(customerService);
             ServiceContainer.Register<IReportService>(reportService);
+            ServiceContainer.Register<IMaintenanceService>(maintenanceService);
             ServiceContainer.Register<ISettingsService>(settingsService);
             ServiceContainer.Register<IPrintService>(new CarPartsShopWPF.Infrastructure.Printing.PrintService());
         }
@@ -94,6 +97,7 @@ namespace CarPartsShopWPF.Presentation
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration001_PaymentMethodEnum.Execute();
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration002_BusinessDateLocalRepair.Execute();
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration003_AddCashRefundToReturns.Execute();
+                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration004_RepairOrdersFullSchema.Execute();
                 }
                 catch (Exception migrationEx)
                 {

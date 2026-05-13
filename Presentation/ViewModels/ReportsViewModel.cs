@@ -144,22 +144,30 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             DetailHeader = "العمليات اليومية";
 
             var summary = _reportService.GetDailySummary();
-            var methods = summary["payment_details"] as Dictionary<string, decimal>;
+            summary.TryGetValue("payment_inflows",  out object _inflowObj);
+            summary.TryGetValue("payment_outflows", out object _outflowObj);
+            var inflows  = _inflowObj  as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
+            var outflows = _outflowObj as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
 
-            decimal cash     = GetMethodSum(methods, PaymentMethods.Cash, "Cash", "نقد", "كاش", "نقدي");
-            decimal instapay = GetMethodSum(methods, PaymentMethods.InstaPay, "Insta", "إنستا");
-            decimal ewallet  = GetMethodSum(methods, PaymentMethods.EWallet, "Vodafone", "فودافون", "Wallet", "محفظة");
+            decimal cashIn     = GetMethodSum(inflows,  PaymentMethods.Cash);
+            decimal instapayIn = GetMethodSum(inflows,  PaymentMethods.InstaPay);
+            decimal ewalletIn  = GetMethodSum(inflows,  PaymentMethods.EWallet);
+            decimal cashOut    = GetMethodSum(outflows, PaymentMethods.Cash);
+            decimal instapayOut= GetMethodSum(outflows, PaymentMethods.InstaPay);
+            decimal ewalletOut = GetMethodSum(outflows, PaymentMethods.EWallet);
 
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",   Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),           Icon = "💰", ColorKey = "Primary" });
-            KpiCards.Add(new KpiCardViewModel { Title = "أرباح اليوم",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_profit"])),          Icon = "�", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),            Icon = "�", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "التحصيل النقدي",     Value = Formatting.FormatCurrency(cash),                                                    Icon = "💵", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي",           Value = Formatting.FormatCurrency(instapay),                                                Icon = "🏦", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "محافظ إلكترونية",    Value = Formatting.FormatCurrency(ewallet),                                                 Icon = "�", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات",           Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),         Icon = "↩️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات",           Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),        Icon = "💸", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "سداد الموردين",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_supplier_payments"])), Icon = "�", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة",             Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),     Icon = "�", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),              Icon = "💰", ColorKey = "Primary" });
+            KpiCards.Add(new KpiCardViewModel { Title = "أرباح اليوم",            Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_profit"])),           Icon = "📈", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح",             Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),             Icon = "✅", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "نقدي (وارد)",            Value = Formatting.FormatCurrency(cashIn),                                                    Icon = "💵", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي (وارد)",       Value = Formatting.FormatCurrency(instapayIn),                                                Icon = "🏦", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "محافظ (واردة)",          Value = Formatting.FormatCurrency(ewalletIn),                                                 Icon = "📱", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "نقدي (صادر)",            Value = Formatting.FormatCurrency(cashOut),                                                   Icon = "💸", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي (صادر)",       Value = Formatting.FormatCurrency(instapayOut),                                               Icon = "🏧", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "محافظ (صادرة)",          Value = Formatting.FormatCurrency(ewalletOut),                                                Icon = "📲", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة",               Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
 
             string today = DateTime.Today.ToString("yyyy-MM-dd");
             var operations = _reportService.GetOperationsReport(today, today);
@@ -190,25 +198,33 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             ReportSubtitle = $"إحصائيات شهر {months[month]} {year}";
             DetailHeader = "عمليات الشهر";
 
-            var summary = _reportService.GetMonthlySummary(year, month);
-            var methods = summary["payment_details"] as Dictionary<string, decimal>;
+            var summary  = _reportService.GetMonthlySummary(year, month);
+            summary.TryGetValue("payment_inflows",  out object _mInflowObj);
+            summary.TryGetValue("payment_outflows", out object _mOutflowObj);
+            var inflows  = _mInflowObj  as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
+            var outflows = _mOutflowObj as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
 
-            decimal totalCash     = GetMethodSum(methods, PaymentMethods.Cash, "Cash", "نقد", "كاش", "نقدي");
-            decimal totalInstapay = GetMethodSum(methods, PaymentMethods.InstaPay, "Insta", "إنستا");
-            decimal totalWallets  = GetMethodSum(methods, PaymentMethods.EWallet, "Vodafone", "فودافون", "Wallet", "محفظة");
+            decimal cashIn      = GetMethodSum(inflows,  PaymentMethods.Cash);
+            decimal instapayIn  = GetMethodSum(inflows,  PaymentMethods.InstaPay);
+            decimal ewalletIn   = GetMethodSum(inflows,  PaymentMethods.EWallet);
+            decimal cashOut     = GetMethodSum(outflows, PaymentMethods.Cash);
+            decimal instapayOut = GetMethodSum(outflows, PaymentMethods.InstaPay);
+            decimal ewalletOut  = GetMethodSum(outflows, PaymentMethods.EWallet);
 
             decimal totalSupplierDebt = _supplierService.GetAllSuppliers().Sum(s => s.TotalDebt);
 
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),           Icon = "📅", ColorKey = "Primary" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح الشهري",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),            Icon = "💎", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),         Icon = "↩️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),        Icon = "�", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي التحصيل النقدي",   Value = Formatting.FormatCurrency(totalCash),                                               Icon = "💵", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي إنستا باي",         Value = Formatting.FormatCurrency(totalInstapay),                                           Icon = "🏦", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المحافظ",           Value = Formatting.FormatCurrency(totalWallets),                                            Icon = "📱", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي سداد الموردين",    Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_supplier_payments"])), Icon = "🚚", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "ديون الموردين",            Value = Formatting.FormatCurrency(totalSupplierDebt),                                       Icon = "⚠️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الصيانة",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),     Icon = "🔧", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),              Icon = "📅", ColorKey = "Primary" });
+            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح الشهري",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),              Icon = "💎", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي نقدي (وارد)",       Value = Formatting.FormatCurrency(cashIn),                                                    Icon = "💵", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي إنستا باي (وارد)",  Value = Formatting.FormatCurrency(instapayIn),                                                Icon = "🏦", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي محافظ (واردة)",     Value = Formatting.FormatCurrency(ewalletIn),                                                 Icon = "📱", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي نقدي (صادر)",       Value = Formatting.FormatCurrency(cashOut),                                                   Icon = "�", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي إنستا باي (صادر)",  Value = Formatting.FormatCurrency(instapayOut),                                               Icon = "�", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي محافظ (صادرة)",     Value = Formatting.FormatCurrency(ewalletOut),                                                Icon = "�", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "ديون الموردين",            Value = Formatting.FormatCurrency(totalSupplierDebt),                                         Icon = "⚠️", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الصيانة",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
 
             string startDate = $"{year}-{month:D2}-01";
             DateTime endDateTime = new DateTime(year, month, DateTime.DaysInMonth(year, month));
@@ -322,44 +338,10 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             ColumnsChanged?.Invoke(this, _currentColumns);
         }
 
-        private decimal GetMethodSum(Dictionary<string, decimal> methods, params string[] keys)
+        private decimal GetMethodSum(Dictionary<string, decimal> methods, string key)
         {
-            decimal sum = 0;
             if (methods == null) return 0;
-
-            var processedKeys = new HashSet<string>();
-
-            foreach (var key in keys)
-            {
-                foreach (var method in methods)
-                {
-                    if (processedKeys.Contains(method.Key)) continue;
-
-                    bool isMatch = false;
-
-                    if (string.Equals(method.Key, key, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isMatch = true;
-                    }
-                    else if (!PaymentMethods.GetAll().Contains(method.Key) &&
-                             method.Key.IndexOf(key, StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        bool isCashKey = (key == "Cash" || key == "نقدي" || key == "كاش" || key == "نقد");
-                        bool isWalletMethod = (method.Key.IndexOf("Vodafone", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                               method.Key.IndexOf("Wallet", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                               method.Key.IndexOf("Insta", StringComparison.OrdinalIgnoreCase) >= 0);
-
-                        isMatch = !(isCashKey && isWalletMethod);
-                    }
-
-                    if (isMatch)
-                    {
-                        sum += method.Value;
-                        processedKeys.Add(method.Key);
-                    }
-                }
-            }
-            return sum;
+            return methods.TryGetValue(key, out decimal val) ? val : 0;
         }
 
         private void ExportReport()

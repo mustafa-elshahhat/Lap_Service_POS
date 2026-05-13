@@ -26,5 +26,15 @@ namespace CarPartsShopWPF.Shared.Helpers
             }
             catch { }
         }
+
+        public static void LogWarning(string message)
+        {
+            try
+            {
+                var logEntry = $"{DateTime.Now:s} - WARNING: {message}\n";
+                File.AppendAllText(LogPath, logEntry);
+            }
+            catch { }
+        }
     }
 }

@@ -77,7 +77,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
 
         private void LoadSettings()
         {
-            ShopName = _settingsService.GetSetting("shop_name", "محل قطع غيار السيارات");
+            ShopName = _settingsService.GetSetting("shop_name", "الجوهري");
             ShopAddress = _settingsService.GetSetting("shop_address", "");
             ShopPhone = _settingsService.GetSetting("shop_phone", "");
 

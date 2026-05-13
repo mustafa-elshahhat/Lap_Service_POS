@@ -5,8 +5,8 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Presentation\Resources\Images\logo.ico</ApplicationIcon>
-    <AssemblyTitle>نظام إدارة قطع غيار السيارات</AssemblyTitle>
-    <Product>Car Parts Shop Management System</Product>
+    <AssemblyTitle>الجوهري</AssemblyTitle>
+    <Product>الجوهري - نظام إدارة</Product>
     <Version>1.0.0</Version>
     <LangVersion>12.0</LangVersion>
     <Nullable>disable</Nullable>

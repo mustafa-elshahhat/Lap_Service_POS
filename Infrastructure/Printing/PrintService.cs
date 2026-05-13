@@ -7,23 +7,23 @@ namespace CarPartsShopWPF.Infrastructure.Printing
 {
     public class PrintService : IPrintService
     {
-        private readonly ReceiptPrintService _receiptService;
-        private readonly ReportPrintService _reportService;
+        private readonly InvoicePrintService _invoiceService;
+        private readonly ReportPrintService  _reportService;
 
         public PrintService()
         {
-            _receiptService = new ReceiptPrintService();
-            _reportService = new ReportPrintService();
+            _invoiceService = new InvoicePrintService();
+            _reportService  = new ReportPrintService();
         }
 
         public void PrintSaleReceipt(Sale sale, List<SaleItem> items)
         {
-            _receiptService.PrintSale(sale, items);
+            _invoiceService.PrintSale(sale, items);
         }
 
         public void PrintReturnReceipt(Return @return, List<ReturnItem> items)
         {
-            _receiptService.PrintReturn(@return, items);
+            _invoiceService.PrintReturn(@return, items);
         }
 
         public void PrintReport(string title, IEnumerable<Dictionary<string, object>> data, string[] columns, string[] headers)
@@ -36,5 +36,14 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             _reportService.PrintGrouped(title, data, itemColumns, itemHeaders);
         }
 
+        public void PrintRepairIntake(RepairOrder order, List<RepairDevice> devices)
+        {
+            _invoiceService.PrintRepairIntake(order, devices);
+        }
+
+        public void PrintRepairInvoice(RepairOrder order, List<RepairDevice> devices, List<RepairPart> parts, List<RepairPayment> payments)
+        {
+            _invoiceService.PrintRepairInvoice(order, devices, parts, payments);
+        }
     }
 }
