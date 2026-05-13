@@ -1,0 +1,154 @@
+<Page x:Class="CarPartsShopWPF.Presentation.Views.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="الإعدادات"
+      Background="{DynamicResource BgMainBrush}"
+      FlowDirection="RightToLeft"
+      UseLayoutRounding="True"
+      SnapsToDevicePixels="True">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
+    
+    <Grid Margin="16" x:Name="SettingsRoot">
+        
+        <Grid.OpacityMask>
+            <VisualBrush>
+                <VisualBrush.Visual>
+                    <Border Background="Black" 
+                            Width="{Binding ActualWidth, ElementName=SettingsRoot}"
+                            Height="{Binding ActualHeight, ElementName=SettingsRoot}"
+                            CornerRadius="12"/>
+                </VisualBrush.Visual>
+            </VisualBrush>
+        </Grid.OpacityMask>
+
+        <Border Background="{DynamicResource BgCardBrush}" 
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="12">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    
+                    <ColumnDefinition Width="200"/>
+                    
+                    <ColumnDefinition Width="1"/>
+                    
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                
+                <Border Grid.Column="0" Background="{DynamicResource BgSidebarBrush}" BorderBrush="{DynamicResource BorderDarkBrush}" BorderThickness="0,0,1,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden" Margin="0,0,0,20">
+                        <StackPanel Margin="0,32">
+                            <TextBlock Text="⚙️ أقسام الإعدادات" 
+                                       FontSize="13" 
+                                       FontWeight="Bold" 
+                                       Foreground="{DynamicResource TextLightBrush}"
+                                       Margin="24,0,24,20"
+                                       HorizontalAlignment="Left"
+                                       Opacity="0.8"
+                                       FontFamily="{DynamicResource MainFontSemibold}"/>
+                            
+                            <RadioButton x:Name="TabGeneral" Content="🏢 بيانات المحل" Style="{DynamicResource TabRadioButton}" IsChecked="True"/>
+                            <RadioButton x:Name="TabPrinting" Content="🖨️ إعدادات الطباعة" Style="{DynamicResource TabRadioButton}"/>
+                            <RadioButton x:Name="TabBackup" Content="🛡️ النسخ الاحتياطي" Style="{DynamicResource TabRadioButton}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+                
+                
+                <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Padding="48">
+                    <StackPanel MaxWidth="680" HorizontalAlignment="Stretch">
+                        
+                        
+                        <StackPanel x:Name="SectionGeneral" Visibility="{Binding IsChecked, ElementName=TabGeneral, Converter={StaticResource BooleanToVisibilityConverter}}">
+                              <TextBlock Text="بيانات المحل" FontSize="28" FontWeight="Bold" FontFamily="{DynamicResource MainFontSemibold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                              <TextBlock Text="إدارة المعلومات الأساسية التي ستظهر في الفواتير والتقارير" FontSize="14" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,32"/>
+                              
+                              <Label Content="اسم المحل *" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ShopName, UpdateSourceTrigger=PropertyChanged}"/>
+                              
+                              <Label Content="العنوان الأساسي" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ShopAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                              
+                              <Label Content="رقم الهاتف للتواصل" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ShopPhone, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        
+                        
+                        
+                        
+                        
+                        
+                        <StackPanel x:Name="SectionPrinting" Visibility="{Binding IsChecked, ElementName=TabPrinting, Converter={StaticResource BooleanToVisibilityConverter}}">
+                              <TextBlock Text="إعدادات الطباعة" FontSize="28" FontWeight="Bold" FontFamily="{DynamicResource MainFontSemibold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                              <TextBlock Text="تكوين الطابعات الافتراضية للفواتير والتقارير" FontSize="14" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,32"/>
+                              
+                              <Label Content="طابعة الفواتير (Thermal 80mm)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ReceiptPrinterName, UpdateSourceTrigger=PropertyChanged}"/>
+                              <TextBlock Text="اترك الحقل فارغاً لاستخدام طابعة الويندوز الافتراضية" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="4,-15,0,20"/>
+
+                              <Label Content="طابعة التقارير (A4)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ReportPrinterName, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        
+                        
+                        <StackPanel x:Name="SectionBackup" Visibility="{Binding IsChecked, ElementName=TabBackup, Converter={StaticResource BooleanToVisibilityConverter}}">
+                              <TextBlock Text="النسخ الاحتياطي" FontSize="28" FontWeight="Bold" FontFamily="{DynamicResource MainFontSemibold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                              <TextBlock Text="حماية قاعدة البيانات من الفقدان المفاجئ من خلال حفظ نسخ خارجية" FontSize="14" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,32"/>
+                              
+                              <Border Background="{DynamicResource InfoLightBrush}" BorderBrush="{DynamicResource InfoBrush}" BorderThickness="1,1,1,1" CornerRadius="12" Padding="24" Margin="0,0,0,32">
+                                  <Grid>
+                                      <Grid.ColumnDefinitions>
+                                          <ColumnDefinition Width="Auto"/>
+                                          <ColumnDefinition Width="*"/>
+                                      </Grid.ColumnDefinitions>
+                                      <TextBlock Text="🛡️" FontSize="24" Margin="0,0,16,0" VerticalAlignment="Top"/>
+                                      <TextBlock Grid.Column="1" Text="يُنصح بحفظ نسخة احتياطية على فلاشة خارجية أو مساحة سحابية بشكل دوري. النظام يقوم بحفظ النسخة بصيغة تتضمن تاريخ ووقت الإنشاء." 
+                                                 VerticalAlignment="Top" 
+                                                 TextWrapping="Wrap" 
+                                                 LineHeight="20"
+                                                 Foreground="{DynamicResource InfoDarkBrush}"/>
+                                  </Grid>
+                              </Border>
+                              
+                              <StackPanel Orientation="Horizontal">
+                                  <Button Content="📥 إنشاء نسخة احتياطية الآن"
+                                          Style="{DynamicResource SecondaryButton}"
+                                          HorizontalAlignment="Left"
+                                          Width="260"
+                                          Height="50"
+                                          Margin="0,0,16,0"
+                                          FontFamily="{DynamicResource MainFontSemibold}"
+                                          Command="{Binding BackupDatabaseCommand}"/>
+
+                                  <Button Content="📤 استعادة نسخة احتياطية"
+                                          Style="{DynamicResource DangerButton}"
+                                          HorizontalAlignment="Left"
+                                          Width="260"
+                                          Height="50"
+                                          FontFamily="{DynamicResource MainFontSemibold}"
+                                          Command="{Binding RestoreDatabaseCommand}"/>
+                              </StackPanel>
+                        </StackPanel>
+                        
+                        
+                        <Separator Margin="0,48,0,32" Background="{DynamicResource BorderBrush}"/>
+                        <Button Content="💾 حفظ الإعدادات"
+                                Style="{DynamicResource PrimaryButton}"
+                                HorizontalAlignment="Right"
+                                Width="220"
+                                Height="50"
+                                FontFamily="{DynamicResource MainFontSemibold}"
+                                Command="{Binding SaveSettingsCommand}"/>
+                        
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>
+

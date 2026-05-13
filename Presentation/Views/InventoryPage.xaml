@@ -1,0 +1,119 @@
+<Page x:Class="CarPartsShopWPF.Presentation.Views.InventoryPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="إدارة المخزون"
+      Background="{DynamicResource BgMainBrush}"
+      FlowDirection="RightToLeft"
+      UseLayoutRounding="True"
+      SnapsToDevicePixels="True">
+    
+    <Grid Margin="12">
+        <Border Background="{DynamicResource BgCardBrush}" 
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                
+                <Grid Grid.Row="0" Margin="24,24,24,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="📦 إدارة المخزون" 
+                                   FontFamily="{DynamicResource MainFontSemibold}"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Button Content="➕ إضافة منتج"
+                                Style="{DynamicResource PrimaryButton}"
+                                Width="140"
+                                Margin="4,0"
+                                Command="{Binding AddProductCommand}"/>
+                        <Button Content="⚠️ نواقص"
+                                Style="{DynamicResource WarningButton}"
+                                Width="140"
+                                Margin="4,0"
+                                Command="{Binding LowStockCommand}"/>
+                        <Button Content="📋 عرض الكل"
+                                Style="{DynamicResource DarkButton}"
+                                Width="140"
+                                Margin="4,0"
+                                Command="{Binding RefreshCommand}"/>
+                    </StackPanel>
+                </Grid>
+                
+                
+                <Grid Grid.Row="1" Margin="24,0,24,16">
+                     <TextBox x:Name="SearchTextBox"
+                              Style="{DynamicResource SearchTextBoxStyle}"
+                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                     
+                     <StackPanel Orientation="Horizontal" IsHitTestVisible="False" Margin="12,0" VerticalAlignment="Center">
+                          <TextBlock Text="🔍" FontSize="16" Margin="0,0,8,0" Foreground="{DynamicResource TextMutedBrush}"/>
+                          <TextBlock Text="ابحث عن منتج..." 
+                                     Foreground="{DynamicResource TextMutedBrush}">
+                              <TextBlock.Style>
+                                  <Style TargetType="TextBlock">
+                                      <Setter Property="Visibility" Value="Collapsed"/>
+                                      <Style.Triggers>
+                                          <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
+                                              <Setter Property="Visibility" Value="Visible"/>
+                                          </DataTrigger>
+                                      </Style.Triggers>
+                                  </Style>
+                              </TextBlock.Style>
+                          </TextBlock>
+                     </StackPanel>
+                </Grid>
+                
+                
+                <DataGrid x:Name="ProductsGrid"
+                          Grid.Row="2"
+                          Style="{DynamicResource MainDataGrid}"
+                          Margin="24,0,24,24"
+                          IsReadOnly="True"
+                          ItemsSource="{Binding Products}"
+                          SelectedItem="{Binding SelectedProduct}"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto">
+                    <DataGrid.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditProductCommand}"/>
+                    </DataGrid.InputBindings>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="الفئة" Binding="{Binding Category}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الباركود" Binding="{Binding Barcode}" Width="Auto" ElementStyle="{DynamicResource DataGridCodeStyle}"/>
+                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="سعر البيع" Binding="{Binding SellingPrice, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                    </DataGrid.Columns>
+                    
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="تعديل" Command="{Binding EditProductCommand}"/>
+                            <MenuItem Header="تعديل الكمية" Command="{Binding AdjustQuantityCommand}"/>
+                            <MenuItem Header="طباعة الباركود" Command="{Binding PrintBarcodeCommand}"/>
+                            <Separator/>
+                            <MenuItem Header="حذف" Command="{Binding DeleteProductCommand}"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>
+
