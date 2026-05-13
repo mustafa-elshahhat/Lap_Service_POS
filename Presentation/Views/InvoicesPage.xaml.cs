@@ -1,8 +1,8 @@
 using System.Windows.Controls;
-using CarPartsShopWPF.Presentation.ViewModels;
-using CarPartsShopWPF.Presentation.Helpers;
+using AlJohary.ServiceHub.Presentation.ViewModels;
+using AlJohary.ServiceHub.Presentation.Helpers;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
     public partial class InvoicesPage : Page
     {
@@ -11,7 +11,7 @@ namespace CarPartsShopWPF.Presentation.Views
             InitializeComponent();
             var vm = new InvoicesViewModel();
             DataContext = vm;
-            CarPartsShopWPF.Presentation.Helpers.FocusHelper.SetupSearchFocus(this, SearchTextBox);
+            AlJohary.ServiceHub.Presentation.Helpers.FocusHelper.SetupSearchFocus(this, SearchTextBox);
         }
     }
 }

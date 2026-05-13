@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CarPartsShopWPF.Shared.Helpers
+namespace AlJohary.ServiceHub.Shared.Helpers
 {
     public static class PaymentMethods
     {

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Domain.Interfaces;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Domain.Interfaces;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Infrastructure.Persistence
+namespace AlJohary.ServiceHub.Infrastructure.Persistence
 {
     public class PaymentRepository : IPaymentRepository
     {

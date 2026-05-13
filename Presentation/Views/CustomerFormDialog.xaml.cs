@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
     public partial class CustomerFormDialog : Window
     {

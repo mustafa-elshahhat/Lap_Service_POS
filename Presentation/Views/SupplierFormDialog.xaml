@@ -1,4 +1,4 @@
-<Window x:Class="CarPartsShopWPF.Presentation.Views.SupplierFormDialog"
+<Window x:Class="AlJohary.ServiceHub.Presentation.Views.SupplierFormDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="بيانات المورد" 

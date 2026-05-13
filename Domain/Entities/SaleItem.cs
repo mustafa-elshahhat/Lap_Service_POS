@@ -1,4 +1,4 @@
-namespace CarPartsShopWPF.Domain.Entities
+namespace AlJohary.ServiceHub.Domain.Entities
 {
     public class SaleItem
     {

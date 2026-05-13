@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Domain.Interfaces;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Interfaces;
 
-namespace CarPartsShopWPF.Application.Services
+namespace AlJohary.ServiceHub.Application.Services
 {
     public class PaymentService : IPaymentService
     {

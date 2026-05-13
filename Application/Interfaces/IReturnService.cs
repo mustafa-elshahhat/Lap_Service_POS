@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using CarPartsShopWPF.Domain.Entities;
+using AlJohary.ServiceHub.Domain.Entities;
 
-namespace CarPartsShopWPF.Application.Interfaces
+namespace AlJohary.ServiceHub.Application.Interfaces
 {
     public interface IReturnService
     {

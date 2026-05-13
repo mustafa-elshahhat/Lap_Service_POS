@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Domain.Interfaces;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Domain.Interfaces;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Application.Services
+namespace AlJohary.ServiceHub.Application.Services
 {
     public class SupplierService : ISupplierService
     {

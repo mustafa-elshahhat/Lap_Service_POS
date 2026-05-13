@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using CarPartsShopWPF.Shared.Helpers;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Application.Services;
+using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Application.Services;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
     public partial class ReturnDetailsDialog : Window
     {
@@ -54,7 +54,7 @@ namespace CarPartsShopWPF.Presentation.Views
 
                 if (returnInfo == null) return;
 
-                var returnEntity = new CarPartsShopWPF.Domain.Entities.Return
+                var returnEntity = new AlJohary.ServiceHub.Domain.Entities.Return
                 {
                     Id = SafeConvert.ToInt(returnInfo["id"]),
                     ReturnNumber = SafeConvert.ToString(returnInfo["return_number"]),
@@ -65,10 +65,10 @@ namespace CarPartsShopWPF.Presentation.Views
                     CustomerName = SafeConvert.ToString(returnInfo["customer_name"])
                 };
 
-                var returnItems = new List<CarPartsShopWPF.Domain.Entities.ReturnItem>();
+                var returnItems = new List<AlJohary.ServiceHub.Domain.Entities.ReturnItem>();
                 foreach (var item in itemsDicts)
                 {
-                    returnItems.Add(new CarPartsShopWPF.Domain.Entities.ReturnItem
+                    returnItems.Add(new AlJohary.ServiceHub.Domain.Entities.ReturnItem
                     {
                         ProductName = SafeConvert.ToString(item["product_name"]),
                         Quantity = SafeConvert.ToInt(item["quantity"]),

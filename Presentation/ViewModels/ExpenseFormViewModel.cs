@@ -2,10 +2,10 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class ExpenseFormViewModel : BaseViewModel
     {

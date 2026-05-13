@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Infrastructure.Persistence;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Infrastructure.Persistence;
 using Xunit;
 
-namespace CarPartsShopWPF.Tests
+namespace AlJohary.ServiceHub.Tests
 {
     [Collection("Database")]
     public class RepairRepositoryTests : IDisposable

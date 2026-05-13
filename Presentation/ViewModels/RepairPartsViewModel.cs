@@ -2,11 +2,11 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Presentation.Interfaces;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Presentation.Interfaces;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class RepairPartsViewModel : BaseViewModel
     {

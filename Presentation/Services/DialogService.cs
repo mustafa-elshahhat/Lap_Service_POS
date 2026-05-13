@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Presentation.Views;
-using CarPartsShopWPF.Presentation.ViewModels;
-using CarPartsShopWPF.Shared.Helpers;
-using CarPartsShopWPF.Presentation.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Presentation.Views;
+using AlJohary.ServiceHub.Presentation.ViewModels;
+using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Presentation.Helpers;
 
-namespace CarPartsShopWPF.Presentation.Services
+namespace AlJohary.ServiceHub.Presentation.Services
 {
     public class DialogService : IDialogService
     {

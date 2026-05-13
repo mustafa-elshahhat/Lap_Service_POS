@@ -1,11 +1,11 @@
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Shared.Helpers;
 using System;
 using System.IO;
 using System.Windows.Input;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class SettingsViewModel : BaseViewModel
     {

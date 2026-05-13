@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using CarPartsShopWPF.Domain.Entities;
+using AlJohary.ServiceHub.Domain.Entities;
 
-namespace CarPartsShopWPF.Domain.Interfaces
+namespace AlJohary.ServiceHub.Domain.Interfaces
 {
     public interface IProductRepository
     {

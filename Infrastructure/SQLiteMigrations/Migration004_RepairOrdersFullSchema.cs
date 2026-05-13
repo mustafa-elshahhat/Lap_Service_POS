@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Infrastructure.SQLiteMigrations
+namespace AlJohary.ServiceHub.Infrastructure.SQLiteMigrations
 {
     public static class Migration004_RepairOrdersFullSchema
     {
@@ -16,8 +16,13 @@ namespace CarPartsShopWPF.Infrastructure.SQLiteMigrations
 
             try
             {
-                string appPath = AppDomain.CurrentDomain.BaseDirectory;
+                string appPath = AppContext.BaseDirectory;
+                if (string.IsNullOrEmpty(appPath)) appPath = AppDomain.CurrentDomain.BaseDirectory;
+                if (string.IsNullOrEmpty(appPath)) appPath = Directory.GetCurrentDirectory();
+
                 string backupDir = Path.Combine(appPath, "backups", "migrations");
+                if (!Directory.Exists(backupDir)) Directory.CreateDirectory(backupDir);
+
                 string backupFile = db.Backup(backupDir);
                 Logger.LogInfo($"Migration004: Safety backup created at {backupFile}");
 

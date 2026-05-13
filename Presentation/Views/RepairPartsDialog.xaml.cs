@@ -1,7 +1,7 @@
 using System.Windows;
-using CarPartsShopWPF.Presentation.ViewModels;
+using AlJohary.ServiceHub.Presentation.ViewModels;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
     public partial class RepairPartsDialog : Window
     {

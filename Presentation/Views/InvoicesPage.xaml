@@ -1,4 +1,4 @@
-<Page x:Class="CarPartsShopWPF.Presentation.Views.InvoicesPage"
+<Page x:Class="AlJohary.ServiceHub.Presentation.Views.InvoicesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Title="قائمة الفواتير"

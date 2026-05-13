@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using CarPartsShopWPF.Domain.Interfaces;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Core.Returns;
+using AlJohary.ServiceHub.Domain.Interfaces;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Core.Returns;
 
-namespace CarPartsShopWPF.Application.Services
+namespace AlJohary.ServiceHub.Application.Services
 {
     public class ReturnService : IReturnService
     {

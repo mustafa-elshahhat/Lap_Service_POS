@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using CarPartsShopWPF.Presentation.ViewModels;
-using CarPartsShopWPF.Shared.Helpers;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Application.Services;
+using AlJohary.ServiceHub.Presentation.ViewModels;
+using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Application.Services;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
     public partial class CustomerInvoicesDialog : Window
     {

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Application.Services;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Application.Services;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class CustomerInvoicesViewModel : BaseViewModel
     {
@@ -164,7 +164,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             try
             {
                 var printService = ServiceContainer.GetService<IPrintService>();
-                var groupedData = new List<CarPartsShopWPF.Application.DTOs.GroupedReportItem>();
+                var groupedData = new List<AlJohary.ServiceHub.Application.DTOs.GroupedReportItem>();
 
                 foreach (var inv in Invoices)
                 {
@@ -192,7 +192,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                         });
                     }
 
-                    groupedData.Add(new CarPartsShopWPF.Application.DTOs.GroupedReportItem
+                    groupedData.Add(new AlJohary.ServiceHub.Application.DTOs.GroupedReportItem
                     {
                         GroupHeader = headerParams,
                         Items = itemsList

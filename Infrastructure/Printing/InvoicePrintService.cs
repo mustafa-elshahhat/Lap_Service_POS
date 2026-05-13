@@ -4,9 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using CarPartsShopWPF.Domain.Entities;
+using AlJohary.ServiceHub.Domain.Entities;
 
-namespace CarPartsShopWPF.Infrastructure.Printing
+namespace AlJohary.ServiceHub.Infrastructure.Printing
 {
     public class InvoicePrintService : A4PrintBase
     {

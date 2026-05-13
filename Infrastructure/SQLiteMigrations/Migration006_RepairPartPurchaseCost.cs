@@ -1,8 +1,8 @@
 using System;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Infrastructure.SQLiteMigrations
+namespace AlJohary.ServiceHub.Infrastructure.SQLiteMigrations
 {
     public static class Migration006_RepairPartPurchaseCost
     {

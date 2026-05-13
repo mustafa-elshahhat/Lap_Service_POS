@@ -1,4 +1,4 @@
-<Window x:Class="CarPartsShopWPF.Presentation.Views.SupplierTransactionsDialog"
+<Window x:Class="AlJohary.ServiceHub.Presentation.Views.SupplierTransactionsDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="حركات المورد"

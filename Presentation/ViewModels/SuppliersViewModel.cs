@@ -1,13 +1,13 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Application.Services;
-using CarPartsShopWPF.Shared.Helpers;
-using CarPartsShopWPF.Presentation.Views;
-using CarPartsShopWPF.Domain.Entities;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Application.Services;
+using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Presentation.Views;
+using AlJohary.ServiceHub.Domain.Entities;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class SuppliersViewModel : BaseViewModel
     {

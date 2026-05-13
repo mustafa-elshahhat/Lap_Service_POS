@@ -1,19 +1,19 @@
 using System;
 using System.Data;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using System.IO;
 using System.Collections.Generic;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Infrastructure.Data
+namespace AlJohary.ServiceHub.Infrastructure.Data
 {
     public class DatabaseManager
     {
         private static DatabaseManager _instance;
         private static readonly object _lock = new object();
-        private SQLiteConnection _connection;
+        private SqliteConnection _connection;
         private readonly string _databasePath;
-        public SQLiteTransaction CurrentTransaction { get; set; }
+        public SqliteTransaction CurrentTransaction { get; set; }
 
         public static DatabaseManager Instance
         {
@@ -33,8 +33,39 @@ namespace CarPartsShopWPF.Infrastructure.Data
 
         private DatabaseManager()
         {
-            string appPath = AppDomain.CurrentDomain.BaseDirectory;
-            _databasePath = Path.Combine(appPath, "car_parts_shop.db");
+            try
+            {
+                string appPath = AppContext.BaseDirectory;
+                if (string.IsNullOrEmpty(appPath))
+                {
+                    appPath = AppDomain.CurrentDomain.BaseDirectory;
+                }
+                
+                if (string.IsNullOrEmpty(appPath))
+                {
+                    appPath = Directory.GetCurrentDirectory();
+                }
+
+                // Ensure appPath is an absolute path
+                appPath = Path.GetFullPath(appPath);
+
+                // Set DataDirectory as some libraries use it
+                AppDomain.CurrentDomain.SetData("DataDirectory", appPath);
+
+                _databasePath = Path.Combine(appPath, "aljohary_service_hub.db");
+
+                // Ensure the directory exists
+                string dir = Path.GetDirectoryName(_databasePath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "DatabaseManager Constructor");
+                throw;
+            }
         }
 
         public string DatabasePath => _databasePath;
@@ -53,16 +84,28 @@ namespace CarPartsShopWPF.Infrastructure.Data
         {
             if (_connection != null && _connection.State == ConnectionState.Open) return;
 
-            string connectionString = $"Data Source={_databasePath};Version=3;";
-            _connection = new SQLiteConnection(connectionString);
-            _connection.Open();
+            if (string.IsNullOrEmpty(_databasePath))
+            {
+                throw new InvalidOperationException("Database path was not initialized properly.");
+            }
 
-            Execute("PRAGMA foreign_keys = ON");
+            try
+            {
+                string connectionString = $"Data Source={_databasePath};";
+                _connection = new SqliteConnection(connectionString);
+                _connection.Open();
 
-            CreateTables();
+                Execute("PRAGMA foreign_keys = ON");
+                CreateTables();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "DatabaseManager Initialize");
+                throw;
+            }
         }
 
-        public void InitializeForTests(string connectionString = "Data Source=:memory:;Version=3;Pooling=False;")
+        public void InitializeForTests(string connectionString = "Data Source=:memory:;")
         {
             lock (_lock)
             {
@@ -71,14 +114,14 @@ namespace CarPartsShopWPF.Infrastructure.Data
                     _connection.Close();
                     _connection.Dispose();
                 }
-                _connection = new SQLiteConnection(connectionString);
+                _connection = new SqliteConnection(connectionString);
                 _connection.Open();
                 Execute("PRAGMA foreign_keys = ON");
                 CreateTables();
             }
         }
 
-        public SQLiteConnection GetConnection()
+        public SqliteConnection GetConnection()
         {
             if (_connection == null || _connection.State != ConnectionState.Open)
             {
@@ -87,7 +130,7 @@ namespace CarPartsShopWPF.Infrastructure.Data
             return _connection;
         }
 
-        public SQLiteTransaction BeginTransaction()
+        public SqliteTransaction BeginTransaction()
         {
             if (CurrentTransaction != null)
             {
@@ -125,11 +168,11 @@ namespace CarPartsShopWPF.Infrastructure.Data
             }
         }
 
-        public int Execute(string query, Dictionary<string, object> parameters = null, SQLiteTransaction transaction = null)
+        public int Execute(string query, Dictionary<string, object> parameters = null, SqliteTransaction transaction = null)
         {
             lock (_lock)
             {
-                using (var cmd = new SQLiteCommand(query, GetConnection()))
+                using (var cmd = new SqliteCommand(query, GetConnection()))
                 {
                     cmd.Transaction = transaction ?? CurrentTransaction;
                     if (parameters != null)
@@ -144,11 +187,11 @@ namespace CarPartsShopWPF.Infrastructure.Data
             }
         }
 
-        public long ExecuteAndGetId(string query, Dictionary<string, object> parameters = null, SQLiteTransaction transaction = null)
+        public long ExecuteAndGetId(string query, Dictionary<string, object> parameters = null, SqliteTransaction transaction = null)
         {
             lock (_lock)
             {
-                using (var cmd = new SQLiteCommand(query, GetConnection()))
+                using (var cmd = new SqliteCommand(query, GetConnection()))
                 {
                     cmd.Transaction = transaction ?? CurrentTransaction;
                     if (parameters != null)
@@ -159,7 +202,13 @@ namespace CarPartsShopWPF.Infrastructure.Data
                         }
                     }
                     cmd.ExecuteNonQuery();
-                    return GetConnection().LastInsertRowId;
+                    
+                    // Microsoft.Data.Sqlite doesn't have LastInsertRowId on connection, use scalar query
+                    using (var idCmd = new SqliteCommand("SELECT last_insert_rowid()", GetConnection()))
+                    {
+                        idCmd.Transaction = transaction ?? CurrentTransaction;
+                        return (long)idCmd.ExecuteScalar();
+                    }
                 }
             }
         }
@@ -168,7 +217,7 @@ namespace CarPartsShopWPF.Infrastructure.Data
         {
             lock (_lock)
             {
-                using (var cmd = new SQLiteCommand(query, GetConnection()))
+                using (var cmd = new SqliteCommand(query, GetConnection()))
                 {
                     if (CurrentTransaction != null) cmd.Transaction = CurrentTransaction;
                     if (parameters != null)
@@ -201,7 +250,7 @@ namespace CarPartsShopWPF.Infrastructure.Data
             lock (_lock)
             {
                 var results = new List<Dictionary<string, object>>();
-                using (var cmd = new SQLiteCommand(query, GetConnection()))
+                using (var cmd = new SqliteCommand(query, GetConnection()))
                 {
                     if (CurrentTransaction != null) cmd.Transaction = CurrentTransaction;
                     if (parameters != null)
@@ -233,7 +282,7 @@ namespace CarPartsShopWPF.Infrastructure.Data
         {
             lock (_lock)
             {
-                using (var cmd = new SQLiteCommand(query, GetConnection()))
+                using (var cmd = new SqliteCommand(query, GetConnection()))
                 {
                     if (CurrentTransaction != null) cmd.Transaction = CurrentTransaction;
                     if (parameters != null)

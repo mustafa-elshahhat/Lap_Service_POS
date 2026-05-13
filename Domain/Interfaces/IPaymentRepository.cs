@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CarPartsShopWPF.Domain.Interfaces
+namespace AlJohary.ServiceHub.Domain.Interfaces
 {
     public interface IPaymentRepository
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CarPartsShopWPF.Infrastructure.Data
+namespace AlJohary.ServiceHub.Infrastructure.Data
 {
     public static class DatabaseSchema
     {

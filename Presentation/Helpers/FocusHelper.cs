@@ -4,9 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Windows.Media;
-using CarPartsShopWPF.Presentation.ViewModels;
+using AlJohary.ServiceHub.Presentation.ViewModels;
 
-namespace CarPartsShopWPF.Presentation.Helpers
+namespace AlJohary.ServiceHub.Presentation.Helpers
 {
     public static class FocusHelper
     {

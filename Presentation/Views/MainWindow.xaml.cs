@@ -1,11 +1,11 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
-using CarPartsShopWPF.Presentation.ViewModels;
-using CarPartsShopWPF.Shared.Helpers;
-using CarPartsShopWPF.Presentation.Helpers;
+using AlJohary.ServiceHub.Presentation.ViewModels;
+using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Presentation.Helpers;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
 
     public partial class MainWindow : Window

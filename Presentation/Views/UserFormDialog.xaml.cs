@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
-using CarPartsShopWPF.Presentation.ViewModels;
+using AlJohary.ServiceHub.Presentation.ViewModels;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
     public partial class UserFormDialog : Window
     {

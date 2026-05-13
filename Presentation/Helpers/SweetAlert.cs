@@ -1,8 +1,8 @@
 using System;
 using System.Windows;
-using CarPartsShopWPF.Presentation.Views;
+using AlJohary.ServiceHub.Presentation.Views;
 
-namespace CarPartsShopWPF.Presentation.Helpers
+namespace AlJohary.ServiceHub.Presentation.Helpers
 {
     public static class SweetAlert
     {

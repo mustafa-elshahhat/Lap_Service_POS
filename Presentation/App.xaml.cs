@@ -1,9 +1,9 @@
 using System;
 using System.Windows;
-using CarPartsShopWPF.Presentation.Services;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Presentation.Services;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation
+namespace AlJohary.ServiceHub.Presentation
 {
     public partial class App : System.Windows.Application
     {

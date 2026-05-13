@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Application.DTOs;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Application.DTOs;
 
-namespace CarPartsShopWPF.Infrastructure.Printing
+namespace AlJohary.ServiceHub.Infrastructure.Printing
 {
     public class PrintService : IPrintService
     {

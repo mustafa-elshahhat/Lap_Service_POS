@@ -2,11 +2,11 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using CarPartsShopWPF.Presentation.ViewModels;
-using CarPartsShopWPF.Presentation.Helpers;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Presentation.ViewModels;
+using AlJohary.ServiceHub.Presentation.Helpers;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
 
     public partial class POSPage : Page
@@ -18,7 +18,7 @@ namespace CarPartsShopWPF.Presentation.Views
             InitializeComponent();
             _viewModel = new POSViewModel();
             DataContext = _viewModel;
-            CarPartsShopWPF.Presentation.Helpers.FocusHelper.SetupSearchFocus(this, SearchTextBox);
+            AlJohary.ServiceHub.Presentation.Helpers.FocusHelper.SetupSearchFocus(this, SearchTextBox);
         }
     }
 }

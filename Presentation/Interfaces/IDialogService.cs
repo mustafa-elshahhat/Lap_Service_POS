@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using CarPartsShopWPF.Presentation.ViewModels;
+using AlJohary.ServiceHub.Presentation.ViewModels;
 
-namespace CarPartsShopWPF.Presentation.Interfaces
+namespace AlJohary.ServiceHub.Presentation.Interfaces
 {
     public interface IDialogService
     {

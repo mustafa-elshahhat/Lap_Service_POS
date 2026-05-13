@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using CarPartsShopWPF.Domain.Interfaces;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Domain.Interfaces;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Infrastructure.Persistence
+namespace AlJohary.ServiceHub.Infrastructure.Persistence
 {
     public class ReportRepository : IReportRepository
     {

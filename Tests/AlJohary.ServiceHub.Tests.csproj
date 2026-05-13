@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CarPartsShopWPF.csproj" />
+    <ProjectReference Include="..\AlJohary.ServiceHub.csproj" />
   </ItemGroup>
 
   <ItemGroup>

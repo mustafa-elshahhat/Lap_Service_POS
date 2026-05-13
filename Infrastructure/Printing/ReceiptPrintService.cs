@@ -4,13 +4,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Infrastructure.Data;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Infrastructure.Data;
 using System.Linq;
 
 using System.Printing;
 
-namespace CarPartsShopWPF.Infrastructure.Printing
+namespace AlJohary.ServiceHub.Infrastructure.Printing
 {
     public class ReceiptPrintService
     {

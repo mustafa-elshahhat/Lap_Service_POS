@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace CarPartsShopWPF.Presentation.Helpers
+namespace AlJohary.ServiceHub.Presentation.Helpers
 {
     public class WindowResizer
     {

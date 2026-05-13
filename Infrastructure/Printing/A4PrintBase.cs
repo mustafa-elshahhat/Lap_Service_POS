@@ -4,11 +4,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Presentation;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Presentation;
 
-namespace CarPartsShopWPF.Infrastructure.Printing
+namespace AlJohary.ServiceHub.Infrastructure.Printing
 {
     public abstract class A4PrintBase
     {

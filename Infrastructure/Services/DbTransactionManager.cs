@@ -1,7 +1,7 @@
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Infrastructure.Data;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Infrastructure.Data;
 
-namespace CarPartsShopWPF.Infrastructure.Services
+namespace AlJohary.ServiceHub.Infrastructure.Services
 {
     public class DbTransactionManager : IDbTransactionManager
     {

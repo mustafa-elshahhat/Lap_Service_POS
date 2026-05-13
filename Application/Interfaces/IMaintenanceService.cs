@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Application.DTOs;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Application.DTOs;
 
-namespace CarPartsShopWPF.Application.Interfaces
+namespace AlJohary.ServiceHub.Application.Interfaces
 {
     public interface IMaintenanceService
     {

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Domain.Interfaces;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Interfaces;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Application.Services
+namespace AlJohary.ServiceHub.Application.Services
 {
     public class ReportService : IReportService
     {

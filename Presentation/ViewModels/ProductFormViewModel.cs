@@ -1,12 +1,12 @@
 using System;
 using System.Windows.Input;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Application.Services;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Application.Services;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class ProductFormViewModel : BaseViewModel
     {

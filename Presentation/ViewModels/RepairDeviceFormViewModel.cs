@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
-using CarPartsShopWPF.Application.DTOs;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.DTOs;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class RepairPartLineViewModel : BaseViewModel
     {

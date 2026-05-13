@@ -1,4 +1,4 @@
-namespace CarPartsShopWPF.Application.DTOs
+namespace AlJohary.ServiceHub.Application.DTOs
 {
     public class SaleOperationResult
     {

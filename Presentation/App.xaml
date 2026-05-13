@@ -1,9 +1,9 @@
-<Application x:Class="CarPartsShopWPF.Presentation.App"
+<Application x:Class="AlJohary.ServiceHub.Presentation.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:helpers="clr-namespace:CarPartsShopWPF.Presentation.Helpers"
-             xmlns:services="clr-namespace:CarPartsShopWPF.Application.Services"
-             xmlns:converters="clr-namespace:CarPartsShopWPF.Presentation.Converters"
+             xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
+             xmlns:services="clr-namespace:AlJohary.ServiceHub.Application.Services"
+             xmlns:converters="clr-namespace:AlJohary.ServiceHub.Presentation.Converters"
              ShutdownMode="OnLastWindowClose">
 
     <Application.Resources>

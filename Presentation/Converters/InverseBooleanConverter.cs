@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace CarPartsShopWPF.Presentation.Converters
+namespace AlJohary.ServiceHub.Presentation.Converters
 {
     public class InverseBooleanConverter : IValueConverter
     {

@@ -1,15 +1,15 @@
 using System;
 using System.Windows;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Presentation.Services;
-using CarPartsShopWPF.Application.Services;
-using CarPartsShopWPF.Infrastructure.Persistence;
-using CarPartsShopWPF.Infrastructure.Services;
-using CarPartsShopWPF.Domain.Interfaces;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Presentation.Services;
+using AlJohary.ServiceHub.Application.Services;
+using AlJohary.ServiceHub.Infrastructure.Persistence;
+using AlJohary.ServiceHub.Infrastructure.Services;
+using AlJohary.ServiceHub.Domain.Interfaces;
 
-namespace CarPartsShopWPF.Presentation
+namespace AlJohary.ServiceHub.Presentation
 {
     public static class AppBootstrapper
     {
@@ -23,7 +23,7 @@ namespace CarPartsShopWPF.Presentation
             }
             catch (Exception ex)
             {
-                CarPartsShopWPF.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper Initialize");
+                AlJohary.ServiceHub.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper Initialize");
                 MessageBox.Show($"خطأ أثناء تهيئة النظام: {ex.Message}", "خطأ في التشغيل", MessageBoxButton.OK, MessageBoxImage.Error);
                 System.Windows.Application.Current.Shutdown(1);
             }
@@ -37,7 +37,7 @@ namespace CarPartsShopWPF.Presentation
             }
             catch (Exception ex)
             {
-                CarPartsShopWPF.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper Cleanup");
+                AlJohary.ServiceHub.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper Cleanup");
             }
         }
 
@@ -83,7 +83,7 @@ namespace CarPartsShopWPF.Presentation
             ServiceContainer.Register<IReportService>(reportService);
             ServiceContainer.Register<IMaintenanceService>(maintenanceService);
             ServiceContainer.Register<ISettingsService>(settingsService);
-            ServiceContainer.Register<IPrintService>(new CarPartsShopWPF.Infrastructure.Printing.PrintService());
+            ServiceContainer.Register<IPrintService>(new AlJohary.ServiceHub.Infrastructure.Printing.PrintService());
         }
 
         private static void InitializeDatabase()
@@ -94,20 +94,20 @@ namespace CarPartsShopWPF.Presentation
 
                 try
                 {
-                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration002_BusinessDateLocalRepair.Execute();
-                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration003_AddCashRefundToReturns.Execute();
-                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration004_RepairOrdersFullSchema.Execute();
-                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration005_DropDeadPaymentMethodSchema.Execute();
-                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration006_RepairPartPurchaseCost.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration002_BusinessDateLocalRepair.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration003_AddCashRefundToReturns.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration004_RepairOrdersFullSchema.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration005_DropDeadPaymentMethodSchema.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration006_RepairPartPurchaseCost.Execute();
                 }
                 catch (Exception migrationEx)
                 {
-                    CarPartsShopWPF.Shared.Helpers.Logger.LogException(migrationEx, "Migrations");
+                    AlJohary.ServiceHub.Shared.Helpers.Logger.LogException(migrationEx, "Migrations");
                 }
             }
             catch (Exception ex)
             {
-                CarPartsShopWPF.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper InitializeDatabase");
+                AlJohary.ServiceHub.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper InitializeDatabase");
                 MessageBox.Show($"فشل تهيئة قاعدة البيانات:\n{ex.Message}", "خطأ في قاعدة البيانات", MessageBoxButton.OK, MessageBoxImage.Error);
                 System.Windows.Application.Current.Shutdown(1);
             }
@@ -115,7 +115,7 @@ namespace CarPartsShopWPF.Presentation
 
         private static void InitializeLanguage()
         {
-            CarPartsShopWPF.Application.Services.LanguageService.Instance.SetLanguage("ar-EG");
+            AlJohary.ServiceHub.Application.Services.LanguageService.Instance.SetLanguage("ar-EG");
         }
     }
 }

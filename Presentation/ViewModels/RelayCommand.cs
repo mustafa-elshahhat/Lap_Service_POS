@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Input;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
 
     public class RelayCommand : ICommand

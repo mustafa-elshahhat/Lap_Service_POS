@@ -2,7 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace CarPartsShopWPF.Presentation.Behaviors
+namespace AlJohary.ServiceHub.Presentation.Behaviors
 {
     public static class TextBoxBehavior
     {

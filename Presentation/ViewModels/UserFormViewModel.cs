@@ -1,10 +1,10 @@
 using System;
 using System.Windows.Input;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class UserFormViewModel : BaseViewModel
     {
@@ -21,7 +21,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
 
         public UserFormViewModel(bool isEditMode = false, IDialogService dialogService = null)
         {
-            _dialogService = dialogService ?? new CarPartsShopWPF.Presentation.Services.DialogService();
+            _dialogService = dialogService ?? new AlJohary.ServiceHub.Presentation.Services.DialogService();
             IsEditMode = isEditMode;
             Title = isEditMode ? "تعديل مستخدم" : "إضافة مستخدم";
             ButtonText = isEditMode ? "حفظ التعديلات" : "إنشاء";

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Domain.Interfaces;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Domain.Interfaces;
 
-namespace CarPartsShopWPF.Application.Services
+namespace AlJohary.ServiceHub.Application.Services
 {
     public class CustomerService : ICustomerService
     {

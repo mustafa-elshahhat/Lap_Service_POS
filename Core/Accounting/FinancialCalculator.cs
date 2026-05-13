@@ -1,6 +1,6 @@
 using System;
 
-namespace CarPartsShopWPF.Core.Accounting
+namespace AlJohary.ServiceHub.Core.Accounting
 {
     public static class FinancialCalculator
     {

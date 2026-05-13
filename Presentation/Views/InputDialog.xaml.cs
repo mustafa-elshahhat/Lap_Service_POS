@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace CarPartsShopWPF.Presentation.Views
+namespace AlJohary.ServiceHub.Presentation.Views
 {
 
     public partial class InputDialog : Window

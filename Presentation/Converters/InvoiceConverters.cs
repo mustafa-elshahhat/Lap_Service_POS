@@ -2,10 +2,10 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.Converters
+namespace AlJohary.ServiceHub.Presentation.Converters
 {
     public class SaleTypeConverter : IValueConverter
     {

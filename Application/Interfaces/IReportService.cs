@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CarPartsShopWPF.Application.Interfaces
+namespace AlJohary.ServiceHub.Application.Interfaces
 {
     public interface IReportService
     {

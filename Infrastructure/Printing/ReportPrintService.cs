@@ -5,10 +5,10 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Linq;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Application.DTOs;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Application.DTOs;
 
-namespace CarPartsShopWPF.Infrastructure.Printing
+namespace AlJohary.ServiceHub.Infrastructure.Printing
 {
 
     public class ReportPrintService : A4PrintBase

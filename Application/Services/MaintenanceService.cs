@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using CarPartsShopWPF.Application.DTOs;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Domain.Entities;
-using CarPartsShopWPF.Domain.Interfaces;
-using CarPartsShopWPF.Infrastructure.Data;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.DTOs;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Domain.Interfaces;
+using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Application.Services
+namespace AlJohary.ServiceHub.Application.Services
 {
     public class MaintenanceService : IMaintenanceService
     {

@@ -1,11 +1,11 @@
 using System;
-using CarPartsShopWPF.Application.Interfaces;
-using CarPartsShopWPF.Presentation.Interfaces;
-using CarPartsShopWPF.Application.Services;
-using CarPartsShopWPF.Presentation.Views;
-using CarPartsShopWPF.Shared.Helpers;
+using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Application.Services;
+using AlJohary.ServiceHub.Presentation.Views;
+using AlJohary.ServiceHub.Shared.Helpers;
 
-namespace CarPartsShopWPF.Presentation.ViewModels
+namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
@@ -15,7 +15,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
 
         public MainViewModel(IDialogService dialogService = null)
         {
-            _dialogService = dialogService ?? new CarPartsShopWPF.Presentation.Services.DialogService();
+            _dialogService = dialogService ?? new AlJohary.ServiceHub.Presentation.Services.DialogService();
             UpdateUserInfo();
         }
 

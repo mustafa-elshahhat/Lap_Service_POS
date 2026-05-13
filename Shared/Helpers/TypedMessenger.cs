@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace CarPartsShopWPF.Shared.Helpers
+namespace AlJohary.ServiceHub.Shared.Helpers
 {
     public static class TypedMessenger
     {
