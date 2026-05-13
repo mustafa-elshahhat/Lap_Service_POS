@@ -16,16 +16,13 @@ namespace CarPartsShopWPF.Application.Services
         }
 
         public long Create(string code, string name, decimal purchasePrice, decimal sellingPrice,
-            int quantity = 0, string barcode = null, int? minQuantity = null,
+            int quantity = 0, int? minQuantity = null,
             string supplierName = null, string category = null, string description = null)
         {
             ValidateProductData(code, name, purchasePrice, sellingPrice, quantity, minQuantity ?? 0);
 
             if (_repository.GetByCode(code) != null)
                 throw new InvalidOperationException("كود المنتج موجود بالفعل");
-
-            if (!string.IsNullOrEmpty(barcode) && _repository.GetByBarcode(barcode) != null)
-                throw new InvalidOperationException("الباركود موجود بالفعل");
 
             var product = new Product
             {
@@ -34,7 +31,6 @@ namespace CarPartsShopWPF.Application.Services
                 PurchasePrice = purchasePrice,
                 SellingPrice = sellingPrice,
                 Quantity = quantity,
-                Barcode = barcode,
                 MinQuantity = minQuantity ?? 5,
                 SupplierName = supplierName,
                 Category = category,
@@ -69,7 +65,7 @@ namespace CarPartsShopWPF.Application.Services
                 throw new ArgumentException("الحد الأدنى للمخزون لا يمكن أن يكون سالباً");
         }
 
-        public void Update(int productId, string code = null, string barcode = null, string name = null,
+        public void Update(int productId, string code = null, string name = null,
             decimal? purchasePrice = null, decimal? sellingPrice = null, int? quantity = null,
             int? minQuantity = null, string supplierName = null, string category = null,
             string description = null)
@@ -93,15 +89,7 @@ namespace CarPartsShopWPF.Application.Services
                     throw new InvalidOperationException("كود المنتج موجود بالفعل");
             }
 
-            if (!string.IsNullOrEmpty(barcode) && barcode != product.Barcode)
-            {
-                var existing = _repository.GetByBarcode(barcode);
-                if (existing != null && existing.Id != productId)
-                    throw new InvalidOperationException("الباركود موجود بالفعل");
-            }
-
             if (code != null) product.Code = code;
-            if (barcode != null) product.Barcode = barcode;
             if (name != null) product.Name = name;
             if (purchasePrice.HasValue) product.PurchasePrice = purchasePrice.Value;
             if (sellingPrice.HasValue) product.SellingPrice = sellingPrice.Value;
@@ -118,7 +106,6 @@ namespace CarPartsShopWPF.Application.Services
         
         public Product GetById(int productId) => _repository.GetById(productId);
         public Product GetByCode(string code) => _repository.GetByCode(code);
-        public Product GetByBarcode(string barcode) => _repository.GetByBarcode(barcode);
         
         public List<Product> Search(string query, int limit = 50) => _repository.Search(query, limit);
         public List<Product> GetAll(bool includeInactive = false) => _repository.GetAll(includeInactive);
@@ -161,35 +148,5 @@ namespace CarPartsShopWPF.Application.Services
             }
         }
 
-        public string GenerateBarcode()
-        {
-            Random random = new Random();
-            string barcode;
-            int attempts = 0;
-
-            do
-            {
-                barcode = "";
-                for (int i = 0; i < 12; i++)
-                {
-                    barcode += random.Next(0, 10).ToString();
-                }
-                int sum = 0;
-                for (int i = 0; i < 12; i++)
-                {
-                    int digit = int.Parse(barcode[i].ToString());
-                    sum += (i % 2 == 0) ? digit : digit * 3;
-                }
-                int checkDigit = (10 - (sum % 10)) % 10;
-                barcode += checkDigit.ToString();
-
-                attempts++;
-                if (attempts > 100)
-                    throw new Exception("فشل توليد باركود فريد");
-
-            } while (_repository.GetByBarcode(barcode) != null);
-
-            return barcode;
-        }
     }
 }

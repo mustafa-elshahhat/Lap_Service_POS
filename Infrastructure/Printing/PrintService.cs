@@ -36,9 +36,5 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             _reportService.PrintGrouped(title, data, itemColumns, itemHeaders);
         }
 
-        public void PrintBarcode(Product product)
-        {
-            _receiptService.PrintBarcode(product);
-        }
     }
 }

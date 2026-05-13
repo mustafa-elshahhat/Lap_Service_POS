@@ -6,10 +6,10 @@ namespace CarPartsShopWPF.Application.Interfaces
     public interface IProductService
     {
         long Create(string code, string name, decimal purchasePrice, decimal sellingPrice,
-            int quantity = 0, string barcode = null, int? minQuantity = null,
+            int quantity = 0, int? minQuantity = null,
             string supplierName = null, string category = null, string description = null);
 
-        void Update(int productId, string code = null, string barcode = null, string name = null,
+        void Update(int productId, string code = null, string name = null,
             decimal? purchasePrice = null, decimal? sellingPrice = null, int? quantity = null,
             int? minQuantity = null, string supplierName = null, string category = null,
             string description = null);
@@ -18,7 +18,6 @@ namespace CarPartsShopWPF.Application.Interfaces
         
         Product GetById(int productId);
         Product GetByCode(string code);
-        Product GetByBarcode(string barcode);
         
         List<Product> Search(string query, int limit = 50);
         List<Product> GetAll(bool includeInactive = false);
@@ -35,6 +34,5 @@ namespace CarPartsShopWPF.Application.Interfaces
         (bool available, int currentQuantity) CheckStock(int productId, int requiredQuantity);
 
         string GenerateProductCode();
-        string GenerateBarcode();
     }
 }

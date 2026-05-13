@@ -25,42 +25,6 @@ namespace CarPartsShopWPF.Infrastructure.Printing
             PrintDocument(doc, "ReturnReceipt_" + @return.ReturnNumber);
         }
 
-        public void PrintBarcode(Product product)
-        {
-            var doc = CreateBarcodeDocument(product);
-            PrintDocument(doc, "Barcode_" + product.Barcode, 150);
-        }
-
-        private FlowDocument CreateBarcodeDocument(Product product)
-        {
-            FlowDocument doc = new FlowDocument();
-            doc.FontFamily = new FontFamily("Segoe UI");
-            doc.FontSize = 12;
-            doc.PagePadding = new Thickness(5);
-            doc.ColumnGap = 0;
-            
-            doc.PageWidth = 160; 
-            doc.PageHeight = 8000;
-            doc.ColumnWidth = 160;
-            doc.TextAlignment = TextAlignment.Center;
-
-            Section section = new Section();
-            section.TextAlignment = TextAlignment.Center;
-
-            section.Blocks.Add(new Paragraph(new Run(product.Name)) { FontWeight = FontWeights.Bold, FontSize = 12, Margin = new Thickness(0, 0, 0, 5) });
-
-            if (!string.IsNullOrEmpty(product.Barcode))
-            {
-                UIElement barcodeVisual = BarcodeGenerator.GenerateCode39(product.Barcode, 50, 1.2);
-                section.Blocks.Add(new BlockUIContainer(barcodeVisual));
-
-                section.Blocks.Add(new Paragraph(new Run(product.Barcode)) { FontSize = 10, Margin = new Thickness(0, 2, 0, 0) });
-            }
-
-            doc.Blocks.Add(section);
-            return doc;
-        }
-
         private void PrintDocument(FlowDocument doc, string jobName, double? fixedHeight = null)
         {
             try

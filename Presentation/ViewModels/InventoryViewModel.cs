@@ -17,16 +17,14 @@ namespace CarPartsShopWPF.Presentation.ViewModels
     {
         private readonly IProductService _productService;
         private readonly IDialogService _dialogService;
-        private readonly IPrintService _printService;
         private ObservableCollection<Product> _products;
         private Product _selectedProduct;
         private string _searchText;
 
-        public InventoryViewModel(IDialogService dialogService = null, IPrintService printService = null)
+        public InventoryViewModel(IDialogService dialogService = null)
         {
             _productService = ServiceContainer.GetService<IProductService>();
             _dialogService = dialogService ?? ServiceContainer.GetService<IDialogService>();
-            _printService = printService ?? ServiceContainer.GetService<IPrintService>();
             Products = new ObservableCollection<Product>();
             LoadProducts();
         }
@@ -67,7 +65,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         public ICommand LowStockCommand => new RelayCommand(ShowLowStock);
         public ICommand EditProductCommand => new RelayCommand(EditProduct, () => SelectedProduct != null);
         public ICommand AdjustQuantityCommand => new RelayCommand(AdjustQuantity, () => SelectedProduct != null);
-        public ICommand PrintBarcodeCommand => new RelayCommand(PrintBarcode, () => SelectedProduct != null);
         public ICommand DeleteProductCommand => new RelayCommand(DeleteProduct, () => SelectedProduct != null);
 
         #endregion
@@ -173,25 +170,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             }
         }
 
-        private void PrintBarcode()
-        {
-            if (SelectedProduct == null) return;
-
-            if (string.IsNullOrEmpty(SelectedProduct.Barcode))
-            {
-                _dialogService.ShowInfo("تنبيه", "هذا المنتج ليس له باركود");
-                return;
-            }
-
-            try
-            {
-                _printService.PrintBarcode(SelectedProduct);
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowError("خطأ", "فشل طباعة الباركود: " + ex.Message);
-            }
-        }
 
         private void DeleteProduct()
         {

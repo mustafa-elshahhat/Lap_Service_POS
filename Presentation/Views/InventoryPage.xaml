@@ -97,7 +97,6 @@
                         <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="الفئة" Binding="{Binding Category}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الباركود" Binding="{Binding Barcode}" Width="Auto" ElementStyle="{DynamicResource DataGridCodeStyle}"/>
                         <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="سعر البيع" Binding="{Binding SellingPrice, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                     </DataGrid.Columns>
@@ -106,7 +105,6 @@
                         <ContextMenu>
                             <MenuItem Header="تعديل" Command="{Binding EditProductCommand}"/>
                             <MenuItem Header="تعديل الكمية" Command="{Binding AdjustQuantityCommand}"/>
-                            <MenuItem Header="طباعة الباركود" Command="{Binding PrintBarcodeCommand}"/>
                             <Separator/>
                             <MenuItem Header="حذف" Command="{Binding DeleteProductCommand}"/>
                         </ContextMenu>

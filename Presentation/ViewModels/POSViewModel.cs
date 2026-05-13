@@ -109,15 +109,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             string query = SearchText?.Trim();
             if (string.IsNullOrEmpty(query)) return;
 
-            var product = _productService.GetByBarcode(query);
-            if (product != null)
-            {
-                AddToCart(product);
-                ClearSearch();
-                return;
-            }
-
-            product = _productService.GetByCode(query);
+            var product = _productService.GetByCode(query);
             if (product != null)
             {
                 AddToCart(product);
@@ -205,7 +197,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                     UnitPrice = product.SellingPrice,
                     OriginalPrice = product.SellingPrice,
                     PurchasePrice = product.PurchasePrice,
-                    ProductBarcode = product.Barcode ?? product.Code
+                    ProductCode = product.Code
                 };
                 cartItem.Total = cartItem.Quantity * cartItem.UnitPrice;
                 CartItems.Add(cartItem);
@@ -435,7 +427,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             return CartItems.Select(c => new SaleItem
             {
                 ProductId = c.ProductId,
-                ProductCode = c.ProductBarcode,
+                ProductCode = c.ProductCode,
                 ProductName = c.ProductName,
                 Quantity = c.Quantity,
                 UnitPurchasePrice = c.PurchasePrice,
@@ -457,7 +449,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         private int _index;
         private int _productId;
         private string _productName;
-        private string _productBarcode;
+        private string _productCode;
         private int _quantity;
         private decimal _unitPrice;
         private decimal _originalPrice;
@@ -482,10 +474,10 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             set => SetProperty(ref _productName, value);
         }
 
-        public string ProductBarcode
+        public string ProductCode
         {
-            get => _productBarcode;
-            set => SetProperty(ref _productBarcode, value);
+            get => _productCode;
+            set => SetProperty(ref _productCode, value);
         }
 
         public int Quantity

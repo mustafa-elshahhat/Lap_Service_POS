@@ -6,7 +6,6 @@ namespace CarPartsShopWPF.Domain.Entities
     {
         public int Id { get; set; }
         public string Code { get; set; }
-        public string Barcode { get; set; }
         public string Name { get; set; }
         public decimal PurchasePrice { get; set; }
         public decimal SellingPrice { get; set; }

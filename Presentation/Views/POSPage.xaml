@@ -44,7 +44,7 @@
                     
                     <StackPanel Orientation="Horizontal" IsHitTestVisible="False" Margin="12,0" VerticalAlignment="Center">
                          <TextBlock Text="🔍" FontSize="16" Margin="0,0,8,0" Foreground="{DynamicResource TextMutedBrush}"/>
-                         <TextBlock Text="ابحث عن منتج بالاسم أو الباركود..." 
+                         <TextBlock Text="ابحث عن منتج بالاسم أو الكود..." 
                                     Foreground="{DynamicResource TextMutedBrush}">
                              <TextBlock.Style>
                                  <Style TargetType="TextBlock">
@@ -105,7 +105,6 @@
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="#" Binding="{Binding Id}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                            <DataGridTextColumn Header="الباركود" Binding="{Binding Barcode}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                             <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*"/>
                             <DataGridTextColumn Header="السعر" Binding="{Binding SellingPrice, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                             <DataGridTextColumn Header="المخزون" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>

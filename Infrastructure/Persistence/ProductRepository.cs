@@ -24,7 +24,6 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             {
                 Id = SafeConvert.ToInt(row["id"]),
                 Code = SafeConvert.ToString(row["code"]),
-                Barcode = SafeConvert.ToString(row["barcode"]),
                 Name = SafeConvert.ToString(row["name"]),
                 PurchasePrice = SafeConvert.ToDecimal(row["purchase_price"]),
                 SellingPrice = SafeConvert.ToDecimal(row["selling_price"]),
@@ -46,14 +45,6 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             return MapToEntity(row);
         }
 
-        public Product GetByBarcode(string barcode)
-        {
-            if (string.IsNullOrEmpty(barcode)) return null;
-            var row = _db.FetchOne("SELECT * FROM products WHERE barcode = @barcode AND is_active = 1", 
-                new Dictionary<string, object> { { "@barcode", barcode } });
-            return MapToEntity(row);
-        }
-
         public Product GetByCode(string code)
         {
              var row = _db.FetchOne("SELECT * FROM products WHERE code = @code AND is_active = 1", 
@@ -67,7 +58,7 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             var rows = _db.FetchAll(@"
                 SELECT * FROM products 
                 WHERE is_active = 1 
-                AND (name LIKE @search OR code LIKE @search OR barcode LIKE @search)
+                AND (name LIKE @search OR code LIKE @search)
                 ORDER BY name
                 LIMIT @limit",
                 new Dictionary<string, object> { { "@search", search }, { "@limit", limit } });
@@ -92,14 +83,13 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
         public long Create(Product product)
         {
             return _db.ExecuteAndGetId(@"
-                INSERT INTO products (code, barcode, name, purchase_price, selling_price,
+                INSERT INTO products (code, name, purchase_price, selling_price,
                                     quantity, min_quantity, supplier_name, category, description, is_active, created_at, updated_at)
-                VALUES (@code, @barcode, @name, @purchasePrice, @sellingPrice, @quantity,
+                VALUES (@code, @name, @purchasePrice, @sellingPrice, @quantity,
                         @minQuantity, @supplierName, @category, @description, 1, datetime('now'), datetime('now'))",
                 new Dictionary<string, object>
                 {
                     { "@code", product.Code },
-                    { "@barcode", product.Barcode },
                     { "@name", product.Name },
                     { "@purchasePrice", product.PurchasePrice },
                     { "@sellingPrice", product.SellingPrice },
@@ -116,7 +106,6 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             _db.Execute(@"
                UPDATE products SET 
                    code = @code,
-                   barcode = @barcode,
                    name = @name,
                    purchase_price = @purchasePrice,
                    selling_price = @sellingPrice,
@@ -132,7 +121,6 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                {
                    { "@id", product.Id },
                    { "@code", product.Code },
-                   { "@barcode", product.Barcode },
                    { "@name", product.Name },
                    { "@purchasePrice", product.PurchasePrice },
                    { "@sellingPrice", product.SellingPrice },

@@ -144,7 +144,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                     _productService.Update(
                         _id.Value,
                         code: Code.Trim(),
-                        barcode: null,
                         name: Name.Trim(),
                         purchasePrice: PurchasePrice,
                         sellingPrice: SellingPrice,
@@ -164,7 +163,6 @@ namespace CarPartsShopWPF.Presentation.ViewModels
                         purchasePrice: PurchasePrice,
                         sellingPrice: SellingPrice,
                         quantity: Quantity,
-                        barcode: null,
                         minQuantity: MinQuantity,
                         supplierName: null,
                         category: Category?.Trim(),
