@@ -80,10 +80,12 @@ namespace CarPartsShopWPF.Presentation.ViewModels
         public bool IsCustomSource    => _selectedPartSource == "خارجي";
 
         // ── Shared fields ───────────────────────────────────────────────────
-        private int     _partQty  = 1;
-        private decimal _partCost = 0;
-        public int     PartQty  { get => _partQty;  set => SetProperty(ref _partQty, value); }
-        public decimal PartCost { get => _partCost; set => SetProperty(ref _partCost, value); }
+        private int     _partQty          = 1;
+        private decimal _partCost         = 0;
+        private decimal _partPurchaseCost = 0;
+        public int     PartQty          { get => _partQty;          set => SetProperty(ref _partQty, value); }
+        public decimal PartCost         { get => _partCost;         set => SetProperty(ref _partCost, value); }
+        public decimal PartPurchaseCost { get => _partPurchaseCost; set => SetProperty(ref _partPurchaseCost, value); }
 
         // ── Inventory source ─────────────────────────────────────────────────
         private string _productSearch;
@@ -141,11 +143,12 @@ namespace CarPartsShopWPF.Presentation.ViewModels
 
         private void ResetForm()
         {
-            PartQty         = 1;
-            PartCost        = 0;
-            CustomPartName  = string.Empty;
-            SelectedProduct = null;
-            ProductSearch   = string.Empty;
+            PartQty             = 1;
+            PartCost            = 0;
+            PartPurchaseCost    = 0;
+            CustomPartName      = string.Empty;
+            SelectedProduct     = null;
+            ProductSearch       = string.Empty;
         }
 
         private void SearchProducts()
@@ -173,7 +176,7 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             if (string.IsNullOrWhiteSpace(CustomPartName)) return;
             try
             {
-                _maintenanceService.AddCustomPart(_deviceId, _orderId, CustomPartName, PartQty, PartCost);
+                _maintenanceService.AddCustomPart(_deviceId, _orderId, CustomPartName, PartQty, PartCost, PartPurchaseCost);
                 ResetForm();
                 LoadParts();
             }

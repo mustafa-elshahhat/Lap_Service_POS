@@ -14,7 +14,7 @@ namespace CarPartsShopWPF.Application.Interfaces
         void UpdateDeviceStatus(long deviceId, string newStatus, string notes);
 
         void AddInventoryPart(long deviceId, long orderId, int productId, int qty, decimal unitCost);
-        void AddCustomPart(long deviceId, long orderId, string name, int qty, decimal unitCost);
+        void AddCustomPart(long deviceId, long orderId, string name, int qty, decimal unitCost, decimal purchaseCost = 0);
         void RemovePart(long partId);
         void RemoveDevice(long deviceId, int userId);
 

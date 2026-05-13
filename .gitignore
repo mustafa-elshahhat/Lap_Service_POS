@@ -52,3 +52,5 @@ packages/
 
 
 AutoParts-POS.zip
+publish/dist/CarPartsShopWPF.exe
+publish/dist/CarPartsShopWPF.pdb

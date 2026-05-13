@@ -98,6 +98,7 @@ namespace CarPartsShopWPF.Presentation
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration003_AddCashRefundToReturns.Execute();
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration004_RepairOrdersFullSchema.Execute();
                     CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration005_DropDeadPaymentMethodSchema.Execute();
+                    CarPartsShopWPF.Infrastructure.SQLiteMigrations.Migration006_RepairPartPurchaseCost.Execute();
                 }
                 catch (Exception migrationEx)
                 {

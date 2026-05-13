@@ -50,7 +50,8 @@ namespace CarPartsShopWPF.Application.Services
                 { "gross_profit", SafeConvert.ToDecimal(data["gross_profit"]) },
                 { "lost_profit", SafeConvert.ToDecimal(data["lost_profit"]) },
                 { "net_profit", SafeConvert.ToDecimal(data["net_profit"]) },
-                { "maintenance_total", SafeConvert.ToDecimal(data["maintenance_total"]) },
+                { "maintenance_total",  SafeConvert.ToDecimal(data["maintenance_total"]) },
+                { "maintenance_profit", data.ContainsKey("maintenance_profit") ? SafeConvert.ToDecimal(data["maintenance_profit"]) : 0m },
                 { "payment_inflows",  data.ContainsKey("payment_inflows")  ? data["payment_inflows"]  : new Dictionary<string, decimal>() },
                 { "payment_outflows", data.ContainsKey("payment_outflows") ? data["payment_outflows"] : new Dictionary<string, decimal>() },
             };

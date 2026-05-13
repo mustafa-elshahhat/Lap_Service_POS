@@ -218,6 +218,7 @@ namespace CarPartsShopWPF.Application.Services
                     Quantity        = qty,
                     UnitCost        = unitCost,
                     TotalCost       = unitCost * qty,
+                    PurchaseCost    = product.PurchasePrice,
                     IsFromInventory = true
                 };
 
@@ -234,7 +235,7 @@ namespace CarPartsShopWPF.Application.Services
             }
         }
 
-        public void AddCustomPart(long deviceId, long orderId, string name, int qty, decimal unitCost)
+        public void AddCustomPart(long deviceId, long orderId, string name, int qty, decimal unitCost, decimal purchaseCost = 0)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException("اسم القطعة مطلوب.");
             if (qty <= 0) throw new InvalidOperationException("الكمية يجب أن تكون أكبر من صفر.");
@@ -248,6 +249,7 @@ namespace CarPartsShopWPF.Application.Services
                 Quantity        = qty,
                 UnitCost        = unitCost,
                 TotalCost       = unitCost * qty,
+                PurchaseCost    = purchaseCost,
                 IsFromInventory = false
             };
 

@@ -93,11 +93,40 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                                      - SafeConvert.ToDecimal(summary["total_expenses"])
                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
 
-            var maintenanceDailyQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(total_amount), 0) as maintenance_total
-                FROM repair_orders
-                WHERE intake_date >= @start AND intake_date < @end", args);
-            summary["maintenance_total"] = SafeConvert.ToDecimal(maintenanceDailyQuery["maintenance_total"]);
+            var maintenanceCashQuery = _db.FetchOne(@"
+                SELECT COALESCE(SUM(amount), 0) as maintenance_total
+                FROM repair_payments
+                WHERE payment_date >= @start AND payment_date < @end", args);
+            decimal maintenanceCashReceived = SafeConvert.ToDecimal(maintenanceCashQuery["maintenance_total"]);
+            summary["maintenance_total"] = maintenanceCashReceived;
+
+            var maintenancePartsProfit = _db.FetchOne(@"
+                SELECT COALESCE(SUM(rp.total_cost - (rp.purchase_cost * rp.quantity)), 0) as parts_profit
+                FROM repair_parts rp
+                JOIN repair_orders ro ON rp.order_id = ro.id
+                WHERE ro.order_status = 'delivered'
+                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
+
+            var maintenanceLaborProfit = _db.FetchOne(@"
+                SELECT COALESCE(SUM(rd.labor_cost), 0) as labor_profit
+                FROM repair_devices rd
+                JOIN repair_orders ro ON rd.order_id = ro.id
+                WHERE ro.order_status = 'delivered'
+                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
+
+            decimal maintenanceProfit = SafeConvert.ToDecimal(maintenancePartsProfit["parts_profit"])
+                                      + SafeConvert.ToDecimal(maintenanceLaborProfit["labor_profit"]);
+            summary["maintenance_profit"] = maintenanceProfit;
+
+            summary["gross_profit"] = grossProfitFromSales + maintenanceProfit;
+            summary["lost_profit"]  = lostProfit;
+            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]);
+
+            summary["net_cash_flow"] = totalCashReceived
+                                     + maintenanceCashReceived
+                                     - SafeConvert.ToDecimal(summary["cash_refunds"])
+                                     - SafeConvert.ToDecimal(summary["total_expenses"])
+                                     - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
 
             AddPaymentBreakdowns(summary, args);
 
@@ -184,11 +213,40 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                                      - SafeConvert.ToDecimal(summary["total_expenses"]) 
                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
 
-            var maintenancePeriodQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(total_amount), 0) as maintenance_total
-                FROM repair_orders
-                WHERE intake_date >= @start AND intake_date < @end", args);
-            summary["maintenance_total"] = SafeConvert.ToDecimal(maintenancePeriodQuery["maintenance_total"]);
+            var maintenanceCashPeriodQuery = _db.FetchOne(@"
+                SELECT COALESCE(SUM(amount), 0) as maintenance_total
+                FROM repair_payments
+                WHERE payment_date >= @start AND payment_date < @end", args);
+            decimal maintenanceCashPeriod = SafeConvert.ToDecimal(maintenanceCashPeriodQuery["maintenance_total"]);
+            summary["maintenance_total"] = maintenanceCashPeriod;
+
+            var maintenancePartsProfitPeriod = _db.FetchOne(@"
+                SELECT COALESCE(SUM(rp.total_cost - (rp.purchase_cost * rp.quantity)), 0) as parts_profit
+                FROM repair_parts rp
+                JOIN repair_orders ro ON rp.order_id = ro.id
+                WHERE ro.order_status = 'delivered'
+                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
+
+            var maintenanceLaborProfitPeriod = _db.FetchOne(@"
+                SELECT COALESCE(SUM(rd.labor_cost), 0) as labor_profit
+                FROM repair_devices rd
+                JOIN repair_orders ro ON rd.order_id = ro.id
+                WHERE ro.order_status = 'delivered'
+                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
+
+            decimal maintenanceProfitPeriod = SafeConvert.ToDecimal(maintenancePartsProfitPeriod["parts_profit"])
+                                            + SafeConvert.ToDecimal(maintenanceLaborProfitPeriod["labor_profit"]);
+            summary["maintenance_profit"] = maintenanceProfitPeriod;
+
+            summary["gross_profit"] = grossProfitFromSales + maintenanceProfitPeriod;
+            summary["lost_profit"]  = lostProfit;
+            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]);
+
+            summary["net_cash_flow"] = SafeConvert.ToDecimal(summary["cash_received"])
+                                     + maintenanceCashPeriod
+                                     - SafeConvert.ToDecimal(summary["cash_refunds"])
+                                     - SafeConvert.ToDecimal(summary["total_expenses"])
+                                     - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
 
             AddPaymentBreakdowns(summary, args);
 
@@ -243,6 +301,25 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
                 JOIN suppliers sup ON st.supplier_id = sup.id
                 LEFT JOIN users u ON st.created_by = u.id
                 WHERE st.transaction_type = 'payment' AND transaction_date >= @start AND transaction_date < @end
+
+                UNION ALL
+
+                SELECT 'صيانة' as OperationName, ro.order_number as Reference,
+                       COALESCE(ro.customer_name, 'عميل') as Details, ro.paid_amount as Amount,
+                       ro.remaining_amount as Remaining,
+                       'N/A' as SaleType,
+                       CASE WHEN (SELECT COUNT(*) FROM repair_payments rp WHERE rp.order_id = ro.id) > 1
+                            THEN 'متعدد'
+                            ELSE COALESCE(
+                                   (SELECT payment_method FROM repair_payments
+                                    WHERE order_id = ro.id ORDER BY payment_date DESC LIMIT 1),
+                                   'نقدي')
+                       END as PaymentMethod,
+                       ro.delivery_date as Date, u.full_name as UserName
+                FROM repair_orders ro
+                LEFT JOIN users u ON ro.user_id = u.id
+                WHERE ro.order_status = 'delivered'
+                  AND ro.delivery_date >= @start AND ro.delivery_date < @end
 
                 ORDER BY Date DESC",
                 args);

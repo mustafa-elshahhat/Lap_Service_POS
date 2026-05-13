@@ -12,6 +12,7 @@ namespace CarPartsShopWPF.Domain.Entities
         public int Quantity { get; set; }
         public decimal UnitCost { get; set; }
         public decimal TotalCost { get; set; }
+        public decimal PurchaseCost { get; set; }
         public bool IsFromInventory { get; set; }
         public DateTime CreatedAt { get; set; }
     }

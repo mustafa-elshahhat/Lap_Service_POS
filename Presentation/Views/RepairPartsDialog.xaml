@@ -57,6 +57,8 @@
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="75"/>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="100"/>
@@ -112,20 +114,36 @@
                             <TextBox Text="{Binding CustomPartName, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
 
-                        <!-- Qty -->
+                        <!-- Purchase cost (custom parts only) -->
                         <StackPanel Grid.Column="4">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCustomSource}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Label Content="تكلفة الشراء" Padding="0,0,0,2"/>
+                            <TextBox Text="{Binding PartPurchaseCost, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Qty -->
+                        <StackPanel Grid.Column="6">
                             <Label Content="الكمية" Padding="0,0,0,2"/>
                             <TextBox Text="{Binding PartQty, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
 
                         <!-- Cost -->
-                        <StackPanel Grid.Column="6">
+                        <StackPanel Grid.Column="8">
                             <Label Content="سعر الوحدة" Padding="0,0,0,2"/>
                             <TextBox Text="{Binding PartCost, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
 
                         <!-- Add button -->
-                        <Button Grid.Column="8" Content="➕ إضافة"
+                        <Button Grid.Column="10" Content="➕ إضافة"
                                 Style="{DynamicResource PrimaryButton}"
                                 VerticalAlignment="Bottom" Height="36" Width="90"
                                 Command="{Binding AddPartCommand}"/>

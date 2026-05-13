@@ -144,10 +144,14 @@ namespace CarPartsShopWPF.Presentation.Views
                     var triggerSupplier = new DataTrigger { Binding = binding, Value = "سداد مورد" };
                     triggerSupplier.Setters.Add(new Setter(TextBlock.ForegroundProperty, System.Windows.Application.Current.Resources["InfoDarkBrush"]));
 
+                    var triggerMaintenance = new DataTrigger { Binding = binding, Value = "صيانة" };
+                    triggerMaintenance.Setters.Add(new Setter(TextBlock.ForegroundProperty, System.Windows.Application.Current.Resources["WarningDarkBrush"]));
+
                     elementStyle.Triggers.Add(triggerSale);
                     elementStyle.Triggers.Add(triggerReturn);
                     elementStyle.Triggers.Add(triggerExpense);
                     elementStyle.Triggers.Add(triggerSupplier);
+                    elementStyle.Triggers.Add(triggerMaintenance);
                 }
 
                 column.ElementStyle = elementStyle;

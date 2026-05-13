@@ -167,7 +167,8 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "محافظ (صادرة)",          Value = Formatting.FormatCurrency(ewalletOut),                                                Icon = "📲", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "المصروفات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة",               Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل)",      Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "أرباح الصيانة",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success" });
 
             string today = DateTime.Today.ToString("yyyy-MM-dd");
             var operations = _reportService.GetOperationsReport(today, today);
@@ -224,7 +225,8 @@ namespace CarPartsShopWPF.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "المصروفات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "ديون الموردين",            Value = Formatting.FormatCurrency(totalSupplierDebt),                                         Icon = "⚠️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الصيانة",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل)",         Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "أرباح الصيانة",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success" });
 
             string startDate = $"{year}-{month:D2}-01";
             DateTime endDateTime = new DateTime(year, month, DateTime.DaysInMonth(year, month));

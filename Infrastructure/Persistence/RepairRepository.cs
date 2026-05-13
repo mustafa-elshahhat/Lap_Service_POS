@@ -164,19 +164,20 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
         {
             return _db.ExecuteAndGetId(@"
                 INSERT INTO repair_parts
-                    (device_id, order_id, product_id, part_name, quantity, unit_cost, total_cost, is_from_inventory, created_at)
+                    (device_id, order_id, product_id, part_name, quantity, unit_cost, total_cost, purchase_cost, is_from_inventory, created_at)
                 VALUES
-                    (@did, @oid, @pid, @name, @qty, @ucost, @tcost, @inv, datetime('now','localtime'))",
+                    (@did, @oid, @pid, @name, @qty, @ucost, @tcost, @pcost, @inv, datetime('now','localtime'))",
                 new Dictionary<string, object>
                 {
-                    { "@did",  part.DeviceId },
-                    { "@oid",  part.OrderId },
-                    { "@pid",  part.ProductId },
-                    { "@name", part.PartName },
-                    { "@qty",  part.Quantity },
-                    { "@ucost",part.UnitCost },
-                    { "@tcost",part.TotalCost },
-                    { "@inv",  part.IsFromInventory ? 1 : 0 }
+                    { "@did",   part.DeviceId },
+                    { "@oid",   part.OrderId },
+                    { "@pid",   part.ProductId },
+                    { "@name",  part.PartName },
+                    { "@qty",   part.Quantity },
+                    { "@ucost", part.UnitCost },
+                    { "@tcost", part.TotalCost },
+                    { "@pcost", part.PurchaseCost },
+                    { "@inv",   part.IsFromInventory ? 1 : 0 }
                 });
         }
 
@@ -397,6 +398,7 @@ namespace CarPartsShopWPF.Infrastructure.Persistence
             Quantity        = SafeConvert.ToInt(r["quantity"]),
             UnitCost        = SafeConvert.ToDecimal(r["unit_cost"]),
             TotalCost       = SafeConvert.ToDecimal(r["total_cost"]),
+            PurchaseCost    = SafeConvert.ToDecimal(r.ContainsKey("purchase_cost") ? r["purchase_cost"] : 0),
             IsFromInventory = SafeConvert.ToInt(r["is_from_inventory"]) == 1,
             CreatedAt       = SafeConvert.ToDateTime(r["created_at"]) ?? DateTime.Now
         };
