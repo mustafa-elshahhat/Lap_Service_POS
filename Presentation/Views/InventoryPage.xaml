@@ -40,17 +40,17 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <Button Content="➕ إضافة منتج"
                                 Style="{DynamicResource PrimaryButton}"
-                                Width="140"
+                                MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding AddProductCommand}"/>
                         <Button Content="⚠️ نواقص"
                                 Style="{DynamicResource WarningButton}"
-                                Width="140"
+                                MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding LowStockCommand}"/>
                         <Button Content="📋 عرض الكل"
                                 Style="{DynamicResource DarkButton}"
-                                Width="140"
+                                MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding RefreshCommand}"/>
                     </StackPanel>

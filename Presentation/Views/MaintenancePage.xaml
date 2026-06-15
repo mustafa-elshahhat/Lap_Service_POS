@@ -38,27 +38,27 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Content="➕ طلب جديد"
                                 Style="{DynamicResource PrimaryButton}"
-                                Width="130" Margin="4,0"
+                                MinWidth="130" Margin="4,0"
                                 Command="{Binding NewOrderCommand}"/>
                         <Button Content="✅ تسليم"
                                 Style="{DynamicResource SuccessButton}"
-                                Width="100" Margin="4,0"
+                                MinWidth="100" Margin="4,0"
                                 Command="{Binding DeliverOrderCommand}"/>
                         <Button Content="🖨 استلام"
                                 Style="{DynamicResource InfoButton}"
-                                Width="100" Margin="4,0"
+                                MinWidth="100" Margin="4,0"
                                 Command="{Binding PrintIntakeCommand}"/>
                         <Button Content="🧾 فاتورة"
                                 Style="{DynamicResource SecondaryButton}"
-                                Width="100" Margin="4,0"
+                                MinWidth="100" Margin="4,0"
                                 Command="{Binding PrintInvoiceCommand}"/>
                         <Button Content="❌ إلغاء"
                                 Style="{DynamicResource DangerButton}"
-                                Width="90" Margin="4,0"
+                                MinWidth="90" Margin="4,0"
                                 Command="{Binding CancelOrderCommand}"/>
                         <Button Content="↺"
                                 Style="{DynamicResource DarkButton}"
-                                Width="45" Margin="4,0"
+                                MinWidth="45" Margin="4,0"
                                 FontSize="18"
                                 ToolTip="تحديث"
                                 Command="{Binding RefreshCommand}"/>

@@ -39,13 +39,13 @@
 
                         <Button Content="➕ عميل جديد"
                                 Style="{DynamicResource PrimaryButton}"
-                                Width="120"
+                                MinWidth="120"
                                 Margin="4,0"
                                 Command="{Binding AddCustomerCommand}"/>
 
                         <Button Content=" عرض الكل"
                                 Style="{DynamicResource DarkButton}"
-                                Width="140"
+                                MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding ShowAllCommand}"/>
                     </StackPanel>

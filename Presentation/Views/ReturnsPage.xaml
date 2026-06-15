@@ -38,12 +38,12 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Content="➕ مرتجع جديد"
                                 Style="{DynamicResource PrimaryButton}"
-                                Width="140"
+                                MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding NewReturnCommand}"/>
                         <Button Content="🔄 عرض الكل"
                                 Style="{DynamicResource DarkButton}"
-                                Width="140"
+                                MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding LoadAllCommand}"/>
                     </StackPanel>

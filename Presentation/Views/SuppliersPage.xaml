@@ -38,22 +38,22 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Content="➕ إضافة مورد"
                                 Style="{DynamicResource PrimaryButton}"
-                                Width="130"
+                                MinWidth="130"
                                 Margin="4,0"
                                 Command="{Binding AddSupplierCommand}"/>
                         <Button Content="📦 تسجيل شراء"
                                 Style="{DynamicResource WarningButton}"
-                                Width="130"
+                                MinWidth="130"
                                 Margin="4,0"
                                 Command="{Binding AddPurchaseCommand}"/>
                         <Button Content="💰 سداد دين"
                                 Style="{DynamicResource SecondaryButton}"
-                                Width="120"
+                                MinWidth="120"
                                 Margin="4,0"
                                 Command="{Binding AddPaymentCommand}"/>
                         <Button Content="🔄 عرض الكل"
                                 Style="{DynamicResource DarkButton}"
-                                Width="140"
+                                MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding LoadAllCommand}"/>
                     </StackPanel>
