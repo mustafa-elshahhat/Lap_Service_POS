@@ -1,27 +1,55 @@
-
-.vs/
-bin/
-obj/
+# Build output
 [Bb]in/
 [Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]uild/
+[Pp]ublish/
+artifacts/
 
-*.user
+# Visual Studio / Rider / ReSharper
+.vs/
+.idea/
+_ReSharper*/
 *.suo
-*.rsuser
+*.user
 *.userosscache
 *.sln.docstates
+*.rsuser
+*.DotSettings.user
 
+# VS Code local workspace settings
+.vscode/
+
+# Test and coverage output
 TestResults/
+coverage/
 *.trx
 *.coverage
 *.coveragexml
+*.opencover.xml
+*.cobertura.xml
 
-*.log
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.assets.json
+
+# Logs and diagnostics
 logs/
 Logs/
-[Ll]og/
-[Ll]ogs/
+*.log
+*.dmp
+*.mdmp
 
+# Local databases and runtime data
 *.db
 *.sqlite
 *.sqlite3
@@ -31,77 +59,38 @@ Logs/
 *.db-wal
 *.sqlite-shm
 *.sqlite-wal
-
-backups/
-Backups/
-backup/
-Backup/
 *.bak
+backup/
+backups/
+Backup/
+Backups/
 
+# Local configuration and secrets
 appsettings.Development.json
+appsettings.Local.json
 *.local.json
+.env
+.env.*
+!.env.example
 
-.vscode/
-.idea/
-_ReSharper*/
-*.DotSettings.user
+# Generated Specify/Windsurf scaffold from template runs
+/my-project/.specify/extensions.yml
+/my-project/.specify/init-options.json
+/my-project/.specify/integration.json
+/my-project/.specify/extensions/
+/my-project/.specify/integrations/
+/my-project/.specify/memory/
+/my-project/.specify/scripts/
+/my-project/.specify/templates/
+/my-project/.specify/workflows/
+/my-project/.windsurf/
 
-*.nupkg
-*.snupkg
-packages/
+# Generated packages and installer artifacts
+*.zip
+*.msi
+*.pdb
 
-
-AlJohary.ServiceHub.zip
-publish/dist/AlJohary.ServiceHub.exe
-publish/dist/AlJohary.ServiceHub.pdb
-my-project/.specify/extensions.yml
-my-project/.specify/init-options.json
-my-project/.specify/integration.json
-my-project/.specify/extensions/.registry
-my-project/.specify/extensions/git/config-template.yml
-my-project/.specify/extensions/git/extension.yml
-my-project/.specify/extensions/git/git-config.yml
-my-project/.specify/extensions/git/README.md
-my-project/.specify/extensions/git/commands/speckit.git.commit.md
-my-project/.specify/extensions/git/commands/speckit.git.feature.md
-my-project/.specify/extensions/git/commands/speckit.git.initialize.md
-my-project/.specify/extensions/git/commands/speckit.git.remote.md
-my-project/.specify/extensions/git/commands/speckit.git.validate.md
-my-project/.specify/extensions/git/scripts/bash/auto-commit.sh
-my-project/.specify/extensions/git/scripts/bash/create-new-feature.sh
-my-project/.specify/extensions/git/scripts/bash/git-common.sh
-my-project/.specify/extensions/git/scripts/bash/initialize-repo.sh
-my-project/.specify/extensions/git/scripts/powershell/auto-commit.ps1
-my-project/.specify/extensions/git/scripts/powershell/create-new-feature.ps1
-my-project/.specify/extensions/git/scripts/powershell/git-common.ps1
-my-project/.specify/extensions/git/scripts/powershell/initialize-repo.ps1
-my-project/.specify/integrations/speckit.manifest.json
-my-project/.specify/integrations/windsurf.manifest.json
-my-project/.specify/memory/constitution.md
-my-project/.specify/scripts/powershell/check-prerequisites.ps1
-my-project/.specify/scripts/powershell/common.ps1
-my-project/.specify/scripts/powershell/create-new-feature.ps1
-my-project/.specify/scripts/powershell/setup-plan.ps1
-my-project/.specify/scripts/powershell/setup-tasks.ps1
-my-project/.specify/templates/checklist-template.md
-my-project/.specify/templates/constitution-template.md
-my-project/.specify/templates/plan-template.md
-my-project/.specify/templates/spec-template.md
-my-project/.specify/templates/tasks-template.md
-my-project/.specify/workflows/workflow-registry.json
-my-project/.specify/workflows/speckit/workflow.yml
-my-project/.windsurf/rules/specify-rules.md
-my-project/.windsurf/workflows/speckit.analyze.md
-my-project/.windsurf/workflows/speckit.checklist.md
-my-project/.windsurf/workflows/speckit.clarify.md
-my-project/.windsurf/workflows/speckit.constitution.md
-my-project/.windsurf/workflows/speckit.git.commit.md
-my-project/.windsurf/workflows/speckit.git.feature.md
-my-project/.windsurf/workflows/speckit.git.initialize.md
-my-project/.windsurf/workflows/speckit.git.remote.md
-my-project/.windsurf/workflows/speckit.git.validate.md
-my-project/.windsurf/workflows/speckit.implement.md
-my-project/.windsurf/workflows/speckit.plan.md
-my-project/.windsurf/workflows/speckit.specify.md
-my-project/.windsurf/workflows/speckit.tasks.md
-my-project/.windsurf/workflows/speckit.taskstoissues.md
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
