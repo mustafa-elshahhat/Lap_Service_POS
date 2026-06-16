@@ -18,6 +18,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         public string Icon { get; set; }
         public string ColorKey { get; set; }
         public string ToolTip { get; set; }
+        public string Group { get; set; }
     }
 
     public class ReportColumn
@@ -44,6 +45,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private string _currentReportType;
         private ObservableCollection<KpiCardViewModel> _kpiCards;
         private ObservableCollection<object> _reportData;
+        private System.Windows.Visibility _kpiVisibility = System.Windows.Visibility.Visible;
+        private System.Windows.Visibility _operationsVisibility = System.Windows.Visibility.Collapsed;
 
         public event EventHandler<List<ReportColumn>> ColumnsChanged;
 
@@ -98,6 +101,19 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             set { _reportData = value; OnPropertyChanged(); }
         }
 
+        // Reports show KPI cards only; operations pages show the detailed log grid only.
+        public System.Windows.Visibility KpiVisibility
+        {
+            get => _kpiVisibility;
+            set { _kpiVisibility = value; OnPropertyChanged(); }
+        }
+
+        public System.Windows.Visibility OperationsVisibility
+        {
+            get => _operationsVisibility;
+            set { _operationsVisibility = value; OnPropertyChanged(); }
+        }
+
         public ICommand LoadReportCommand => new RelayCommand<string>(LoadReport);
         public ICommand PrintReportCommand => new RelayCommand(PrintReport);
         public ICommand PrintCommand => new RelayCommand(PrintReport);
@@ -113,6 +129,11 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 KpiCards.Clear();
                 ReportData.Clear();
 
+                // Default: show both regions (Inventory/Returns/Suppliers use cards + grid).
+                // Cards-only reports and grid-only operations pages override these below.
+                KpiVisibility = System.Windows.Visibility.Visible;
+                OperationsVisibility = System.Windows.Visibility.Visible;
+
                 switch (type)
                 {
                     case "Daily":
@@ -120,6 +141,12 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                         break;
                     case "Monthly":
                         LoadMonthlyReport();
+                        break;
+                    case "DailyOperations":
+                        LoadDailyOperations();
+                        break;
+                    case "MonthlyOperations":
+                        LoadMonthlyOperations();
                         break;
                     case "Inventory":
                         LoadInventoryReport();
@@ -142,59 +169,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             ReportTitle = "التقرير اليومي";
             ReportSubtitle = $"إحصائيات {DateTime.Today:yyyy/MM/dd}";
-            DetailHeader = "العمليات اليومية";
 
             var summary = _reportService.GetDailySummary();
-            summary.TryGetValue("payment_inflows",  out object _inflowObj);
-            summary.TryGetValue("payment_outflows", out object _outflowObj);
-            var inflows  = _inflowObj  as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
-            var outflows = _outflowObj as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
-
-            decimal cashIn     = GetMethodSum(inflows,  PaymentMethods.Cash);
-            decimal instapayIn = GetMethodSum(inflows,  PaymentMethods.InstaPay);
-            decimal ewalletIn  = GetMethodSum(inflows,  PaymentMethods.EWallet);
-            decimal cashOut    = GetMethodSum(outflows, PaymentMethods.Cash);
-            decimal instapayOut= GetMethodSum(outflows, PaymentMethods.InstaPay);
-            decimal ewalletOut = GetMethodSum(outflows, PaymentMethods.EWallet);
-            decimal otherIn    = GetOtherMethodsSum(inflows);
-            decimal otherOut   = GetOtherMethodsSum(outflows);
-
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),              Icon = "💰", ColorKey = "Primary" });
-            KpiCards.Add(new KpiCardViewModel { Title = "أرباح اليوم",            Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_profit"])),           Icon = "📈", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح",             Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),             Icon = "✅", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "نقدي (وارد)",            Value = Formatting.FormatCurrency(cashIn),                                                    Icon = "💵", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي (وارد)",       Value = Formatting.FormatCurrency(instapayIn),                                                Icon = "🏦", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "محافظ (واردة)",          Value = Formatting.FormatCurrency(ewalletIn),                                                 Icon = "📱", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "نقدي (صادر)",            Value = Formatting.FormatCurrency(cashOut),                                                   Icon = "💸", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي (صادر)",       Value = Formatting.FormatCurrency(instapayOut),                                               Icon = "🏧", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "محافظ (صادرة)",          Value = Formatting.FormatCurrency(ewalletOut),                                                Icon = "📲", ColorKey = "Danger" });
-            if (otherIn != 0)  KpiCards.Add(new KpiCardViewModel { Title = "أخرى (وارد - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherIn),  Icon = "❓", ColorKey = "Info" });
-            if (otherOut != 0) KpiCards.Add(new KpiCardViewModel { Title = "أخرى (صادر - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherOut), Icon = "❓", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي التدفق النقدي",     Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_cash_flow"])),          Icon = "💱", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الرواتب",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_salary_payments") ? summary["total_salary_payments"] : 0)), Icon = "👨‍💼", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي خصومات الموظفين",  Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_employee_deductions") ? summary["total_employee_deductions"] : 0)), Icon = "➖", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي تكلفة الرواتب",      Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("net_salary_expense") ? summary["net_salary_expense"] : 0)), Icon = "💼", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "تحصيل الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])), Icon = "🔧", ColorKey = "Warning", ToolTip = "تحصيل الصيانة = المدفوعات المسجلة خلال الفترة." });
-            KpiCards.Add(new KpiCardViewModel { Title = "ربح الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success", ToolTip = "ربح الصيانة = المصنعية + هامش القطع المعترف به مع الدفعات خلال الفترة." });
-
-            string today = DateTime.Today.ToString("yyyy-MM-dd");
-            var operations = _reportService.GetOperationsReport(today, today);
-            ReportData = new ObservableCollection<object>(operations.Cast<object>());
-
-            _currentColumns = new List<ReportColumn>
-            {
-                new ReportColumn { Header = "الموظف", BindingPath = "UserName" },
-                new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
-                new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "FlexibleNumber" },
-                new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "FlexibleNumber" },
-                new ReportColumn { Header = "التفاصيل", BindingPath = "Details" },
-                new ReportColumn { Header = "الوقت", BindingPath = "Date", Format = "yyyy-MM-dd HH:mm" },
-                new ReportColumn { Header = "رقم العملية", BindingPath = "Reference" },
-                new ReportColumn { Header = "العملية", BindingPath = "OperationName" }
-            };
-            ColumnsChanged?.Invoke(this, _currentColumns);
+            BuildSummaryCards(summary, "صافي الربح اليومي");
         }
 
 
@@ -206,13 +183,24 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
             ReportTitle = "التقرير الشهري";
             ReportSubtitle = $"إحصائيات شهر {months[month]} {year}";
-            DetailHeader = "عمليات الشهر";
 
-            var summary  = _reportService.GetMonthlySummary(year, month);
-            summary.TryGetValue("payment_inflows",  out object _mInflowObj);
-            summary.TryGetValue("payment_outflows", out object _mOutflowObj);
-            var inflows  = _mInflowObj  as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
-            var outflows = _mOutflowObj as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
+            var summary = _reportService.GetMonthlySummary(year, month);
+            BuildSummaryCards(summary, "صافي الربح الشهري");
+        }
+
+        // Builds the required 17 KPI cards (grouped) shared by daily and monthly reports.
+        // Reports are cards-only: the operations grid is hidden here. Card values come straight
+        // from the summary; per-method nets are inflows - outflows for that method.
+        private void BuildSummaryCards(Dictionary<string, object> summary, string netProfitTitle)
+        {
+            KpiVisibility = System.Windows.Visibility.Visible;
+            OperationsVisibility = System.Windows.Visibility.Collapsed;
+            ReportData.Clear();
+
+            summary.TryGetValue("payment_inflows",  out object inflowObj);
+            summary.TryGetValue("payment_outflows", out object outflowObj);
+            var inflows  = inflowObj  as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
+            var outflows = outflowObj as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
 
             decimal cashIn      = GetMethodSum(inflows,  PaymentMethods.Cash);
             decimal instapayIn  = GetMethodSum(inflows,  PaymentMethods.InstaPay);
@@ -220,48 +208,93 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             decimal cashOut     = GetMethodSum(outflows, PaymentMethods.Cash);
             decimal instapayOut = GetMethodSum(outflows, PaymentMethods.InstaPay);
             decimal ewalletOut  = GetMethodSum(outflows, PaymentMethods.EWallet);
-            decimal otherIn     = GetOtherMethodsSum(inflows);
-            decimal otherOut    = GetOtherMethodsSum(outflows);
 
-            decimal totalSupplierDebt = _supplierService.GetAllSuppliers().Sum(s => s.TotalDebt);
+            decimal SummaryVal(string key) => SafeConvert.ToDecimal(summary.ContainsKey(key) ? summary[key] : 0);
 
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),              Icon = "📅", ColorKey = "Primary" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي الربح الشهري",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_profit"])),              Icon = "💎", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي نقدي (وارد)",       Value = Formatting.FormatCurrency(cashIn),                                                    Icon = "💵", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي إنستا باي (وارد)",  Value = Formatting.FormatCurrency(instapayIn),                                                Icon = "🏦", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي محافظ (واردة)",     Value = Formatting.FormatCurrency(ewalletIn),                                                 Icon = "📱", ColorKey = "Info" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي نقدي (صادر)",       Value = Formatting.FormatCurrency(cashOut),                                                   Icon = "💸", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي إنستا باي (صادر)",  Value = Formatting.FormatCurrency(instapayOut),                                               Icon = "🏧", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي محافظ (صادرة)",     Value = Formatting.FormatCurrency(ewalletOut),                                                Icon = "📲", ColorKey = "Danger" });
-            if (otherIn != 0)  KpiCards.Add(new KpiCardViewModel { Title = "أخرى (وارد - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherIn),  Icon = "❓", ColorKey = "Info" });
-            if (otherOut != 0) KpiCards.Add(new KpiCardViewModel { Title = "أخرى (صادر - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherOut), Icon = "❓", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي التدفق النقدي",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_cash_flow"])),          Icon = "💱", ColorKey = "Success" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "المصروفات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الرواتب",           Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_salary_payments") ? summary["total_salary_payments"] : 0)), Icon = "👨‍💼", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "إجمالي خصومات الموظفين",   Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_employee_deductions") ? summary["total_employee_deductions"] : 0)), Icon = "➖", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "صافي تكلفة الرواتب",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("net_salary_expense") ? summary["net_salary_expense"] : 0)), Icon = "💼", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "ديون الموردين",            Value = Formatting.FormatCurrency(totalSupplierDebt),                                         Icon = "⚠️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "تحصيل الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])), Icon = "🔧", ColorKey = "Warning", ToolTip = "تحصيل الصيانة = المدفوعات المسجلة خلال الفترة." });
-            KpiCards.Add(new KpiCardViewModel { Title = "ربح الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success", ToolTip = "ربح الصيانة = المصنعية + هامش القطع المعترف به مع الدفعات خلال الفترة." });
+            const string gSales = "المبيعات والأرباح";
+            const string gNet = "صافي الأرصدة حسب الطريقة";
+            const string gFlow = "الوارد والصادر حسب الطريقة";
+            const string gSalary = "الرواتب";
+            const string gMaint = "الصيانة";
+            const string gSupExp = "الموردين والمصروفات";
+
+            // 1-2: Sales / profit
+            KpiCards.Add(new KpiCardViewModel { Group = gSales, Title = "إجمالي المبيعات", Value = Formatting.FormatCurrency(SummaryVal("gross_sales")), Icon = "💰", ColorKey = "Primary", ToolTip = "إجمالي قيمة فواتير البيع خلال الفترة (لا يشمل الصيانة أو الموردين أو المصروفات)." });
+            KpiCards.Add(new KpiCardViewModel { Group = gSales, Title = netProfitTitle, Value = Formatting.FormatCurrency(SummaryVal("net_profit")), Icon = "✅", ColorKey = "Success", ToolTip = "ربح المبيعات + ربح الصيانة - ربح مفقود من المرتجعات - المصروفات - صافي الرواتب." });
+
+            // 3-5: Per-method net balances
+            KpiCards.Add(new KpiCardViewModel { Group = gNet, Title = "صافي النقدية",   Value = Formatting.FormatCurrency(cashIn - cashOut),         Icon = "💱", ColorKey = "Success", ToolTip = "نقدي وارد - نقدي صادر." });
+            KpiCards.Add(new KpiCardViewModel { Group = gNet, Title = "صافي إنستا باي", Value = Formatting.FormatCurrency(instapayIn - instapayOut), Icon = "💱", ColorKey = "Success", ToolTip = "إنستا باي وارد - إنستا باي صادر." });
+            KpiCards.Add(new KpiCardViewModel { Group = gNet, Title = "صافي محفظة",     Value = Formatting.FormatCurrency(ewalletIn - ewalletOut),   Icon = "💱", ColorKey = "Success", ToolTip = "محفظة وارد - محفظة صادر." });
+
+            // 6-11: Inflows / outflows by method
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "نقدي وارد",      Value = Formatting.FormatCurrency(cashIn),      Icon = "💵", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "نقدي صادر",      Value = Formatting.FormatCurrency(cashOut),     Icon = "💸", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "إنستا باي وارد", Value = Formatting.FormatCurrency(instapayIn),  Icon = "🏦", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "إنستا باي صادر", Value = Formatting.FormatCurrency(instapayOut), Icon = "🏧", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "محفظة وارد",     Value = Formatting.FormatCurrency(ewalletIn),   Icon = "📱", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "محفظة صادر",     Value = Formatting.FormatCurrency(ewalletOut),  Icon = "📲", ColorKey = "Danger" });
+
+            // 12-13: Salaries (net salary cost, plus deductions separately)
+            KpiCards.Add(new KpiCardViewModel { Group = gSalary, Title = "إجمالي الرواتب",   Value = Formatting.FormatCurrency(SummaryVal("net_salary_expense")),       Icon = "👨‍💼", ColorKey = "Danger",  ToolTip = "صافي تكلفة الرواتب = الرواتب المدفوعة - خصومات الموظفين." });
+            KpiCards.Add(new KpiCardViewModel { Group = gSalary, Title = "خصومات الموظفين",  Value = Formatting.FormatCurrency(SummaryVal("total_employee_deductions")), Icon = "➖",   ColorKey = "Warning", ToolTip = "إجمالي خصومات الموظفين (ليست نقدية واردة)." });
+
+            // 14-15: Maintenance (collection vs profit — clearly separate)
+            KpiCards.Add(new KpiCardViewModel { Group = gMaint, Title = "تحصيل الصيانة", Value = Formatting.FormatCurrency(SummaryVal("maintenance_total")),  Icon = "🔧", ColorKey = "Warning", ToolTip = "إجمالي مدفوعات الصيانة المحصلة خلال الفترة (تحصيل وليس ربحاً)." });
+            KpiCards.Add(new KpiCardViewModel { Group = gMaint, Title = "ربح الصيانة",   Value = Formatting.FormatCurrency(SummaryVal("maintenance_profit")), Icon = "📈", ColorKey = "Success", ToolTip = "ربح الصيانة = المصنعية + هامش القطع المعترف به مع الدفعات (ليس مبلغ التحصيل)." });
+
+            // 16-17: Supplier / expenses
+            KpiCards.Add(new KpiCardViewModel { Group = gSupExp, Title = "دفع مورد",  Value = Formatting.FormatCurrency(SummaryVal("total_supplier_payments")), Icon = "🚚", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Group = gSupExp, Title = "مصروفات",   Value = Formatting.FormatCurrency(SummaryVal("total_expenses")),          Icon = "🧾", ColorKey = "Danger" });
+        }
+
+        private void LoadDailyOperations()
+        {
+            ReportTitle = "العمليات المالية اليومية";
+            ReportSubtitle = $"كل الحركات المالية ليوم {DateTime.Today:yyyy/MM/dd}";
+            DetailHeader = "سجل العمليات المالية اليومية";
+
+            string today = DateTime.Today.ToString("yyyy-MM-dd");
+            LoadOperations(today, today);
+        }
+
+        private void LoadMonthlyOperations()
+        {
+            int year = DateTime.Today.Year;
+            int month = DateTime.Today.Month;
+            string[] months = { "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
+
+            ReportTitle = "العمليات المالية الشهرية";
+            ReportSubtitle = $"كل الحركات المالية لشهر {months[month]} {year}";
+            DetailHeader = "سجل العمليات المالية الشهرية";
 
             string startDate = $"{year}-{month:D2}-01";
-            DateTime endDateTime = new DateTime(year, month, DateTime.DaysInMonth(year, month));
-            string endDate = endDateTime.ToString("yyyy-MM-dd");
+            string endDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).ToString("yyyy-MM-dd");
+            LoadOperations(startDate, endDate);
+        }
 
-            var operations = _reportService.GetOperationsReport(startDate, endDate);
+        // Operations pages are grid-only: KPI cards are hidden, the audit log is shown.
+        private void LoadOperations(string startDate, string endDate)
+        {
+            KpiVisibility = System.Windows.Visibility.Collapsed;
+            OperationsVisibility = System.Windows.Visibility.Visible;
+            KpiCards.Clear();
+
+            var operations = _reportService.GetFinancialOperations(startDate, endDate);
             ReportData = new ObservableCollection<object>(operations.Cast<object>());
 
             _currentColumns = new List<ReportColumn>
             {
-                new ReportColumn { Header = "الموظف", BindingPath = "UserName" },
-                new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
-                new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "FlexibleNumber" },
-                new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "FlexibleNumber" },
-                new ReportColumn { Header = "العميل", BindingPath = "Details" },
                 new ReportColumn { Header = "التاريخ", BindingPath = "Date", Format = "yyyy-MM-dd HH:mm" },
-                new ReportColumn { Header = "رقم العملية", BindingPath = "Reference" },
-                new ReportColumn { Header = "العملية", BindingPath = "OperationName" }
+                new ReportColumn { Header = "نوع العملية", BindingPath = "OperationType" },
+                new ReportColumn { Header = "رقم المرجع", BindingPath = "Reference" },
+                new ReportColumn { Header = "التفاصيل", BindingPath = "Details" },
+                new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
+                new ReportColumn { Header = "وارد", BindingPath = "MoneyIn", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "صادر", BindingPath = "MoneyOut", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "خصم / تسوية", BindingPath = "Deduction", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "التأثير الصافي", BindingPath = "NetEffect", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "الموظف", BindingPath = "UserName" }
             };
             ColumnsChanged?.Invoke(this, _currentColumns);
         }
@@ -383,6 +416,14 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private void PrintReport()
         {
+            // Cards-only reports (daily/monthly) print the KPI summary, not the (hidden) grid.
+            // Operations pages and the legacy sub-reports print their table.
+            if (_currentReportType == "Daily" || _currentReportType == "Monthly")
+            {
+                PrintKpiSummary();
+                return;
+            }
+
             if (ReportData == null || ReportData.Count == 0)
             {
                 _dialogService.ShowInfo("تنبيه", "لا توجد بيانات للطباعة");
@@ -420,6 +461,41 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 string[] headers = _currentColumns?.Select(c => c.Header).ToArray() ?? new string[0];
 
                 _printService.PrintReport(ReportTitle, data, columns, headers);
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError("خطأ", "فشل الطباعة: " + ex.Message);
+            }
+        }
+
+        // Prints the daily/monthly report as a two-column KPI summary (البيان / القيمة), reusing
+        // the generic table printer. Reports are cards-only, so there is no operations table here.
+        // TODO: a richer card-style print layout could be added later if needed.
+        private void PrintKpiSummary()
+        {
+            if (KpiCards == null || KpiCards.Count == 0)
+            {
+                _dialogService.ShowInfo("تنبيه", "لا توجد بيانات للطباعة");
+                return;
+            }
+
+            try
+            {
+                var data = new List<Dictionary<string, object>>();
+                foreach (var card in KpiCards)
+                {
+                    data.Add(new Dictionary<string, object>
+                    {
+                        { "البيان", card.Title },
+                        { "القيمة", card.Value }
+                    });
+                }
+
+                _printService.PrintReport(
+                    ReportTitle,
+                    data,
+                    new[] { "البيان", "القيمة" },
+                    new[] { "البيان", "القيمة" });
             }
             catch (Exception ex)
             {

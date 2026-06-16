@@ -45,7 +45,7 @@ namespace AlJohary.ServiceHub.Presentation.Views
                 else if (!string.IsNullOrEmpty(col.Format))
                     binding.StringFormat = col.Format;
 
-                bool isCopyable = col.Header == "رقم العملية" || col.Header == "رقم الفاتورة" || col.Header == "رقم المرتجع" || col.Header == "الهاتف";
+                bool isCopyable = col.Header == "رقم العملية" || col.Header == "رقم الفاتورة" || col.Header == "رقم المرتجع" || col.Header == "رقم المرجع" || col.Header == "الهاتف";
 
                 if (isCopyable)
                 {
@@ -121,7 +121,9 @@ namespace AlJohary.ServiceHub.Presentation.Views
                 var horizontalAlign = HorizontalAlignment.Right;
                 bool isNumeric = col.Header.Contains("القيمة") || col.Header.Contains("المبلغ") ||
                                  col.Header.Contains("الكمية") || col.Header.Contains("إجمالي") ||
-                                 col.Header.Contains("صافي") || col.Header.Contains("عدد");
+                                 col.Header.Contains("صافي") || col.Header.Contains("عدد") ||
+                                 col.Header.Contains("وارد") || col.Header.Contains("صادر") ||
+                                 col.Header.Contains("خصم");
 
                 if (isNumeric) horizontalAlign = HorizontalAlignment.Center;
 

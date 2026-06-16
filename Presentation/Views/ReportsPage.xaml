@@ -60,6 +60,14 @@
         <ItemsPanelTemplate x:Key="KpiItemsPanel">
             <WrapPanel Orientation="Horizontal"/>
         </ItemsPanelTemplate>
+
+        <!-- KPI cards grouped by their logical section (sales/profit, net balances, in/out by
+             method, salaries, maintenance, supplier/expenses) for visual grouping on reports. -->
+        <CollectionViewSource x:Key="GroupedKpiCards" Source="{Binding KpiCards}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="Group"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
     </Page.Resources>
     
     <Grid Margin="16" x:Name="ReportsRoot">
@@ -112,9 +120,14 @@
                             <StackPanel Margin="0,12">
                                 <RadioButton Content="📅 التقرير اليومي" Style="{DynamicResource TabRadioButton}" IsChecked="True" Command="{Binding LoadReportCommand}" CommandParameter="Daily"/>
                                 <RadioButton Content="📆 التقرير الشهري" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="Monthly"/>
-                                
+
                                 <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="24,12" Opacity="0.1"/>
-                                
+
+                                <RadioButton Content="🧮 العمليات المالية اليومية" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="DailyOperations"/>
+                                <RadioButton Content="🧾 العمليات المالية الشهرية" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="MonthlyOperations"/>
+
+                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="24,12" Opacity="0.1"/>
+
                                 <RadioButton Content="📦 تقرير المخزون" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="Inventory"/>
                                 <RadioButton Content="↩️ تقرير المرتجعات" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="Returns"/>
                                 
@@ -151,13 +164,38 @@
                             </StackPanel>
                         </Grid>
          
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding KpiCards}" ItemTemplate="{DynamicResource KpiCardTemplate}" ItemsPanel="{DynamicResource KpiItemsPanel}" Margin="0,0,0,16"/>
-         
-                        <Border Grid.Row="2" 
-                                Background="{DynamicResource BgCardBrush}" 
-                                CornerRadius="16" 
-                                BorderBrush="{DynamicResource BorderBrush}" 
-                                BorderThickness="1" 
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                      Visibility="{Binding KpiVisibility}" Margin="0,0,0,16">
+                            <ItemsControl ItemsSource="{Binding Source={StaticResource GroupedKpiCards}}"
+                                          ItemTemplate="{DynamicResource KpiCardTemplate}">
+                                <ItemsControl.GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.Panel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </GroupStyle.Panel>
+                                        <GroupStyle.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource TextMutedBrush}"
+                                                           Margin="0,12,0,8"
+                                                           FontFamily="{DynamicResource MainFontSemibold}"/>
+                                            </DataTemplate>
+                                        </GroupStyle.HeaderTemplate>
+                                    </GroupStyle>
+                                </ItemsControl.GroupStyle>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <Border Grid.Row="2"
+                                Visibility="{Binding OperationsVisibility}"
+                                Background="{DynamicResource BgCardBrush}"
+                                CornerRadius="16"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1"
                                 Padding="24">
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.05" Color="#000000"/>

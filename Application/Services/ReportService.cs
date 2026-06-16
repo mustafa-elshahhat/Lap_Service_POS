@@ -64,5 +64,12 @@ namespace AlJohary.ServiceHub.Application.Services
         {
             return _reportRepo.GetOperationsReport(startDate, endDate);
         }
+
+        // Detailed financial operations log (audit-safe): every money movement recognized by its
+        // own transaction/payment date. Powers the daily/monthly "العمليات المالية" pages.
+        public List<Dictionary<string, object>> GetFinancialOperations(string startDate, string endDate)
+        {
+            return _reportRepo.GetFinancialOperations(startDate, endDate);
+        }
     }
 }
