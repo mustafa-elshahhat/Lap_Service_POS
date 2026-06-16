@@ -309,16 +309,34 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             if (AddPaymentAmount <= 0) return;
             try
             {
+                bool hasNoProfitBasis = HasNoProfitBasis();
                 _maintenanceService.RegisterPayment(_orderId, AddPaymentAmount, AddPaymentMethod, _auth.GetUserId(), AddPaymentNotes);
                 AddPaymentAmount = 0;
                 AddPaymentNotes  = string.Empty;
                 LoadPayments();
                 RefreshTotals();
+                if (hasNoProfitBasis)
+                {
+                    _dialogService.ShowWarning("تنبيه", "تم تسجيل الدفعة كتحصيل، لكن ربح الصيانة سيظل 0 لأن أجر العمل وهامش القطع غير مسجلين.");
+                }
             }
             catch (Exception ex)
             {
                 _dialogService.ShowError("خطأ", ex.Message);
             }
+        }
+
+        private bool HasNoProfitBasis()
+        {
+            decimal labor = 0m;
+            foreach (var d in _maintenanceService.GetDevices(_orderId))
+                labor += d.LaborCost;
+
+            decimal partsMargin = 0m;
+            foreach (var p in _maintenanceService.GetOrderParts(_orderId))
+                partsMargin += p.TotalCost - (p.PurchaseCost * p.Quantity);
+
+            return labor == 0m && partsMargin <= 0m;
         }
 
         private void LoadDevices()

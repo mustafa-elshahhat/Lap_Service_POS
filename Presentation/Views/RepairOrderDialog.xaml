@@ -158,7 +158,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <Label Content="المبلغ"/>
+                                            <Label Content="مبلغ التحصيل"/>
                                             <TextBox Text="{Binding InitialPayment, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="2">
@@ -249,11 +249,11 @@
                         </Grid.RowDefinitions>
 
                         <!-- Add payment form -->
-                        <Border Grid.Row="0"
-                                Background="{DynamicResource BgCardBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                                CornerRadius="8" Padding="12" Margin="0,0,0,8">
-                            <Grid>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+                            <Border Background="{DynamicResource BgCardBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    CornerRadius="8" Padding="12" Margin="0,0,0,6">
+                                <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="12"/>
@@ -264,8 +264,9 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <Label Content="المبلغ"/>
-                                    <TextBox Text="{Binding AddPaymentAmount, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Label Content="مبلغ التحصيل"/>
+                                    <TextBox Text="{Binding AddPaymentAmount, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="هذا المبلغ تحصيل نقدي. ربح الصيانة يعتمد على أجر العمل وهامش القطع."/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <Label Content="طريقة الدفع"/>
@@ -276,12 +277,18 @@
                                     <Label Content="ملاحظات"/>
                                     <TextBox Text="{Binding AddPaymentNotes, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
-                                <Button Grid.Column="6" Content="تسجيل الدفعة"
+                                <Button Grid.Column="6" Content="تسجيل التحصيل"
                                         Style="{DynamicResource PrimaryButton}"
                                         VerticalAlignment="Bottom" Height="36"
                                         Command="{Binding RegisterPaymentCommand}"/>
-                            </Grid>
-                        </Border>
+                                </Grid>
+                            </Border>
+
+                            <TextBlock Text="تحصيل الصيانة = المدفوعات المسجلة. ربح الصيانة = أجر العمل + هامش القطع المعترف به مع الدفعات."
+                                       Foreground="{DynamicResource TextMutedBrush}"
+                                       FontSize="12"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
 
                         <DataGrid Grid.Row="1"
                                   Style="{DynamicResource MainDataGrid}"
@@ -289,7 +296,7 @@
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True" CanUserAddRows="False">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="المبلغ"       Binding="{Binding Amount, Converter={StaticResource FlexibleNumberConverter}}"  Width="100"/>
+                                <DataGridTextColumn Header="مبلغ التحصيل" Binding="{Binding Amount, Converter={StaticResource FlexibleNumberConverter}}"  Width="120"/>
                                 <DataGridTextColumn Header="طريقة الدفع"  Binding="{Binding PaymentMethod}"            Width="120"/>
                                 <DataGridTextColumn Header="التاريخ"      Binding="{Binding PaymentDate}"              Width="140"/>
                                 <DataGridTextColumn Header="ملاحظات"      Binding="{Binding Notes}"                   Width="*"/>

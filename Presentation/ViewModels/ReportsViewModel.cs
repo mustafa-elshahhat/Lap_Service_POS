@@ -17,6 +17,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         public string Value { get; set; }
         public string Icon { get; set; }
         public string ColorKey { get; set; }
+        public string ToolTip { get; set; }
     }
 
     public class ReportColumn
@@ -175,8 +176,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الرواتب",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_salary_payments") ? summary["total_salary_payments"] : 0)), Icon = "👨‍💼", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي خصومات الموظفين",  Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_employee_deductions") ? summary["total_employee_deductions"] : 0)), Icon = "➖", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "صافي تكلفة الرواتب",      Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("net_salary_expense") ? summary["net_salary_expense"] : 0)), Icon = "💼", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل — مُتضمَّن في النقدي الوارد)", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "أرباح الصيانة",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "تحصيل الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])), Icon = "🔧", ColorKey = "Warning", ToolTip = "تحصيل الصيانة = المدفوعات المسجلة خلال الفترة." });
+            KpiCards.Add(new KpiCardViewModel { Title = "ربح الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success", ToolTip = "ربح الصيانة = المصنعية + هامش القطع المعترف به مع الدفعات خلال الفترة." });
 
             string today = DateTime.Today.ToString("yyyy-MM-dd");
             var operations = _reportService.GetOperationsReport(today, today);
@@ -241,8 +242,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي خصومات الموظفين",   Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_employee_deductions") ? summary["total_employee_deductions"] : 0)), Icon = "➖", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "صافي تكلفة الرواتب",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("net_salary_expense") ? summary["net_salary_expense"] : 0)), Icon = "💼", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "ديون الموردين",            Value = Formatting.FormatCurrency(totalSupplierDebt),                                         Icon = "⚠️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل — مُتضمَّن في النقدي الوارد)", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
-            KpiCards.Add(new KpiCardViewModel { Title = "أرباح الصيانة",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success" });
+            KpiCards.Add(new KpiCardViewModel { Title = "تحصيل الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])), Icon = "🔧", ColorKey = "Warning", ToolTip = "تحصيل الصيانة = المدفوعات المسجلة خلال الفترة." });
+            KpiCards.Add(new KpiCardViewModel { Title = "ربح الصيانة", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success", ToolTip = "ربح الصيانة = المصنعية + هامش القطع المعترف به مع الدفعات خلال الفترة." });
 
             string startDate = $"{year}-{month:D2}-01";
             DateTime endDateTime = new DateTime(year, month, DateTime.DaysInMonth(year, month));

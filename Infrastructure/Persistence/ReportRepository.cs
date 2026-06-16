@@ -31,8 +31,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         //                   - cash_refunds - total_expenses - total_supplier_payments - total_salary_payments
         //   net_profit    = (SUM(sales.profit) + maintenance_profit)
         //                   - lost_profit - total_expenses - net_salary_expense
-        // Maintenance cash is recognized by payment_date; maintenance profit by delivery_date — these
-        // are intentionally different periods and are NOT directly period-comparable.
+        // Maintenance cash and maintenance profit are both recognized by repair payment_date.
+        // Profit is payment-proportional against labor + parts margin; delivery_date is not used.
         private Dictionary<string, object> BuildSummaryRange(string start, string end)
         {
             var summary = new Dictionary<string, object>();
@@ -119,23 +119,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             decimal maintenanceCashReceived = SafeConvert.ToDecimal(maintenanceCashQuery["maintenance_total"]);
             summary["maintenance_total"] = maintenanceCashReceived;
 
-            // Maintenance profit (recognized by delivery_date): parts margin + labor (booked 100% profit).
-            var maintenancePartsProfit = _db.FetchOne(@"
-                SELECT COALESCE(SUM(rp.total_cost - (rp.purchase_cost * rp.quantity)), 0) as parts_profit
-                FROM repair_parts rp
-                JOIN repair_orders ro ON rp.order_id = ro.id
-                WHERE ro.order_status = 'delivered'
-                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
-
-            var maintenanceLaborProfit = _db.FetchOne(@"
-                SELECT COALESCE(SUM(rd.labor_cost), 0) as labor_profit
-                FROM repair_devices rd
-                JOIN repair_orders ro ON rd.order_id = ro.id
-                WHERE ro.order_status = 'delivered'
-                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
-
-            decimal maintenanceProfit = SafeConvert.ToDecimal(maintenancePartsProfit["parts_profit"])
-                                      + SafeConvert.ToDecimal(maintenanceLaborProfit["labor_profit"]);
+            // Maintenance profit (recognized by payment_date): each payment recognizes the same
+            // proportion of order profit as the payment covers of order revenue. This avoids double
+            // counting across multiple payments and caps legacy overpayments at total order profit.
+            decimal maintenanceProfit = CalculateMaintenanceProfitForPayments(start, end);
             summary["maintenance_profit"] = maintenanceProfit;
 
             // Profit (computed once, with maintenance).
@@ -157,6 +144,76 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             AddPaymentBreakdowns(summary, args);
 
             return summary;
+        }
+
+        private decimal CalculateMaintenanceProfitForPayments(string start, string end)
+        {
+            var args = new Dictionary<string, object> { { "@start", start }, { "@end", end } };
+            var rows = _db.FetchAll(@"
+                SELECT
+                    rp.id,
+                    rp.order_id,
+                    rp.amount,
+                    CASE WHEN rp.payment_date >= @start AND rp.payment_date < @end THEN 1 ELSE 0 END as in_period,
+                    COALESCE((SELECT SUM(rd.labor_cost)
+                              FROM repair_devices rd
+                              WHERE rd.order_id = rp.order_id), 0) as labor_revenue,
+                    COALESCE((SELECT SUM(part.total_cost)
+                              FROM repair_parts part
+                              WHERE part.order_id = rp.order_id), 0) as parts_revenue,
+                    COALESCE((SELECT SUM(part.total_cost - (part.purchase_cost * part.quantity))
+                              FROM repair_parts part
+                              WHERE part.order_id = rp.order_id), 0) as parts_profit
+                FROM repair_payments rp
+                WHERE rp.payment_date < @end
+                  AND EXISTS (
+                      SELECT 1 FROM repair_payments period_payment
+                      WHERE period_payment.order_id = rp.order_id
+                        AND period_payment.payment_date >= @start
+                        AND period_payment.payment_date < @end
+                  )
+                ORDER BY rp.order_id, rp.payment_date, rp.id", args);
+
+            decimal periodProfit = 0m;
+            long currentOrderId = -1;
+            decimal paidBefore = 0m;
+            decimal totalRevenue = 0m;
+            decimal totalProfit = 0m;
+
+            foreach (var row in rows)
+            {
+                long orderId = SafeConvert.ToLong(row["order_id"]);
+                if (orderId != currentOrderId)
+                {
+                    currentOrderId = orderId;
+                    paidBefore = 0m;
+
+                    decimal laborRevenue = SafeConvert.ToDecimal(row["labor_revenue"]);
+                    decimal partsRevenue = SafeConvert.ToDecimal(row["parts_revenue"]);
+                    decimal partsProfit = SafeConvert.ToDecimal(row["parts_profit"]);
+                    totalRevenue = laborRevenue + partsRevenue;
+                    totalProfit = laborRevenue + partsProfit;
+                }
+
+                decimal paymentAmount = SafeConvert.ToDecimal(row["amount"]);
+                decimal paymentProfit = 0m;
+
+                if (totalRevenue > 0m && totalProfit > 0m && paymentAmount > 0m)
+                {
+                    decimal paidAfter = paidBefore + paymentAmount;
+                    decimal recognizedRevenueBefore = Math.Min(paidBefore, totalRevenue);
+                    decimal recognizedRevenueAfter = Math.Min(paidAfter, totalRevenue);
+                    decimal recognizedPaymentRevenue = Math.Max(0m, recognizedRevenueAfter - recognizedRevenueBefore);
+                    paymentProfit = (recognizedPaymentRevenue / totalRevenue) * totalProfit;
+                }
+
+                if (SafeConvert.ToInt(row["in_period"]) == 1)
+                    periodProfit += paymentProfit;
+
+                paidBefore += paymentAmount;
+            }
+
+            return periodProfit;
         }
 
         public List<Dictionary<string, object>> GetOperationsReport(string startDate, string endDate)

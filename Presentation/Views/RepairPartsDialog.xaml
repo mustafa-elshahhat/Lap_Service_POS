@@ -126,7 +126,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <Label Content="تكلفة الشراء" Padding="0,0,0,2"/>
+                            <Label Content="تكلفة شراء القطعة" Padding="0,0,0,2"/>
                             <TextBox Text="{Binding PartPurchaseCost, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
 
@@ -138,7 +138,7 @@
 
                         <!-- Cost -->
                         <StackPanel Grid.Column="8">
-                            <Label Content="سعر الوحدة" Padding="0,0,0,2"/>
+                            <Label Content="سعر بيع الوحدة" Padding="0,0,0,2"/>
                             <TextBox Text="{Binding PartCost, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
 

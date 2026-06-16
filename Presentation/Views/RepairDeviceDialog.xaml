@@ -102,7 +102,7 @@
                                              VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <Label Content="أجر العمل"/>
+                                    <Label Content="أجر العمل (ربح الخدمة)"/>
                                     <TextBox Text="{Binding LaborCost, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4">
