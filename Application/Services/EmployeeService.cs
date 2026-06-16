@@ -4,6 +4,7 @@ using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Infrastructure.Data;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -11,11 +12,13 @@ namespace AlJohary.ServiceHub.Application.Services
     {
         private readonly IEmployeeRepository _employeeRepo;
         private readonly IAuthService _auth;
+        private readonly IDbTransactionManager _txManager;
 
-        public EmployeeService(IEmployeeRepository employeeRepo, IAuthService auth)
+        public EmployeeService(IEmployeeRepository employeeRepo, IAuthService auth, IDbTransactionManager txManager = null)
         {
             _employeeRepo = employeeRepo;
             _auth = auth;
+            _txManager = txManager;
         }
 
         public List<Employee> GetAllEmployees(bool includeInactive = false)
@@ -79,18 +82,73 @@ namespace AlJohary.ServiceHub.Application.Services
             _employeeRepo.SetActive(id, isActive);
         }
 
+        // Salary payment = actual cash handed to the employee (carries a canonical payment method;
+        // counts as cash-out in net_cash_flow and payment_outflows).
         public long RegisterSalaryPayment(int employeeId, decimal amount, string paymentMethod, DateTime transactionDate, string notes)
         {
             EnsureAdmin();
             ValidateTransaction(employeeId, amount);
-            return _employeeRepo.AddSalaryTransaction(employeeId, "salary", amount, paymentMethod ?? PaymentMethods.Cash, transactionDate, notes, GetCurrentUserIdOrNull());
+            int? userId = GetCurrentUserIdOrNull();
+            return RunSalaryWrite(
+                () => _employeeRepo.AddSalaryTransaction(employeeId, "salary", amount, paymentMethod ?? PaymentMethods.Cash, transactionDate, notes, userId),
+                userId, "register_salary", employeeId, $"Salary {amount} ({paymentMethod ?? PaymentMethods.Cash})");
         }
 
+        // Deduction = cost reducer only; NOT a cash inflow. payment_method stays null on purpose.
         public long RegisterDeduction(int employeeId, decimal amount, DateTime transactionDate, string notes)
         {
             EnsureAdmin();
             ValidateTransaction(employeeId, amount);
-            return _employeeRepo.AddSalaryTransaction(employeeId, "deduction", amount, null, transactionDate, notes, GetCurrentUserIdOrNull());
+            int? userId = GetCurrentUserIdOrNull();
+            return RunSalaryWrite(
+                () => _employeeRepo.AddSalaryTransaction(employeeId, "deduction", amount, null, transactionDate, notes, userId),
+                userId, "register_deduction", employeeId, $"Deduction {amount}");
+        }
+
+        // Correction by reversal: posts a compensating row of the SAME type with the negated amount so
+        // the period totals net out (e.g. salary 200 reversed -> -200 nets total_salary_payments to 0),
+        // while the original row is retained for audit. No destructive delete.
+        public long ReverseSalaryTransaction(long transactionId, string reason)
+        {
+            EnsureAdmin();
+
+            var original = _employeeRepo.GetSalaryTransactionById(transactionId);
+            if (original == null)
+                throw new InvalidOperationException("العملية غير موجودة");
+
+            int employeeId = SafeConvert.ToInt(original["employee_id"]);
+            string type = SafeConvert.ToString(original["transaction_type"]);
+            decimal amount = SafeConvert.ToDecimal(original["amount"]);
+            string method = original.ContainsKey("payment_method") ? SafeConvert.ToString(original["payment_method"]) : null;
+            if (string.IsNullOrEmpty(method)) method = null;
+
+            string note = $"عكس/تصحيح للعملية رقم {transactionId}" + (string.IsNullOrWhiteSpace(reason) ? "" : $" - {reason}");
+            int? userId = GetCurrentUserIdOrNull();
+
+            return RunSalaryWrite(
+                () => _employeeRepo.AddSalaryTransaction(employeeId, type, -amount, method, DateTime.Now, note, userId),
+                userId, "reverse_salary_transaction", employeeId, $"Reversal of #{transactionId} ({type} {amount})");
+        }
+
+        private long RunSalaryWrite(Func<long> write, int? userId, string action, int employeeId, string details)
+        {
+            if (_txManager == null)
+                return write();
+
+            _txManager.BeginTransaction();
+            try
+            {
+                long id = write();
+                DatabaseManager.Instance.LogActivity(userId ?? 0, action, "employee_salary_transactions", (int)id,
+                    $"EmployeeId={employeeId}; {details}");
+                _txManager.CommitTransaction();
+                return id;
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public List<Dictionary<string, object>> GetSalaryTransactions(int employeeId)

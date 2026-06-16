@@ -7,6 +7,7 @@ using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Application.DTOs;
 using AlJohary.ServiceHub.Shared.Helpers;
 using AlJohary.ServiceHub.Core.Accounting;
+using AlJohary.ServiceHub.Core.Pricing;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -72,18 +73,33 @@ namespace AlJohary.ServiceHub.Application.Services
                 subtotal += item.Quantity * item.UnitFinalPrice;
 
             decimal totalAmount = FinancialCalculator.CalculateTotalWithDiscountAndMarkup(subtotal, discountAmount, markupAmount);
-            decimal remainingAmount = FinancialCalculator.CalculateRemaining(totalAmount, paidAmount);
 
-            if (saleType == "cash" && remainingAmount > 0 && !customerId.HasValue)
+            // Cash-only invariant: credit sales and customer receivables are NOT supported.
+            // Every supported sale must be paid in full at checkout — no invoice may leave the till
+            // with a remaining balance. We therefore REJECT (not silently coerce) any sale that is
+            // not a full-payment cash sale. Net effect: remaining_amount is provably always 0.
+            if (saleType != "cash")
+                throw new Exception("البيع الآجل غير مدعوم — يجب سداد الفاتورة بالكامل");
+
+            decimal effectivePaid = paidAmount;
+            if (paymentMethodsList != null && paymentMethodsList.Count > 0)
             {
-                paidAmount = totalAmount;
-                remainingAmount = 0;
+                effectivePaid = 0;
+                foreach (var pm in paymentMethodsList)
+                    effectivePaid += SafeConvert.ToDecimal(pm["amount"]);
             }
+
+            if (Math.Abs(effectivePaid - totalAmount) > 0.01m)
+                throw new Exception("البيع الآجل غير مدعوم — يجب سداد الفاتورة بالكامل");
+
+            // Supported sales are fully paid: persist remaining_amount = 0.
+            paidAmount = totalAmount;
+            decimal remainingAmount = 0;
 
             decimal totalProfit = DistributeFinancialsToItems(validatedItems, subtotal, totalAmount, paidAmount);
 
             string invoiceNumber = _saleRepo.GenerateInvoiceNumber();
-            string mainPaymentMethod = paymentMethod ?? "كاش";
+            string mainPaymentMethod = paymentMethod ?? PaymentMethods.Cash;
 
             var sale = new Sale
             {
@@ -176,7 +192,7 @@ namespace AlJohary.ServiceHub.Application.Services
         }
 
         public SaleOperationResult CreateCashSale(List<SaleItem> items, string customerName = null, string customerPhone = null,
-            decimal discountAmount = 0, decimal markupAmount = 0, string notes = null, string paymentMethod = "كاش")
+            decimal discountAmount = 0, decimal markupAmount = 0, string notes = null, string paymentMethod = null)
         {
             _txManager.BeginTransaction();
             try
@@ -226,6 +242,11 @@ namespace AlJohary.ServiceHub.Application.Services
         private List<SaleItem> ValidateItems(List<SaleItem> items)
         {
             if (items == null || items.Count == 0) throw new Exception("لا توجد أصناف في الفاتورة");
+
+            bool canBypass = _auth != null && _auth.CanBypassPriceLimits;
+            double maxDiscount = _auth?.GetMaxDiscount() ?? 0;
+            double maxMarkup = _auth?.GetMaxMarkup() ?? 0;
+
             foreach (var item in items)
             {
                 var product = _productRepo.GetById(item.ProductId);
@@ -233,7 +254,40 @@ namespace AlJohary.ServiceHub.Application.Services
                 if (product.Quantity < item.Quantity) throw new Exception($"الكمية المطلوبة من {product.Name} غير متوفرة. المتاح: {product.Quantity}");
 
                 item.UnitPurchasePrice = product.PurchasePrice;
+                item.UnitSellingPrice = product.SellingPrice;
+                if (string.IsNullOrEmpty(item.ProductCode)) item.ProductCode = product.Code;
+                if (string.IsNullOrEmpty(item.ProductName)) item.ProductName = product.Name;
                 if (item.UnitFinalPrice <= 0) item.UnitFinalPrice = product.SellingPrice;
+
+                // Authoritative service-layer price-limit enforcement (the UI is only a pre-check):
+                // below-cost is blocked for everyone incl. admin; admin bypasses %/markup ceilings only.
+                var check = PriceLimitValidator.Validate(
+                    originalPrice: product.SellingPrice,
+                    cost: product.PurchasePrice,
+                    finalPrice: item.UnitFinalPrice,
+                    canBypassLimits: canBypass,
+                    maxDiscountPercent: maxDiscount,
+                    maxMarkupPercent: maxMarkup,
+                    productName: product.Name);
+                if (!check.IsValid) throw new Exception(check.Message);
+
+                // Persist traceable discount/markup derived from the final price (schema columns exist).
+                decimal original = product.SellingPrice;
+                if (item.UnitFinalPrice < original)
+                {
+                    item.DiscountAmount = (original - item.UnitFinalPrice) * item.Quantity;
+                    item.MarkupAmount = 0;
+                }
+                else if (item.UnitFinalPrice > original)
+                {
+                    item.MarkupAmount = (item.UnitFinalPrice - original) * item.Quantity;
+                    item.DiscountAmount = 0;
+                }
+                else
+                {
+                    item.DiscountAmount = 0;
+                    item.MarkupAmount = 0;
+                }
             }
             return items;
         }

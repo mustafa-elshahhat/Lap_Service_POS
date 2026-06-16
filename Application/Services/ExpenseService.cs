@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Infrastructure.Data;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -59,23 +61,78 @@ namespace AlJohary.ServiceHub.Application.Services
             return total;
         }
 
+        // Categories that must NOT be recorded as a generic expense — they are cash-out flows owned by
+        // dedicated screens (supplier payments, salaries). Recording them here would double-count cash.
+        private static readonly string[] ProtectedCategories = { "مرتبات", "رواتب", "سداد مورد", "مدفوعات موردين" };
+
+        public static bool IsProtectedCategory(string category)
+        {
+            if (string.IsNullOrWhiteSpace(category)) return false;
+            string c = category.Trim();
+            return ProtectedCategories.Any(p => string.Equals(p, c, StringComparison.OrdinalIgnoreCase));
+        }
+
         public void CreateExpense(string description, decimal amount, string category, string paymentMethod, DateTime date)
         {
+            if (IsProtectedCategory(category))
+                throw new InvalidOperationException(
+                    "هذه الفئة محجوزة. سجّل مدفوعات الموردين من شاشة الموردين والرواتب من شاشة الموظفين حتى لا يتكرر احتساب النقدية.");
+
+            int userId = _auth.GetUserId();
             var expense = new Expense
             {
                 Description = description,
                 Amount = amount,
                 Category = category,
-                UserId = _auth.GetUserId(),
+                UserId = userId,
                 PaymentMethod = paymentMethod,
                 ExpenseDate = date
             };
-            _expenseRepo.Create(expense);
+
+            if (_txManager == null)
+            {
+                _expenseRepo.Create(expense);
+                return;
+            }
+
+            _txManager.BeginTransaction();
+            try
+            {
+                long id = _expenseRepo.Create(expense);
+                DatabaseManager.Instance.LogActivity(userId, "create_expense", "expenses", (int)id,
+                    $"{category}: {description} - {amount} ({paymentMethod})");
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public void DeleteExpense(int id)
         {
-            _expenseRepo.Delete(id);
+            int userId = _auth.GetUserId();
+
+            if (_txManager == null)
+            {
+                _expenseRepo.Delete(id, userId);
+                return;
+            }
+
+            _txManager.BeginTransaction();
+            try
+            {
+                _expenseRepo.Delete(id, userId);
+                DatabaseManager.Instance.LogActivity(userId, "delete_expense", "expenses", id,
+                    "Soft-deleted expense.");
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
         public List<string> GetCategories()
         {

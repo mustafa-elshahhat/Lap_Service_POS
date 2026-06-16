@@ -14,6 +14,9 @@ namespace AlJohary.ServiceHub.Presentation.Views
 
         public string DialogTitle { get; set; }
         public string EmployeeName { get; set; }
+        public string AmountLabel { get; set; }
+        public string AmountHelperText { get; set; }
+        public System.Collections.Generic.List<string> PaymentMethodOptions => AlJohary.ServiceHub.Shared.Helpers.PaymentMethods.GetAll();
         public decimal Amount { get; private set; }
         public string PaymentMethod { get; private set; }
         public DateTime TransactionDate { get; private set; }
@@ -25,6 +28,16 @@ namespace AlJohary.ServiceHub.Presentation.Views
             _transactionType = transactionType;
             EmployeeName = employee?.FullName ?? string.Empty;
             DialogTitle = transactionType == "salary" ? "💰 تسجيل صرف راتب" : "➖ تسجيل خصم موظف";
+            if (transactionType == "salary")
+            {
+                AmountLabel = "المبلغ المدفوع نقداً *";
+                AmountHelperText = "المبلغ الفعلي المسلَّم للموظف نقداً (يُحسب ضمن التدفق النقدي الخارج).";
+            }
+            else
+            {
+                AmountLabel = "مبلغ الخصم *";
+                AmountHelperText = "خصم (يقلل التكلفة وليس نقداً) — لا يُحتسب كتدفق نقدي.";
+            }
             DataContext = this;
             TransactionDatePicker.SelectedDate = DateTime.Today;
             PaymentMethodPanel.Visibility = transactionType == "salary" ? Visibility.Visible : Visibility.Collapsed;
@@ -59,7 +72,7 @@ namespace AlJohary.ServiceHub.Presentation.Views
             }
 
             Amount = amount;
-            PaymentMethod = PaymentMethodComboBox.SelectedItem is ComboBoxItem item ? item.Content.ToString() : "نقدي";
+            PaymentMethod = PaymentMethodComboBox.SelectedItem as string ?? AlJohary.ServiceHub.Shared.Helpers.PaymentMethods.Cash;
             TransactionDate = (TransactionDatePicker.SelectedDate ?? DateTime.Today).Date.Add(DateTime.Now.TimeOfDay);
             Notes = NotesTextBox.Text;
 

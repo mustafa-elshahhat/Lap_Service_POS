@@ -14,6 +14,8 @@ namespace AlJohary.ServiceHub.Application.Interfaces
         void SetEmployeeActive(int id, bool isActive);
         long RegisterSalaryPayment(int employeeId, decimal amount, string paymentMethod, DateTime transactionDate, string notes);
         long RegisterDeduction(int employeeId, decimal amount, DateTime transactionDate, string notes);
+        // Correction by reversal: posts a compensating row (keeps the original) instead of deleting.
+        long ReverseSalaryTransaction(long transactionId, string reason);
         List<Dictionary<string, object>> GetSalaryTransactions(int employeeId);
     }
 }

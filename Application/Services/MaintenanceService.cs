@@ -145,9 +145,20 @@ namespace AlJohary.ServiceHub.Application.Services
                 RepairNotes   = input.RepairNotes?.Trim()
             };
 
-            long deviceId = _repo.AddDevice(device);
-            _repo.RecalculateOrderTotals(orderId);
-            return deviceId;
+            // T-4: device insert + order-total recalculation must be atomic.
+            _txManager.BeginTransaction();
+            try
+            {
+                long deviceId = _repo.AddDevice(device);
+                _repo.RecalculateOrderTotals(orderId);
+                _txManager.CommitTransaction();
+                return deviceId;
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public void UpdateDevice(long deviceId, RepairDeviceInput input)
@@ -178,8 +189,19 @@ namespace AlJohary.ServiceHub.Application.Services
                 RepairNotes   = input.RepairNotes?.Trim()
             };
 
-            _repo.UpdateDevice(device);
-            _repo.RecalculateOrderTotals(orderId);
+            // T-4: device update + order-total recalculation must be atomic.
+            _txManager.BeginTransaction();
+            try
+            {
+                _repo.UpdateDevice(device);
+                _repo.RecalculateOrderTotals(orderId);
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public void UpdateDeviceStatus(long deviceId, string newStatus, string notes)
@@ -253,8 +275,19 @@ namespace AlJohary.ServiceHub.Application.Services
                 IsFromInventory = false
             };
 
-            _repo.AddPart(part);
-            _repo.RecalculateOrderTotals(orderId);
+            // T-4: custom-part insert + order-total recalculation must be atomic.
+            _txManager.BeginTransaction();
+            try
+            {
+                _repo.AddPart(part);
+                _repo.RecalculateOrderTotals(orderId);
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public void RemovePart(long partId)
@@ -293,6 +326,10 @@ namespace AlJohary.ServiceHub.Application.Services
             var order = _repo.GetOrder(orderId)
                 ?? throw new InvalidOperationException("طلب الصيانة غير موجود.");
 
+            // R-11.5: never accept cash against a cancelled order.
+            if (order.OrderStatus == RepairStatus.Cancelled)
+                throw new InvalidOperationException("لا يمكن تسجيل دفعة على طلب ملغي.");
+
             if (amount > order.RemainingAmount + 0.01m)
             {
                 Logger.LogWarning($"MaintenanceService: Overpayment attempt on order {order.OrderNumber}. Remaining={order.RemainingAmount}, Attempted={amount}.");
@@ -309,7 +346,19 @@ namespace AlJohary.ServiceHub.Application.Services
                 UserId        = userId
             };
 
-            _repo.AddPayment(payment);
+            // T-3: AddPayment does INSERT then RecalculateOrderTotals (multiple statements) — wrap so a
+            // failure cannot leave the payment recorded while the order totals are stale.
+            _txManager.BeginTransaction();
+            try
+            {
+                _repo.AddPayment(payment);
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
             Logger.LogInfo($"MaintenanceService: Payment {Formatting.FormatNumber(amount)} registered for order {order.OrderNumber}.");
         }
 
@@ -370,10 +419,23 @@ namespace AlJohary.ServiceHub.Application.Services
 
             order.OrderStatus  = RepairStatus.Delivered;
             order.DeliveryDate = DateTime.Now;
-            _repo.UpdateOrder(order);
 
-            DatabaseManager.Instance.LogActivity(userId, "deliver_repair_order", "repair_orders",
-                (int)orderId, $"Order {order.OrderNumber} delivered.");
+            // T-5: order update + activity log must be atomic.
+            _txManager.BeginTransaction();
+            try
+            {
+                _repo.UpdateOrder(order);
+
+                DatabaseManager.Instance.LogActivity(userId, "deliver_repair_order", "repair_orders",
+                    (int)orderId, $"Order {order.OrderNumber} delivered.");
+
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
 
             Logger.LogInfo($"MaintenanceService: Order {order.OrderNumber} marked as delivered.");
         }

@@ -159,12 +159,8 @@
                 <StackPanel Grid.Column="4">
                     <Label Content="طريقة دفع المقدم" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                     <ComboBox Style="{DynamicResource MainComboBox}"
-                              SelectedValue="{Binding PaymentMethod, UpdateSourceTrigger=PropertyChanged}"
-                              SelectedValuePath="Content">
-                        <ComboBoxItem Content="نقدي"/>
-                        <ComboBoxItem Content="محافظ إلكترونية"/>
-                        <ComboBoxItem Content="إنستا باي"/>
-                    </ComboBox>
+                              ItemsSource="{Binding PaymentMethodsList}"
+                              SelectedValue="{Binding PaymentMethod, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Text="{Binding TotalAmount, Converter={StaticResource FlexibleCurrencyConverter}, StringFormat=إجمالي الفاتورة: {0}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}" Margin="0,6,0,0"/>
                 </StackPanel>
             </Grid>

@@ -13,6 +13,7 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         void Update(Employee employee);
         void SetActive(int id, bool isActive);
         long AddSalaryTransaction(int employeeId, string transactionType, decimal amount, string paymentMethod, DateTime transactionDate, string notes, int? createdBy);
+        Dictionary<string, object> GetSalaryTransactionById(long id);
         List<Dictionary<string, object>> GetSalaryTransactions(int employeeId);
     }
 }

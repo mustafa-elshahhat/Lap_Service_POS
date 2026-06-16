@@ -14,6 +14,8 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         List<Sale> GetAll(int limit = 100);
         List<Sale> Search(string query, int limit = 50);
         List<Sale> GetByCustomerId(int customerId);
+        // LEGACY / DE-SCOPED: credit sales and customer receivables are unsupported. No caller.
+        [Obsolete("Credit sales / receivables are not supported. All sales are fully paid; no unpaid sales exist.")]
         List<Sale> GetUnpaidByCustomer(int customerId);
         List<Sale> GetSalesReport(string startDate, string endDate);
 
@@ -21,6 +23,8 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         List<SaleItem> GetItems(long saleId);
         void UpdateItemPayment(int itemId, decimal newPaidAmount);
         void UpdateSaleItemFinancials(int itemId, decimal paid, decimal remaining);
+        // LEGACY / DE-SCOPED: dead receivable-era helper, no caller. ReturnService uses UpdateSaleItemFinancials.
+        [Obsolete("Unused legacy helper from the credit/receivable era. Not called anywhere.")]
         void UpdateSaleItemFinancialsAfterReturn(int itemId, decimal newTotalPrice, decimal newProfit);
 
         void updatePaymentStatus(long saleId, decimal paid, decimal remaining);

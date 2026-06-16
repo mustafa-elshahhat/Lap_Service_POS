@@ -40,11 +40,16 @@
                     </StackPanel>
                 </Border>
 
-                <Label Content="المبلغ *" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                <Label Content="{Binding AmountLabel}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                 <TextBox x:Name="AmountTextBox"
                          Style="{DynamicResource MainTextBox}"
                          PreviewTextInput="DecimalTextBox_PreviewTextInput"
-                         Margin="0,0,0,16"/>
+                         Margin="0,0,0,2"/>
+                <TextBlock Text="{Binding AmountHelperText}"
+                           FontSize="11"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           Margin="2,0,0,16"/>
 
                 <Label Content="تاريخ العملية" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                 <DatePicker x:Name="TransactionDatePicker" Margin="0,0,0,16"/>
@@ -53,11 +58,8 @@
                     <Label Content="طريقة الدفع" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                     <ComboBox x:Name="PaymentMethodComboBox"
                               Style="{DynamicResource MainComboBox}"
-                              SelectedIndex="0">
-                        <ComboBoxItem Content="نقدي"/>
-                        <ComboBoxItem Content="محافظ إلكترونية"/>
-                        <ComboBoxItem Content="إنستا باي"/>
-                    </ComboBox>
+                              ItemsSource="{Binding PaymentMethodOptions}"
+                              SelectedIndex="0"/>
                 </StackPanel>
 
                 <Label Content="ملاحظات" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>

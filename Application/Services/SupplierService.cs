@@ -79,16 +79,55 @@ namespace AlJohary.ServiceHub.Application.Services
                     $"قيمة السداد ({Formatting.FormatCurrency(amount)}) تتجاوز المديونية الحالية ({Formatting.FormatCurrency(supplier.TotalDebt)})");
 
             int userId = _auth.GetUserId();
-            _supplierRepo.AddSupplierPayment(supplierId, amount, userId, paymentMethod);
+
+            // T-1: the repository settlement is read-debt -> INSERT payment -> UPDATE debt (3 statements);
+            // own the transaction here so a mid-flow failure can never leave an orphaned payment row.
+            if (_txManager == null)
+            {
+                _supplierRepo.AddSupplierPayment(supplierId, amount, userId, paymentMethod);
+                return;
+            }
+
+            _txManager.BeginTransaction();
+            try
+            {
+                _supplierRepo.AddSupplierPayment(supplierId, amount, userId, paymentMethod);
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
+        // LEGACY / DE-SCOPED: superseded by AddSupplierPurchaseWithItems (invoice-only line items).
+        // Retained for compatibility but has no caller; wrapped defensively in case it is ever used.
+        [Obsolete("Use AddSupplierPurchaseWithItems instead. This standalone purchase path is legacy.")]
         public void AddSupplierPurchase(int supplierId, decimal amount, string paymentMethod = null)
         {
             if (amount <= 0)
                 throw new ArgumentException("قيمة المشتريات يجب أن تكون أكبر من الصفر");
 
             int userId = _auth.GetUserId();
-            _supplierRepo.AddSupplierPurchase(supplierId, amount, userId, paymentMethod);
+
+            if (_txManager == null)
+            {
+                _supplierRepo.AddSupplierPurchase(supplierId, amount, userId, paymentMethod);
+                return;
+            }
+
+            _txManager.BeginTransaction();
+            try
+            {
+                _supplierRepo.AddSupplierPurchase(supplierId, amount, userId, paymentMethod);
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public SupplierPurchaseResult AddSupplierPurchaseWithItems(int supplierId, decimal totalAmount, decimal paidAmount, string paymentMethod, List<SupplierPurchaseLineInput> lines)

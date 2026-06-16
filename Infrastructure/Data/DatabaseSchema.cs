@@ -72,6 +72,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     phone TEXT,
                     address TEXT,
                     notes TEXT,
+                    -- LEGACY / UNUSED: total_credit is retained only for historical data.
+                    -- Credit sales and customer receivables are NOT supported. Do not read or write
+                    -- this column as an active balance/ledger. See README and the financial-flow plan.
                     total_credit REAL DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -156,7 +159,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     user_id INTEGER NOT NULL,
                     total_amount REAL NOT NULL DEFAULT 0,
                     cash_refund REAL DEFAULT 0,
+                    -- LEGACY: debt_deduction stays for historical rows only. Credit/receivables are
+                    -- unsupported, so all supported sales are fully paid and this is always 0.
                     debt_deduction REAL DEFAULT 0,
+                    payment_method TEXT,
                     reason TEXT,
                     return_date TIMESTAMP,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -181,6 +187,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     FOREIGN KEY (product_id) REFERENCES products(id)
                 )",
 
+                // LEGACY / UNUSED: payment_history is retained only for historical data. Credit
+                // sales and customer receivables are NOT supported; no application code writes to or
+                // reads from this table as an active ledger. Do not reintroduce credit flows here.
                 @"CREATE TABLE IF NOT EXISTS payment_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     customer_id INTEGER NOT NULL,
@@ -250,6 +259,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     payment_method TEXT DEFAULT 'نقدي',
                     expense_date TIMESTAMP,
                     user_id INTEGER,
+                    is_deleted INTEGER NOT NULL DEFAULT 0,
+                    deleted_at TIMESTAMP,
+                    deleted_by INTEGER,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )",
@@ -347,6 +359,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_active_employee ON users(employee_id) WHERE employee_id IS NOT NULL AND is_active = 1",
                 "CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date)",
                 "CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)",
+                "CREATE INDEX IF NOT EXISTS idx_expenses_is_deleted ON expenses(is_deleted)",
                 "CREATE INDEX IF NOT EXISTS idx_repair_orders_intake ON repair_orders(intake_date)",
                 "CREATE INDEX IF NOT EXISTS idx_repair_orders_status ON repair_orders(order_status)",
                 "CREATE INDEX IF NOT EXISTS idx_repair_orders_customer ON repair_orders(customer_id)",
@@ -354,6 +367,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                 "CREATE INDEX IF NOT EXISTS idx_repair_parts_device ON repair_parts(device_id)",
                 "CREATE INDEX IF NOT EXISTS idx_repair_parts_order ON repair_parts(order_id)",
                 "CREATE INDEX IF NOT EXISTS idx_repair_payments_order ON repair_payments(order_id)",
+
+                // Reporting indexes for financial-flow queries (mirrored in Migration009).
+                "CREATE INDEX IF NOT EXISTS idx_sale_payments_date ON sale_payments(payment_date)",
+                "CREATE INDEX IF NOT EXISTS idx_sale_payments_sale ON sale_payments(sale_id)",
+                "CREATE INDEX IF NOT EXISTS idx_returns_date ON returns(return_date)",
+                "CREATE INDEX IF NOT EXISTS idx_return_items_return ON return_items(return_id)",
+                "CREATE INDEX IF NOT EXISTS idx_return_items_sale_item ON return_items(sale_item_id)",
+                "CREATE INDEX IF NOT EXISTS idx_repair_payments_date ON repair_payments(payment_date)",
             };
         }
     }

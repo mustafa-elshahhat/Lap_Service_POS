@@ -287,6 +287,13 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     {
                         if (decimal.TryParse(adminPriceStr, out decimal adminPrice) && adminPrice > 0)
                         {
+                            // The below-cost floor is universal and applies to admins too — the admin
+                            // bypass covers only the discount/markup percentage ceilings.
+                            if (adminPrice < item.PurchasePrice)
+                            {
+                                _dialogService.ShowWarning("تحذير", $"غير مسموح بالبيع بأقل من سعر الشراء: {Formatting.FormatCurrency(item.PurchasePrice)}");
+                                return;
+                            }
                             item.UnitPrice = adminPrice;
                             item.Total = item.Quantity * item.UnitPrice;
                             RefreshCartItem(item);

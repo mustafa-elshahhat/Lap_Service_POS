@@ -155,6 +155,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             decimal cashOut    = GetMethodSum(outflows, PaymentMethods.Cash);
             decimal instapayOut= GetMethodSum(outflows, PaymentMethods.InstaPay);
             decimal ewalletOut = GetMethodSum(outflows, PaymentMethods.EWallet);
+            decimal otherIn    = GetOtherMethodsSum(inflows);
+            decimal otherOut   = GetOtherMethodsSum(outflows);
 
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي المبيعات",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_sales"])),              Icon = "💰", ColorKey = "Primary" });
             KpiCards.Add(new KpiCardViewModel { Title = "أرباح اليوم",            Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["gross_profit"])),           Icon = "📈", ColorKey = "Success" });
@@ -165,12 +167,15 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "نقدي (صادر)",            Value = Formatting.FormatCurrency(cashOut),                                                   Icon = "💸", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إنستا باي (صادر)",       Value = Formatting.FormatCurrency(instapayOut),                                               Icon = "🏧", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "محافظ (صادرة)",          Value = Formatting.FormatCurrency(ewalletOut),                                                Icon = "📲", ColorKey = "Danger" });
+            if (otherIn != 0)  KpiCards.Add(new KpiCardViewModel { Title = "أخرى (وارد - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherIn),  Icon = "❓", ColorKey = "Info" });
+            if (otherOut != 0) KpiCards.Add(new KpiCardViewModel { Title = "أخرى (صادر - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherOut), Icon = "❓", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "صافي التدفق النقدي",     Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_cash_flow"])),          Icon = "💱", ColorKey = "Success" });
             KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "المصروفات",              Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الرواتب",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_salary_payments") ? summary["total_salary_payments"] : 0)), Icon = "👨‍💼", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي خصومات الموظفين",  Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_employee_deductions") ? summary["total_employee_deductions"] : 0)), Icon = "➖", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "صافي تكلفة الرواتب",      Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("net_salary_expense") ? summary["net_salary_expense"] : 0)), Icon = "💼", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل)",      Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل — مُتضمَّن في النقدي الوارد)", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "أرباح الصيانة",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success" });
 
             string today = DateTime.Today.ToString("yyyy-MM-dd");
@@ -214,6 +219,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             decimal cashOut     = GetMethodSum(outflows, PaymentMethods.Cash);
             decimal instapayOut = GetMethodSum(outflows, PaymentMethods.InstaPay);
             decimal ewalletOut  = GetMethodSum(outflows, PaymentMethods.EWallet);
+            decimal otherIn     = GetOtherMethodsSum(inflows);
+            decimal otherOut    = GetOtherMethodsSum(outflows);
 
             decimal totalSupplierDebt = _supplierService.GetAllSuppliers().Sum(s => s.TotalDebt);
 
@@ -225,13 +232,16 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي نقدي (صادر)",       Value = Formatting.FormatCurrency(cashOut),                                                   Icon = "💸", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي إنستا باي (صادر)",  Value = Formatting.FormatCurrency(instapayOut),                                               Icon = "🏧", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي محافظ (صادرة)",     Value = Formatting.FormatCurrency(ewalletOut),                                                Icon = "📲", ColorKey = "Danger" });
+            if (otherIn != 0)  KpiCards.Add(new KpiCardViewModel { Title = "أخرى (وارد - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherIn),  Icon = "❓", ColorKey = "Info" });
+            if (otherOut != 0) KpiCards.Add(new KpiCardViewModel { Title = "أخرى (صادر - طرق غير معروفة)", Value = Formatting.FormatCurrency(otherOut), Icon = "❓", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Title = "صافي التدفق النقدي",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["net_cash_flow"])),          Icon = "💱", ColorKey = "Success" });
             KpiCards.Add(new KpiCardViewModel { Title = "المرتجعات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["returns_value"])),          Icon = "↩️", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "المصروفات الشهرية",        Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["total_expenses"])),         Icon = "🧾", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي الرواتب",           Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_salary_payments") ? summary["total_salary_payments"] : 0)), Icon = "👨‍💼", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "إجمالي خصومات الموظفين",   Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("total_employee_deductions") ? summary["total_employee_deductions"] : 0)), Icon = "➖", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "صافي تكلفة الرواتب",       Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("net_salary_expense") ? summary["net_salary_expense"] : 0)), Icon = "💼", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Title = "ديون الموردين",            Value = Formatting.FormatCurrency(totalSupplierDebt),                                         Icon = "⚠️", ColorKey = "Danger" });
-            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل)",         Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
+            KpiCards.Add(new KpiCardViewModel { Title = "الصيانة (تحصيل — مُتضمَّن في النقدي الوارد)", Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary["maintenance_total"])),      Icon = "🔧", ColorKey = "Warning" });
             KpiCards.Add(new KpiCardViewModel { Title = "أرباح الصيانة",          Value = Formatting.FormatCurrency(SafeConvert.ToDecimal(summary.ContainsKey("maintenance_profit") ? summary["maintenance_profit"] : 0)), Icon = "🔧", ColorKey = "Success" });
 
             string startDate = $"{year}-{month:D2}-01";
@@ -350,6 +360,19 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             if (methods == null) return 0;
             return methods.TryGetValue(key, out decimal val) ? val : 0;
+        }
+
+        // Catch-all for any non-canonical / unknown / blank payment method so the per-method cards
+        // always sum to the true total (nothing is silently dropped). = Σ(all) − Σ(known three).
+        private decimal GetOtherMethodsSum(Dictionary<string, decimal> methods)
+        {
+            if (methods == null) return 0;
+            decimal total = 0;
+            foreach (var kv in methods) total += kv.Value;
+            return total
+                   - GetMethodSum(methods, PaymentMethods.Cash)
+                   - GetMethodSum(methods, PaymentMethods.InstaPay)
+                   - GetMethodSum(methods, PaymentMethods.EWallet);
         }
 
         private void ExportReport()

@@ -24,7 +24,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
         {
             customerName = null;
             customerPhone = null;
-            paymentMethod = "Cash";
+            paymentMethod = PaymentMethods.Cash;
 
             var vm = new CashSaleViewModel(total, this);
             var dialog = new CashSaleDialog();

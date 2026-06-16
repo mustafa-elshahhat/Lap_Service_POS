@@ -8,7 +8,8 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         long Create(Expense expense);
         List<Expense> GetAll();
         List<Expense> GetByDateRange(string startDate, string endDate);
-        void Delete(int id);
+        // Soft delete: marks the expense deleted (is_deleted=1) with audit fields; never hard-deletes.
+        void Delete(int id, int deletedBy);
         List<string> GetCategories();
     }
 }

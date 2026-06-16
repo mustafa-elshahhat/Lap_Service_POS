@@ -30,7 +30,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private readonly IPurchaseImportService _importService;
         private decimal _manualAmount;
         private decimal _paidAmount;
-        private string _paymentMethod = "نقدي";
+        private string _paymentMethod = PaymentMethods.Cash;
         private SupplierPurchaseLineRow _selectedLine;
         private string _newProductName;
         private string _newQuantity = "1";
@@ -111,6 +111,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             get => _paymentMethod;
             set => SetProperty(ref _paymentMethod, value);
         }
+
+        public System.Collections.Generic.List<string> PaymentMethodsList => PaymentMethods.GetAll();
 
         public string RemainingText
         {
@@ -265,7 +267,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             {
                 TotalAmount = TotalAmount,
                 PaidAmount = PaidAmount,
-                PaymentMethod = string.IsNullOrWhiteSpace(PaymentMethod) ? "نقدي" : PaymentMethod,
+                PaymentMethod = string.IsNullOrWhiteSpace(PaymentMethod) ? PaymentMethods.Cash : PaymentMethod,
                 Lines = lines
             };
             CloseAction?.Invoke(true);

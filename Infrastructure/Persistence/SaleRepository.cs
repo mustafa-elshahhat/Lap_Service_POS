@@ -220,6 +220,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             return list;
         }
 
+        [Obsolete("Credit sales / receivables are not supported. All sales are fully paid; no unpaid sales exist.")]
         public List<Sale> GetUnpaidByCustomer(int customerId)
         {
             var rows = _db.FetchAll(@"
@@ -256,6 +257,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 new Dictionary<string, object> { { "@paid", paid }, { "@remaining", remaining }, { "@id", itemId } });
         }
 
+        [Obsolete("Unused legacy helper from the credit/receivable era. Not called anywhere.")]
         public void UpdateSaleItemFinancialsAfterReturn(int itemId, decimal newTotalPrice, decimal newProfit)
         {
             _db.Execute("UPDATE sale_items SET total_price = @total, profit = @profit WHERE id = @id",

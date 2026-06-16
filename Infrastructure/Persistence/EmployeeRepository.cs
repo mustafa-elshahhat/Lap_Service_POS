@@ -124,6 +124,17 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 });
         }
 
+        public Dictionary<string, object> GetSalaryTransactionById(long id)
+        {
+            return _db.FetchOne(@"
+                SELECT t.*, e.full_name as employee_name, u.full_name as created_by_name
+                FROM employee_salary_transactions t
+                JOIN employees e ON t.employee_id = e.id
+                LEFT JOIN users u ON t.created_by = u.id
+                WHERE t.id = @id",
+                new Dictionary<string, object> { { "@id", id } });
+        }
+
         public List<Dictionary<string, object>> GetSalaryTransactions(int employeeId)
         {
             return _db.FetchAll(@"

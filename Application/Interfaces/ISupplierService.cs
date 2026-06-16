@@ -13,6 +13,8 @@ namespace AlJohary.ServiceHub.Application.Interfaces
         void UpdateSupplier(int id, string name, string phone, string address);
         void DeleteSupplier(int id);
         void AddSupplierPayment(int supplierId, decimal amount, string paymentMethod);
+        // LEGACY / DE-SCOPED: superseded by AddSupplierPurchaseWithItems. No active caller.
+        [System.Obsolete("Use AddSupplierPurchaseWithItems instead. This standalone purchase path is legacy.")]
         void AddSupplierPurchase(int supplierId, decimal amount, string paymentMethod);
         SupplierPurchaseResult AddSupplierPurchaseWithItems(int supplierId, decimal totalAmount, decimal paidAmount, string paymentMethod, List<SupplierPurchaseLineInput> lines);
         List<SupplierPurchaseItem> GetPurchaseItems(int supplierTransactionId);

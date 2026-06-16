@@ -227,7 +227,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             mainSection.Blocks.Add(CreateAlignedInfoTable(totalItems, true));
             mainSection.Blocks.Add(CreateSeparator());
 
-            string pMethod = string.IsNullOrEmpty(sale.PaymentMethod) ? "نقدي" : sale.PaymentMethod;
+            // Show a blank/unknown method literally rather than silently substituting "نقدي" — a genuine
+            // blank should be visible, not masked as cash.
+            string pMethod = string.IsNullOrWhiteSpace(sale.PaymentMethod) ? "غير محدد" : sale.PaymentMethod;
             mainSection.Blocks.Add(new Paragraph(new Run($"طريقة الدفع : {pMethod}")) { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 1, 0, 1) });
             mainSection.Blocks.Add(CreateSeparator());
 

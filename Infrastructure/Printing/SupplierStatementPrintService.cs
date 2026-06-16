@@ -27,15 +27,23 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                     ? SafeConvert.ToString(transaction["transaction_type_ar"])
                     : type == "purchase" ? "مشتريات" : "دفعة";
 
+                decimal amount = SafeConvert.ToDecimal(transaction.ContainsKey("amount") ? transaction["amount"] : null);
+                decimal paidAmount = SafeConvert.ToDecimal(transaction.ContainsKey("paid_amount") ? transaction["paid_amount"] : null);
+
                 var info = new List<(string label, string value)>
                 {
                     ("#", transactionId.ToString()),
                     ("التاريخ", Formatting.FormatDate(transaction.ContainsKey("transaction_date") ? transaction["transaction_date"] : null, true)),
                     ("النوع", typeAr),
-                    ("المبلغ", Formatting.FormatCurrency(SafeConvert.ToDecimal(transaction.ContainsKey("amount") ? transaction["amount"] : null))),
-                    ("المدفوع", Formatting.FormatCurrency(SafeConvert.ToDecimal(transaction.ContainsKey("paid_amount") ? transaction["paid_amount"] : null))),
-                    ("الرصيد بعد", Formatting.FormatCurrency(SafeConvert.ToDecimal(transaction.ContainsKey("balance_after") ? transaction["balance_after"] : null)))
+                    (type == "purchase" ? "إجمالي الفاتورة" : "المبلغ", Formatting.FormatCurrency(amount))
                 };
+
+                // D-2 fix: the cash paid at purchase time is also written as a separate "دفعة" row, so the
+                // purchase line shows it only as informational text — never as a second cash figure to sum.
+                if (type == "purchase" && paidAmount > 0)
+                    info.Add(("المدفوع وقت الشراء", $"{Formatting.FormatCurrency(paidAmount)} (مُدرج كدفعة منفصلة أدناه)"));
+
+                info.Add(("الرصيد بعد", Formatting.FormatCurrency(SafeConvert.ToDecimal(transaction.ContainsKey("balance_after") ? transaction["balance_after"] : null))));
 
                 var block = new Section { Margin = new Thickness(0, 0, 0, 12) };
                 block.Blocks.Add(CreateInfoGrid(info));

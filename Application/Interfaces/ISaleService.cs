@@ -15,7 +15,7 @@ namespace AlJohary.ServiceHub.Application.Interfaces
         SaleOperationResult CreateCashSale(List<SaleItem> items,
             string customerName = null, string customerPhone = null,
             decimal discountAmount = 0, decimal markupAmount = 0,
-            string notes = null, string paymentMethod = "كاش");
+            string notes = null, string paymentMethod = null);
 
         Sale GetSaleById(int id);
         List<SaleItem> GetSaleItems(int saleId);

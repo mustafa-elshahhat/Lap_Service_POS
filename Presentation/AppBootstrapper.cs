@@ -69,7 +69,7 @@ namespace AlJohary.ServiceHub.Presentation
             var supplierService = new SupplierService(supplierRepo, authService, txManager);
             var reportService   = new ReportService(reportRepo);
             var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerRepo, txManager);
-            var employeeService = new EmployeeService(employeeRepo, authService);
+            var employeeService = new EmployeeService(employeeRepo, authService, txManager);
 
             var dialogService = new DialogService();
 
@@ -107,6 +107,8 @@ namespace AlJohary.ServiceHub.Presentation
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration006_RepairPartPurchaseCost.Execute();
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration007_Employees.Execute();
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration008_SupplierPurchaseItems.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration009_PaymentMethodNormalization.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration010_ExpenseSoftDelete.Execute();
                 }
                 catch (Exception migrationEx)
                 {

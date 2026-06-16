@@ -82,11 +82,8 @@
                     <Label Content="طريقة الدفع" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                     <ComboBox x:Name="PaymentMethodComboBox"
                               Style="{DynamicResource MainComboBox}"
-                              SelectedIndex="0">
-                        <ComboBoxItem Content="نقدي"/>
-                        <ComboBoxItem Content="محافظ إلكترونية"/>
-                        <ComboBoxItem Content="إنستا باي"/>
-                    </ComboBox>
+                              ItemsSource="{Binding PaymentMethodOptions}"
+                              SelectedIndex="0"/>
                 </StackPanel>
             </Grid>
 

@@ -10,12 +10,37 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
     {
         private readonly DatabaseManager _db = DatabaseManager.Instance;
 
+        // GetDailySummary(date) and GetPeriodSummary(start,end) both delegate to the single
+        // BuildSummaryRange below so the financial formulas live in exactly one place (previously the
+        // two methods were near-duplicate and each computed net_cash_flow/net_profit twice).
         public Dictionary<string, object> GetDailySummary(string date)
         {
-            var summary = new Dictionary<string, object>();
             var range = GetDateRange(date);
-            var args = new Dictionary<string, object> { { "@start", range.start }, { "@end", range.end } };
+            return BuildSummaryRange(range.start, range.end);
+        }
 
+        public Dictionary<string, object> GetPeriodSummary(string startDate, string endDate)
+        {
+            var range = GetPeriodRange(startDate, endDate);
+            return BuildSummaryRange(range.start, range.end);
+        }
+
+        // Single source of truth for the day/period financial summary.
+        // Canonical formulas (locked here and by tests):
+        //   net_cash_flow = (cash_received + maintenance_total)
+        //                   - cash_refunds - total_expenses - total_supplier_payments - total_salary_payments
+        //   net_profit    = (SUM(sales.profit) + maintenance_profit)
+        //                   - lost_profit - total_expenses - net_salary_expense
+        // Maintenance cash is recognized by payment_date; maintenance profit by delivery_date — these
+        // are intentionally different periods and are NOT directly period-comparable.
+        private Dictionary<string, object> BuildSummaryRange(string start, string end)
+        {
+            var summary = new Dictionary<string, object>();
+            var args = new Dictionary<string, object> { { "@start", start }, { "@end", end } };
+
+            // NOTE (de-scoped): credit_sales (= SUM(remaining_amount)) and payments_received (old-debt
+            // collection) are structurally always 0 — credit sales / receivables are unsupported. The
+            // keys are retained only so downstream SafeConvert lookups never crash; never surface them.
             var salesQuery = _db.FetchOne(@"
                 SELECT
                     COALESCE(SUM(total_amount), 0) as gross_sales,
@@ -36,7 +61,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 SELECT COALESCE(SUM(amount), 0) as total_received
                 FROM sale_payments
                 WHERE payment_date >= @start AND payment_date < @end", args);
-
             decimal totalCashReceived = SafeConvert.ToDecimal(totalReceivedQuery["total_received"]);
             summary["cash_received"] = totalCashReceived;
 
@@ -46,7 +70,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 JOIN sales s ON sp.sale_id = s.id
                 WHERE sp.payment_date >= @start AND sp.payment_date < @end
                 AND s.sale_date < @start", args);
-
             summary["payments_received"] = SafeConvert.ToDecimal(oldPaymentsQuery["old_payments"]);
 
             var returnsQuery = _db.FetchOne(@"
@@ -56,14 +79,15 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                     COALESCE(SUM(debt_deduction), 0) as debt_cancelled
                 FROM returns
                 WHERE return_date >= @start AND return_date < @end", args);
-
             summary["returns_value"] = SafeConvert.ToDecimal(returnsQuery["returns_value"]);
             summary["cash_refunds"] = SafeConvert.ToDecimal(returnsQuery["cash_refunds"]);
+            // debt_cancelled is legacy (credit unsupported) and is always 0; not surfaced as a KPI.
             summary["debt_cancelled"] = SafeConvert.ToDecimal(returnsQuery["debt_cancelled"]);
 
             var expensesQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(amount), 0) as total FROM expenses
-                WHERE expense_date >= @start AND expense_date < @end", args);
+                WHERE expense_date >= @start AND expense_date < @end
+                  AND COALESCE(is_deleted, 0) = 0", args);
             summary["total_expenses"] = SafeConvert.ToDecimal(expensesQuery["total"]);
 
             var supplierPaymentsQuery = _db.FetchOne(@"
@@ -85,19 +109,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 JOIN sale_items si ON ri.sale_item_id = si.id
                 JOIN returns r ON ri.return_id = r.id
                 WHERE r.return_date >= @start AND r.return_date < @end", args);
-
             decimal lostProfit = SafeConvert.ToDecimal(lostProfitQuery["lost"]);
 
-            summary["gross_profit"] = grossProfitFromSales;
-            summary["lost_profit"] = lostProfit;
-            summary["net_profit"] = grossProfitFromSales - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
-
-            summary["net_cash_flow"] = totalCashReceived
-                                      - SafeConvert.ToDecimal(summary["cash_refunds"])
-                                      - SafeConvert.ToDecimal(summary["total_expenses"])
-                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
-                                      - totalSalaryPayments;
-
+            // Maintenance cash (recognized by payment_date).
             var maintenanceCashQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(amount), 0) as maintenance_total
                 FROM repair_payments
@@ -105,6 +119,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             decimal maintenanceCashReceived = SafeConvert.ToDecimal(maintenanceCashQuery["maintenance_total"]);
             summary["maintenance_total"] = maintenanceCashReceived;
 
+            // Maintenance profit (recognized by delivery_date): parts margin + labor (booked 100% profit).
             var maintenancePartsProfit = _db.FetchOne(@"
                 SELECT COALESCE(SUM(rp.total_cost - (rp.purchase_cost * rp.quantity)), 0) as parts_profit
                 FROM repair_parts rp
@@ -123,138 +138,17 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                                       + SafeConvert.ToDecimal(maintenanceLaborProfit["labor_profit"]);
             summary["maintenance_profit"] = maintenanceProfit;
 
+            // Profit (computed once, with maintenance).
             summary["gross_profit"] = grossProfitFromSales + maintenanceProfit;
             summary["lost_profit"]  = lostProfit;
-            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
+            summary["net_profit"]   = grossProfitFromSales + maintenanceProfit
+                                      - lostProfit
+                                      - SafeConvert.ToDecimal(summary["total_expenses"])
+                                      - netSalaryExpense;
 
+            // Cash flow (computed once, with maintenance).
             summary["net_cash_flow"] = totalCashReceived
                                       + maintenanceCashReceived
-                                      - SafeConvert.ToDecimal(summary["cash_refunds"])
-                                      - SafeConvert.ToDecimal(summary["total_expenses"])
-                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
-                                      - totalSalaryPayments;
-
-            AddPaymentBreakdowns(summary, args);
-
-            return summary;
-        }
-
-
-        public Dictionary<string, object> GetPeriodSummary(string startDate, string endDate)
-        {
-            var summary = new Dictionary<string, object>();
-            var range = GetPeriodRange(startDate, endDate);
-            var args = new Dictionary<string, object> { { "@start", range.start }, { "@end", range.end } };
-
-            var salesQuery = _db.FetchOne(@"
-                SELECT 
-                    COALESCE(SUM(total_amount), 0) as gross_sales,
-                    COALESCE(SUM(remaining_amount), 0) as credit_sales,
-                    COALESCE(SUM(paid_amount), 0) as cash_from_new_sales,
-                    COUNT(*) as invoice_count,
-                    COALESCE(SUM(profit), 0) as total_profit_new_sales
-                FROM sales
-                WHERE sale_date >= @start AND sale_date < @end", args);
-
-            summary["gross_sales"] = SafeConvert.ToDecimal(salesQuery["gross_sales"]);
-            summary["credit_sales"] = SafeConvert.ToDecimal(salesQuery["credit_sales"]);
-            summary["cash_from_new_sales"] = SafeConvert.ToDecimal(salesQuery["cash_from_new_sales"]);
-            summary["invoice_count"] = SafeConvert.ToInt(salesQuery["invoice_count"]);
-            decimal grossProfitFromSales = SafeConvert.ToDecimal(salesQuery["total_profit_new_sales"]);
-
-            var totalReceivedQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(amount), 0) as total_received
-                FROM sale_payments
-                WHERE payment_date >= @start AND payment_date < @end", args);
-            summary["cash_received"] = SafeConvert.ToDecimal(totalReceivedQuery["total_received"]);
-
-            var oldPaymentsQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(sp.amount), 0) as old_payments
-                FROM sale_payments sp
-                JOIN sales s ON sp.sale_id = s.id
-                WHERE sp.payment_date >= @start AND sp.payment_date < @end
-                AND s.sale_date < @start", args);
-            summary["payments_received"] = SafeConvert.ToDecimal(oldPaymentsQuery["old_payments"]);
-
-            var returnsQuery = _db.FetchOne(@"
-                SELECT 
-                    COALESCE(SUM(total_amount), 0) as returns_value,
-                    COALESCE(SUM(cash_refund), 0) as cash_refunds,
-                    COALESCE(SUM(debt_deduction), 0) as debt_cancelled
-                FROM returns
-                WHERE return_date >= @start AND return_date < @end", args);
-            summary["returns_value"] = SafeConvert.ToDecimal(returnsQuery["returns_value"]);
-            summary["cash_refunds"] = SafeConvert.ToDecimal(returnsQuery["cash_refunds"]);
-            summary["debt_cancelled"] = SafeConvert.ToDecimal(returnsQuery["debt_cancelled"]);
-
-            var expensesQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(amount), 0) as total FROM expenses
-                WHERE expense_date >= @start AND expense_date < @end", args);
-            summary["total_expenses"] = SafeConvert.ToDecimal(expensesQuery["total"]);
-
-            var supplierPaymentsQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(amount), 0) as total 
-                FROM supplier_transactions
-                WHERE transaction_type = 'payment' 
-                AND transaction_date >= @start AND transaction_date < @end", args);
-            summary["total_supplier_payments"] = SafeConvert.ToDecimal(supplierPaymentsQuery["total"]);
-
-            AddEmployeeSalarySummary(summary, args);
-            decimal totalSalaryPayments = SafeConvert.ToDecimal(summary["total_salary_payments"]);
-            decimal netSalaryExpense = SafeConvert.ToDecimal(summary["net_salary_expense"]);
-
-            var lostProfitQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(
-                    (ri.total_price - (ri.quantity * si.unit_purchase_price))
-                ), 0) as lost
-                FROM return_items ri
-                JOIN sale_items si ON ri.sale_item_id = si.id
-                JOIN returns r ON ri.return_id = r.id
-                WHERE r.return_date >= @start AND r.return_date < @end", args);
-
-            decimal lostProfit = SafeConvert.ToDecimal(lostProfitQuery["lost"]);
-
-            summary["gross_profit"] = grossProfitFromSales;
-            summary["lost_profit"] = lostProfit;
-            summary["net_profit"] = grossProfitFromSales - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
-
-            summary["net_cash_flow"] = SafeConvert.ToDecimal(summary["cash_received"]) 
-                                      - SafeConvert.ToDecimal(summary["cash_refunds"]) 
-                                      - SafeConvert.ToDecimal(summary["total_expenses"]) 
-                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
-                                      - totalSalaryPayments;
-
-            var maintenanceCashPeriodQuery = _db.FetchOne(@"
-                SELECT COALESCE(SUM(amount), 0) as maintenance_total
-                FROM repair_payments
-                WHERE payment_date >= @start AND payment_date < @end", args);
-            decimal maintenanceCashPeriod = SafeConvert.ToDecimal(maintenanceCashPeriodQuery["maintenance_total"]);
-            summary["maintenance_total"] = maintenanceCashPeriod;
-
-            var maintenancePartsProfitPeriod = _db.FetchOne(@"
-                SELECT COALESCE(SUM(rp.total_cost - (rp.purchase_cost * rp.quantity)), 0) as parts_profit
-                FROM repair_parts rp
-                JOIN repair_orders ro ON rp.order_id = ro.id
-                WHERE ro.order_status = 'delivered'
-                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
-
-            var maintenanceLaborProfitPeriod = _db.FetchOne(@"
-                SELECT COALESCE(SUM(rd.labor_cost), 0) as labor_profit
-                FROM repair_devices rd
-                JOIN repair_orders ro ON rd.order_id = ro.id
-                WHERE ro.order_status = 'delivered'
-                  AND ro.delivery_date >= @start AND ro.delivery_date < @end", args);
-
-            decimal maintenanceProfitPeriod = SafeConvert.ToDecimal(maintenancePartsProfitPeriod["parts_profit"])
-                                            + SafeConvert.ToDecimal(maintenanceLaborProfitPeriod["labor_profit"]);
-            summary["maintenance_profit"] = maintenanceProfitPeriod;
-
-            summary["gross_profit"] = grossProfitFromSales + maintenanceProfitPeriod;
-            summary["lost_profit"]  = lostProfit;
-            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
-
-            summary["net_cash_flow"] = SafeConvert.ToDecimal(summary["cash_received"])
-                                      + maintenanceCashPeriod
                                       - SafeConvert.ToDecimal(summary["cash_refunds"])
                                       - SafeConvert.ToDecimal(summary["total_expenses"])
                                       - SafeConvert.ToDecimal(summary["total_supplier_payments"])
@@ -274,7 +168,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 SELECT 'بيع' as OperationName, invoice_number as Reference,
                        COALESCE(c.name, 'عميل نقدي') as Details, total_amount as Amount,
                        remaining_amount as Remaining,
-                       CASE WHEN sale_type = 'cash' THEN 'نقدي' ELSE 'آجل' END as SaleType,
+                       'نقدي' as SaleType,
                        payment_method as PaymentMethod,
                        sale_date as Date, u.full_name as UserName
                 FROM sales s
@@ -302,6 +196,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 FROM expenses e
                 LEFT JOIN users u ON e.user_id = u.id
                 WHERE expense_date >= @start AND expense_date < @end
+                  AND COALESCE(e.is_deleted, 0) = 0
 
                 UNION ALL
 
@@ -368,10 +263,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             foreach (var r in inflowRows)
                 inflows[SafeConvert.ToString(r["payment_method"])] = SafeConvert.ToDecimal(r["total"]);
 
+            // Outflows by method: expenses (excluding soft-deleted) + supplier payments + salary
+            // payments + cash refunds. Refunds are money-out and MUST appear here so the per-method
+            // outflow cards reconcile with net_cash_flow's outflow side.
             var outflowRows = _db.FetchAll(@"
                 SELECT payment_method, SUM(amount) as total FROM (
                     SELECT payment_method, amount FROM expenses
                     WHERE expense_date >= @start AND expense_date < @end
+                    AND COALESCE(is_deleted, 0) = 0
                     UNION ALL
                     SELECT payment_method, amount FROM supplier_transactions
                     WHERE transaction_type = 'payment'
@@ -380,6 +279,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                     SELECT payment_method, amount FROM employee_salary_transactions
                     WHERE transaction_type = 'salary'
                     AND transaction_date >= @start AND transaction_date < @end
+                    UNION ALL
+                    SELECT payment_method, cash_refund AS amount FROM returns
+                    WHERE return_date >= @start AND return_date < @end
+                    AND cash_refund > 0
                 ) GROUP BY payment_method", args);
 
             var outflows = new Dictionary<string, decimal>();

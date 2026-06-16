@@ -108,6 +108,9 @@ namespace AlJohary.ServiceHub.Application.Services
                 }
 
                 decimal cashRefund = Math.Min(sale.PaidAmount, totalCashRefund);
+                // LEGACY / DE-SCOPED: credit sales / receivables are unsupported, so every sale is fully
+                // paid and sale.RemainingAmount is always 0 — debtDeduction is therefore inert (always 0).
+                // The branch and the returns.debt_deduction column are kept only for historical data.
                 decimal debtDeduction = Math.Min(sale.RemainingAmount, totalDebtDeduction);
 
                 string returnNumber = _saleRepo.GenerateReturnNumber();

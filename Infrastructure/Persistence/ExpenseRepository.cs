@@ -55,6 +55,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 SELECT e.*, u.full_name as user_name
                 FROM expenses e
                 LEFT JOIN users u ON e.user_id = u.id
+                WHERE COALESCE(e.is_deleted, 0) = 0
                 ORDER BY e.expense_date DESC
                 LIMIT 100");
             
@@ -72,6 +73,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 FROM expenses e
                 LEFT JOIN users u ON e.user_id = u.id
                 WHERE e.expense_date >= @start AND e.expense_date < @end
+                  AND COALESCE(e.is_deleted, 0) = 0
                 ORDER BY e.expense_date DESC",
                 new Dictionary<string, object> { { "@start", start }, { "@end", end } });
 
@@ -80,9 +82,21 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             return list;
         }
 
-        public void Delete(int id)
+        // Soft delete only: the row is retained for audit and excluded from all reads/reports via
+        // COALESCE(is_deleted,0)=0. Never hard-delete an expense.
+        public void Delete(int id, int deletedBy)
         {
-            _db.Execute("DELETE FROM expenses WHERE id = @id", new Dictionary<string, object> { { "@id", id } });
+            _db.Execute(@"UPDATE expenses
+                          SET is_deleted = 1,
+                              deleted_at = @deletedAt,
+                              deleted_by = @deletedBy
+                          WHERE id = @id",
+                new Dictionary<string, object>
+                {
+                    { "@deletedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") },
+                    { "@deletedBy", deletedBy },
+                    { "@id", id }
+                });
         }
 
         public List<string> GetCategories()

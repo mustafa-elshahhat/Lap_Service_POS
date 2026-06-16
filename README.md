@@ -2,15 +2,20 @@
 
 A desktop point-of-sale and service-management system tailored for laptop &
 printer repair workshops. **AlJohary Service Hub** unifies POS, repair &
-maintenance tracking, spare-parts inventory, customer credit, supplier
+maintenance tracking, spare-parts inventory, customer profiles, supplier
 purchasing, and financial reporting in a single Windows-native application.
+
+> **Cash/payment-only POS.** Every sale is paid in full at checkout. Credit sales
+> and customer receivables (accounts-receivable / debt collection) are **not**
+> supported; any related legacy database structures are de-scoped and retained for
+> historical data only.
 
 ## Key Features
 
-- **POS Workflow**: Streamlined sales process supporting both cash and credit transactions.
+- **POS Workflow**: Streamlined sales process supporting cash and electronic payment methods (نقدي / محافظ إلكترونية / إنستا باي), paid in full at checkout.
 - **Repair & Maintenance**: Track devices in for repair (laptops, printers, etc.), repair orders, parts consumed, status, and partial payments.
 - **Spare Parts Inventory**: Manage parts, stock levels, purchase prices, and suppliers.
-- **Customer Credit Tracking**: Manage customer profiles and track outstanding balances with payment history.
+- **Customer Profiles**: Manage customer contact details and purchase history (no credit/outstanding balances).
 - **Returns Handling**: Process full or partial returns with automatic stock adjustment and financial reconciliation.
 - **Supplier Management**: Record purchases, supplier payments, and outstanding balances.
 - **Expense Tracking**: Record and categorize daily business expenses.
@@ -64,7 +69,7 @@ The system initializes with a default administrator account:
 
 ## Notes
 
-This system is optimized for the specific workflow of small to medium tech-service businesses (laptop and printer repair, spare-parts retail, and on-site maintenance). It focuses on day-to-day operational efficiency, accurate credit tracking, and clear financial visibility.
+This system is optimized for the specific workflow of small to medium tech-service businesses (laptop and printer repair, spare-parts retail, and on-site maintenance). It focuses on day-to-day operational efficiency, accurate cash/payment tracking, and clear financial visibility.
 
 ### Run from Source (CLI)
 1. Ensure the **.NET 10.0 SDK** is installed.

@@ -13,6 +13,7 @@ namespace AlJohary.ServiceHub.Presentation.Views
     {
         public string SupplierName { get; set; }
         public string CurrentDebtText { get; set; }
+        public System.Collections.Generic.List<string> PaymentMethodOptions => PaymentMethods.GetAll();
 
         public decimal PaymentAmount { get; private set; }
         public string PaymentMethod { get; private set; }
@@ -134,9 +135,7 @@ namespace AlJohary.ServiceHub.Presentation.Views
 
             PaymentAmount = amount;
 
-            PaymentMethod = PaymentMethodComboBox.SelectedItem is ComboBoxItem item
-                ? item.Content.ToString()
-                : "نقدي";
+            PaymentMethod = PaymentMethodComboBox.SelectedItem as string ?? PaymentMethods.Cash;
 
             DialogResult = true;
             Close();
