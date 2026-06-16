@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using AlJohary.ServiceHub.Application.DTOs;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
+using AlJohary.ServiceHub.Infrastructure.Data;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -11,11 +14,13 @@ namespace AlJohary.ServiceHub.Application.Services
     {
         private readonly ISupplierRepository _supplierRepo;
         private readonly IAuthService _auth;
+        private readonly IDbTransactionManager _txManager;
 
-        public SupplierService(ISupplierRepository supplierRepo, IAuthService auth)
+        public SupplierService(ISupplierRepository supplierRepo, IAuthService auth, IDbTransactionManager txManager = null)
         {
             _supplierRepo = supplierRepo;
             _auth = auth;
+            _txManager = txManager;
         }
 
         public List<Supplier> GetAllSuppliers()
@@ -85,6 +90,106 @@ namespace AlJohary.ServiceHub.Application.Services
             int userId = _auth.GetUserId();
             _supplierRepo.AddSupplierPurchase(supplierId, amount, userId, paymentMethod);
         }
+
+        public SupplierPurchaseResult AddSupplierPurchaseWithItems(int supplierId, decimal totalAmount, decimal paidAmount, string paymentMethod, List<SupplierPurchaseLineInput> lines)
+        {
+            if (_txManager == null)
+                throw new InvalidOperationException("مدير المعاملات غير مهيأ");
+
+            lines = lines ?? new List<SupplierPurchaseLineInput>();
+            _txManager.BeginTransaction();
+            try
+            {
+                var supplier = _supplierRepo.GetById(supplierId);
+                if (supplier == null)
+                    throw new Exception("المورد غير موجود");
+
+                var validLines = new List<SupplierPurchaseLineInput>();
+                foreach (var line in lines)
+                {
+                    ValidateLine(line);
+                    validLines.Add(line);
+                }
+
+                if (validLines.Count > 0)
+                    totalAmount = validLines.Sum(l => l.Quantity * l.UnitPurchasePrice);
+
+                if (totalAmount <= 0)
+                    throw new ArgumentException("قيمة المشتريات يجب أن تكون أكبر من الصفر");
+                if (paidAmount < 0 || paidAmount > totalAmount)
+                    throw new ArgumentException("المبلغ المدفوع يجب أن يكون بين صفر وقيمة المشتريات");
+
+                int userId = _auth.GetUserId();
+                decimal purchaseBefore = supplier.TotalDebt;
+                decimal purchaseAfter = purchaseBefore + totalAmount;
+                long transactionId = _supplierRepo.AddSupplierPurchaseRow(
+                    supplierId,
+                    totalAmount,
+                    paidAmount,
+                    validLines.Count,
+                    userId,
+                    paymentMethod,
+                    purchaseBefore,
+                    purchaseAfter);
+
+                foreach (var line in validLines)
+                {
+                    decimal lineTotal = line.Quantity * line.UnitPurchasePrice;
+                    _supplierRepo.AddSupplierPurchaseItem(new SupplierPurchaseItem
+                    {
+                        SupplierTransactionId = (int)transactionId,
+                        SupplierId = supplierId,
+                        ProductName = line.ProductName?.Trim(),
+                        Quantity = line.Quantity,
+                        UnitPurchasePrice = line.UnitPurchasePrice,
+                        LineTotal = lineTotal
+                    });
+                }
+
+                if (paidAmount > 0)
+                {
+                    _supplierRepo.AddSupplierPayment(supplierId, paidAmount, userId, paymentMethod);
+                }
+
+                DatabaseManager.Instance.LogActivity(userId, "supplier_purchase", "supplier_transactions", (int)transactionId,
+                    $"SupplierId={supplierId}; Total={totalAmount}; Paid={paidAmount}; Items={validLines.Count}");
+
+                _txManager.CommitTransaction();
+                return new SupplierPurchaseResult
+                {
+                    Success = true,
+                    Message = "تم تسجيل المشتريات بنجاح",
+                    TransactionId = transactionId,
+                    ItemCount = validLines.Count,
+                    TotalAmount = totalAmount,
+                    PaidAmount = paidAmount,
+                    RemainingAdded = totalAmount - paidAmount
+                };
+            }
+            catch (Exception ex)
+            {
+                _txManager.RollbackTransaction();
+                return new SupplierPurchaseResult { Success = false, Message = ex.Message };
+            }
+        }
+
+        public List<SupplierPurchaseItem> GetPurchaseItems(int supplierTransactionId)
+        {
+            return _supplierRepo.GetPurchaseItems(supplierTransactionId);
+        }
+
+        private static void ValidateLine(SupplierPurchaseLineInput line)
+        {
+            if (line == null)
+                throw new ArgumentException("سطر مشتريات غير صالح");
+            if (string.IsNullOrWhiteSpace(line.ProductName))
+                throw new ArgumentException("اسم المنتج مطلوب في كل سطر");
+            if (line.Quantity <= 0)
+                throw new ArgumentException("الكمية يجب أن تكون أكبر من صفر");
+            if (line.UnitPurchasePrice < 0)
+                throw new ArgumentException("سعر الشراء لا يمكن أن يكون سالباً");
+        }
+
         public List<Dictionary<string, object>> GetSupplierTransactions(int supplierId)
         {
             return _supplierRepo.GetTransactions(supplierId);

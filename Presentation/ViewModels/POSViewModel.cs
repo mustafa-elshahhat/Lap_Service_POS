@@ -279,17 +279,28 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     return;
                 }
 
+                string currentPrice = item.UnitPrice.ToString();
+
+                if (_auth.CanBypassPriceLimits)
+                {
+                    if (_dialogService.ShowInputDialog("تعديل السعر", "السعر الجديد:", currentPrice, out string adminPriceStr) == true)
+                    {
+                        if (decimal.TryParse(adminPriceStr, out decimal adminPrice) && adminPrice > 0)
+                        {
+                            item.UnitPrice = adminPrice;
+                            item.Total = item.Quantity * item.UnitPrice;
+                            RefreshCartItem(item);
+                        }
+                    }
+                    return;
+                }
+
                 double maxDiscount = _auth.GetMaxDiscount();
                 double maxMarkup = _auth.GetMaxMarkup();
-                
                 decimal discountLimit = item.OriginalPrice * (1 - (decimal)(maxDiscount / 100));
-
                 decimal minPrice = Math.Max(discountLimit, item.PurchasePrice);
-                
                 decimal maxPrice = item.OriginalPrice * (1 + (decimal)(maxMarkup / 100));
 
-                string currentPrice = item.UnitPrice.ToString();
-                
                 if (_dialogService.ShowInputDialog("تعديل السعر",
                         $"السعر الجديد:\n(الحد الأدنى: {Formatting.FormatCurrency(minPrice)} | الحد الأقصى: {Formatting.FormatCurrency(maxPrice)})",
                         currentPrice, out string newPriceStr) == true)
@@ -511,4 +522,3 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         }
     }
 }
-

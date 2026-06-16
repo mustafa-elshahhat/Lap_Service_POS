@@ -9,11 +9,15 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
     {
         private readonly InvoicePrintService _invoiceService;
         private readonly ReportPrintService  _reportService;
+        private readonly InventoryPrintService _inventoryService;
+        private readonly SupplierStatementPrintService _supplierStatementService;
 
         public PrintService()
         {
             _invoiceService = new InvoicePrintService();
             _reportService  = new ReportPrintService();
+            _inventoryService = new InventoryPrintService();
+            _supplierStatementService = new SupplierStatementPrintService();
         }
 
         public void PrintSaleReceipt(Sale sale, List<SaleItem> items)
@@ -24,6 +28,16 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
         public void PrintReturnReceipt(Return @return, List<ReturnItem> items)
         {
             _invoiceService.PrintReturn(@return, items);
+        }
+
+        public void PrintInventory(List<Product> products, Dictionary<string, object> totals)
+        {
+            _inventoryService.Print(products, totals);
+        }
+
+        public void PrintSupplierStatement(string supplierName, IEnumerable<Dictionary<string, object>> transactions, Dictionary<int, List<SupplierPurchaseItem>> transactionItems)
+        {
+            _supplierStatementService.Print(supplierName, transactions, transactionItems);
         }
 
         public void PrintReport(string title, IEnumerable<Dictionary<string, object>> data, string[] columns, string[] headers)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AlJohary.ServiceHub.Application.DTOs;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Presentation.ViewModels;
 
@@ -25,9 +26,8 @@ namespace AlJohary.ServiceHub.Presentation.Interfaces
         bool? ShowEmployeeFormDialog(EmployeeFormViewModel viewModel);
         bool? ShowEmployeeSalaryTransactionDialog(Employee employee, string transactionType, out decimal amount, out string paymentMethod, out DateTime transactionDate, out string notes);
         bool? ShowSupplierFormDialog(SupplierFormViewModel viewModel);
-        bool? ShowSupplierPurchaseDialog(string supplierName, decimal currentDebt, out decimal purchaseAmount, out string paymentMethod, out decimal paidAmount);
+        bool? ShowSupplierPurchaseDialog(string supplierName, decimal currentDebt, out SupplierPurchaseDialogResult result);
         bool? ShowSupplierPaymentDialog(string supplierName, decimal currentDebt, out decimal paymentAmount, out string paymentMethod);
-        void ShowSupplierTransactionsDialog(int supplierId, string supplierName);
         void ShowReturnDetailsDialog(int returnId);
 
         void ShowMainWindow();

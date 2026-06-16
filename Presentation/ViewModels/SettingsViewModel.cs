@@ -2,7 +2,9 @@ using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Presentation.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows.Input;
 
 namespace AlJohary.ServiceHub.Presentation.ViewModels
@@ -14,7 +16,6 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private string _shopName;
         private string _shopAddress;
-        private string _shopPhone;
         private int _maxDiscountPercent;
         private int _maxMarkupPercent;
         private int _lowStockThreshold;
@@ -22,6 +23,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             _dialogService = dialogService ?? ServiceContainer.GetService<IDialogService>();
             _settingsService = ServiceContainer.GetService<ISettingsService>();
+            ShopPhones = new ObservableCollection<PhoneEntry>();
             LoadSettings();
         }
 
@@ -41,9 +43,16 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         public string ShopPhone
         {
-            get => _shopPhone;
-            set => SetProperty(ref _shopPhone, value);
+            get => ShopPhones.FirstOrDefault()?.Number ?? "";
+            set
+            {
+                ShopPhones.Clear();
+                if (!string.IsNullOrWhiteSpace(value)) ShopPhones.Add(new PhoneEntry { Number = value });
+                OnPropertyChanged();
+            }
         }
+
+        public ObservableCollection<PhoneEntry> ShopPhones { get; }
 
         public int MaxDiscountPercent
         {
@@ -68,6 +77,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         #region Commands
 
         public ICommand SaveSettingsCommand => new RelayCommand(SaveSettings);
+        public ICommand AddPhoneCommand => new RelayCommand(AddPhone);
+        public ICommand RemovePhoneCommand => new RelayCommand<PhoneEntry>(RemovePhone);
         public ICommand BackupDatabaseCommand => new RelayCommand(BackupDatabase);
         public ICommand RestoreDatabaseCommand => new RelayCommand(RestoreDatabase);
 
@@ -79,7 +90,11 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             ShopName = _settingsService.GetSetting("shop_name", "الجوهري");
             ShopAddress = _settingsService.GetSetting("shop_address", "");
-            ShopPhone = _settingsService.GetSetting("shop_phone", "");
+            ShopPhones.Clear();
+            foreach (var phone in _settingsService.GetShopPhones())
+                ShopPhones.Add(new PhoneEntry { Number = phone });
+            if (ShopPhones.Count == 0)
+                ShopPhones.Add(new PhoneEntry());
 
             MaxDiscountPercent = (int)SafeConvert.ToDecimal(_settingsService.GetSetting("max_discount_percent", "10.0"));
             MaxMarkupPercent = (int)SafeConvert.ToDecimal(_settingsService.GetSetting("max_markup_percent", "20.0"));
@@ -98,7 +113,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             {
                 _settingsService.SetSetting("shop_name", ShopName);
                 _settingsService.SetSetting("shop_address", ShopAddress);
-                _settingsService.SetSetting("shop_phone", ShopPhone);
+                _settingsService.SetShopPhones(ShopPhones.Select(p => p.Number));
                 _settingsService.SetSetting("max_discount_percent", MaxDiscountPercent.ToString());
                 _settingsService.SetSetting("max_markup_percent", MaxMarkupPercent.ToString());
                 _settingsService.SetSetting("low_stock_threshold", LowStockThreshold.ToString());
@@ -133,6 +148,19 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             }
         }
 
+        private void AddPhone()
+        {
+            ShopPhones.Add(new PhoneEntry());
+        }
+
+        private void RemovePhone(PhoneEntry phone)
+        {
+            if (phone == null) return;
+            ShopPhones.Remove(phone);
+            if (ShopPhones.Count == 0)
+                ShopPhones.Add(new PhoneEntry());
+        }
+
         private void RestoreDatabase()
         {
             try
@@ -160,5 +188,15 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         }
 
         #endregion
+    }
+
+    public class PhoneEntry : BaseViewModel
+    {
+        private string _number;
+        public string Number
+        {
+            get => _number;
+            set => SetProperty(ref _number, value);
+        }
     }
 }

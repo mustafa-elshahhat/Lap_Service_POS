@@ -63,8 +63,18 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         public string Role
         {
             get => _role;
-            set => SetProperty(ref _role, value);
+            set
+            {
+                if (SetProperty(ref _role, value))
+                {
+                    OnPropertyChanged(nameof(IsAdminRole));
+                    OnPropertyChanged(nameof(DiscountFieldsEnabled));
+                }
+            }
         }
+
+        public bool IsAdminRole => Role == "admin";
+        public bool DiscountFieldsEnabled => !IsAdminRole;
 
         public ObservableCollection<EmployeeOption> EmployeeOptions
         {
@@ -190,6 +200,12 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             if (string.IsNullOrEmpty(Role))
             {
                 _dialogService.ShowWarning("تنبيه", "الرجاء اختيار صلاحية المستخدم");
+                return;
+            }
+
+            if (!IsAdminRole && (MaxDiscountPercent < 0 || MaxDiscountPercent > 100 || MaxMarkupPercent < 0 || MaxMarkupPercent > 100))
+            {
+                _dialogService.ShowWarning("تنبيه", "نسب الخصم والزيادة للموظف يجب أن تكون بين 0 و 100");
                 return;
             }
 

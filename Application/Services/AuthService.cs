@@ -63,6 +63,7 @@ namespace AlJohary.ServiceHub.Application.Services
         public bool IsLoggedIn => _currentUser != null;
         public bool IsAdmin => _currentUser != null && SafeConvert.ToString(_currentUser["role"]) == "admin";
         public bool IsEmployee => _currentUser != null && SafeConvert.ToString(_currentUser["role"]) == "employee";
+        public bool CanBypassPriceLimits => IsAdmin;
 
         public double GetMaxDiscount() => _currentUser != null ? SafeConvert.ToDouble(_currentUser["max_discount_percent"]) : 0;
         public double GetMaxMarkup() => _currentUser != null ? SafeConvert.ToDouble(_currentUser["max_markup_percent"]) : 0;

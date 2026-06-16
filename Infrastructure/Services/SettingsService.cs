@@ -1,5 +1,7 @@
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Infrastructure.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AlJohary.ServiceHub.Infrastructure.Services
 {
@@ -13,6 +15,39 @@ namespace AlJohary.ServiceHub.Infrastructure.Services
         public void SetSetting(string key, string value)
         {
             DatabaseManager.Instance.SetSetting(key, value);
+        }
+
+        public List<string> GetShopPhones()
+        {
+            string phones = GetSetting("shop_phones", "");
+            var list = SplitPhones(phones);
+            if (list.Count == 0)
+            {
+                list = SplitPhones(GetSetting("shop_phone", ""));
+            }
+            return list;
+        }
+
+        public void SetShopPhones(IEnumerable<string> phones)
+        {
+            var normalized = (phones ?? Enumerable.Empty<string>())
+                .Select(p => p?.Trim())
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .ToList();
+
+            SetSetting("shop_phones", string.Join("\n", normalized));
+            SetSetting("shop_phone", normalized.FirstOrDefault() ?? "");
+        }
+
+        private static List<string> SplitPhones(string phones)
+        {
+            return (phones ?? "")
+                .Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Trim())
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .ToList();
         }
 
         public string GetDatabasePath()

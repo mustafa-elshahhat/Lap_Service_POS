@@ -6,6 +6,7 @@ using AlJohary.ServiceHub.Application.Services;
 using AlJohary.ServiceHub.Shared.Helpers;
 using AlJohary.ServiceHub.Presentation.Views;
 using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Application.DTOs;
 
 namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
@@ -17,6 +18,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private ObservableCollection<Supplier> _suppliers;
         private Supplier _selectedSupplier;
         private string _searchText;
+
+        public System.Action<Supplier> NavigateToTransactionsAction { get; set; }
 
         public SuppliersViewModel(IDialogService dialogService = null)
         {
@@ -187,22 +190,22 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             if (_dialogService.ShowSupplierPurchaseDialog(
                 SelectedSupplier.Name,
                 SelectedSupplier.TotalDebt,
-                out decimal amount,
-                out string method,
-                out decimal paid) == true)
+                out SupplierPurchaseDialogResult purchase) == true)
             {
                 try
                 {
-                    if (paid > amount)
-                        throw new System.Exception($"المبلغ المقدم ({Shared.Helpers.Formatting.FormatCurrency(paid)}) لا يمكن أن يتجاوز قيمة المشتريات ({Shared.Helpers.Formatting.FormatCurrency(amount)})");
-
-                    _supplierService.AddSupplierPurchase(SelectedSupplier.Id, amount, method);
-                    if (paid > 0)
+                    var result = _supplierService.AddSupplierPurchaseWithItems(
+                        SelectedSupplier.Id,
+                        purchase.TotalAmount,
+                        purchase.PaidAmount,
+                        purchase.PaymentMethod,
+                        purchase.Lines);
+                    if (!result.Success)
                     {
-                        _supplierService.AddSupplierPayment(SelectedSupplier.Id, paid, method);
+                        throw new System.Exception(result.Message);
                     }
 
-                    _dialogService.ShowSuccess("نجاح", "تم تسجيل المشتريات بنجاح");
+                    _dialogService.ShowSuccess("نجاح", result.Message);
                     LoadSuppliers();
                     TypedMessenger.Send("RefreshReports");
                 }
@@ -217,7 +220,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private void ViewTransactions()
         {
             if (SelectedSupplier == null) return;
-            _dialogService.ShowSupplierTransactionsDialog(SelectedSupplier.Id, SelectedSupplier.Name);
+            NavigateToTransactionsAction?.Invoke(SelectedSupplier);
             OnRequestSearchFocus();
         }
     }

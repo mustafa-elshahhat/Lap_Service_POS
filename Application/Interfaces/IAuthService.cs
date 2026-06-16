@@ -11,6 +11,7 @@ namespace AlJohary.ServiceHub.Application.Interfaces
         bool IsLoggedIn { get; }
         bool IsAdmin { get; }
         bool IsEmployee { get; }
+        bool CanBypassPriceLimits { get; }
         double GetMaxDiscount();
         double GetMaxMarkup();
         int GetUserId();

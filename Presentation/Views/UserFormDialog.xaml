@@ -124,15 +124,32 @@
                         <StackPanel Grid.Column="0">
                             <Label Content="أقصى نسبة خصم (%)" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                             <TextBox Style="{DynamicResource MainTextBox}"
+                                     IsEnabled="{Binding DiscountFieldsEnabled}"
                                      Text="{Binding MaxDiscountPercent, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
     
                         <StackPanel Grid.Column="2">
                             <Label Content="أقصى نسبة زيادة (%)" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                             <TextBox Style="{DynamicResource MainTextBox}"
+                                     IsEnabled="{Binding DiscountFieldsEnabled}"
                                      Text="{Binding MaxMarkupPercent, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </Grid>
+                    <TextBlock Text="المدير لديه صلاحية خصم/زيادة غير محدودة"
+                               FontSize="12"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               Margin="0,8,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAdminRole}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
             </ScrollViewer>
 

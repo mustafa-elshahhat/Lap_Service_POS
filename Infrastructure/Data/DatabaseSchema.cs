@@ -218,6 +218,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     reference_number TEXT,
                     transaction_date DATE NOT NULL,
                     payment_method TEXT,
+                    paid_amount REAL NOT NULL DEFAULT 0,
+                    item_count INTEGER NOT NULL DEFAULT 0,
                     balance_before REAL NOT NULL DEFAULT 0,
                     balance_after REAL NOT NULL DEFAULT 0,
                     notes TEXT,
@@ -225,6 +227,19 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
                     FOREIGN KEY (created_by) REFERENCES users(id)
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS supplier_purchase_items (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    supplier_transaction_id INTEGER NOT NULL,
+                    supplier_id INTEGER NOT NULL,
+                    product_name TEXT NOT NULL,
+                    quantity INTEGER NOT NULL,
+                    unit_purchase_price REAL NOT NULL,
+                    line_total REAL NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (supplier_transaction_id) REFERENCES supplier_transactions(id) ON DELETE CASCADE,
+                    FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
                 )",
 
                 @"CREATE TABLE IF NOT EXISTS expenses (
@@ -322,6 +337,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                 "CREATE INDEX IF NOT EXISTS idx_suppliers_name ON suppliers(name)",
                 "CREATE INDEX IF NOT EXISTS idx_supplier_transactions_supplier ON supplier_transactions(supplier_id)",
                 "CREATE INDEX IF NOT EXISTS idx_supplier_transactions_date ON supplier_transactions(transaction_date)",
+                "CREATE INDEX IF NOT EXISTS idx_supplier_purchase_items_transaction ON supplier_purchase_items(supplier_transaction_id)",
+                "CREATE INDEX IF NOT EXISTS idx_supplier_purchase_items_supplier ON supplier_purchase_items(supplier_id)",
+                "CREATE INDEX IF NOT EXISTS idx_supplier_purchase_items_name ON supplier_purchase_items(product_name)",
                 "CREATE INDEX IF NOT EXISTS idx_employees_name ON employees(full_name)",
                 "CREATE INDEX IF NOT EXISTS idx_employee_salary_transactions_employee ON employee_salary_transactions(employee_id)",
                 "CREATE INDEX IF NOT EXISTS idx_employee_salary_transactions_date ON employee_salary_transactions(transaction_date)",

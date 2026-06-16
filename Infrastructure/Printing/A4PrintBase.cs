@@ -7,6 +7,7 @@ using System.Windows.Media;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Infrastructure.Data;
 using AlJohary.ServiceHub.Presentation;
+using AlJohary.ServiceHub.Shared.Helpers;
 
 namespace AlJohary.ServiceHub.Infrastructure.Printing
 {
@@ -63,6 +64,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
         protected void AddDocumentHeader(FlowDocument doc, string title, string subtitle = null)
         {
             string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
+            string phonesText = GetPhonesText();
 
             Table t = new Table { CellSpacing = 0 };
             t.Columns.Add(new TableColumn { Width = new GridLength(1.2, GridUnitType.Star) });
@@ -94,6 +96,15 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             {
                 FontWeight = FontWeights.Bold, FontSize = 12, TextAlignment = TextAlignment.Right
             });
+            if (!string.IsNullOrWhiteSpace(phonesText))
+            {
+                meta.Children.Add(new TextBlock(new Run(phonesText))
+                {
+                    FontSize = 11, Foreground = new SolidColorBrush(TextMutedColor),
+                    TextAlignment = TextAlignment.Right, Margin = new Thickness(0, 3, 0, 0),
+                    FlowDirection = FlowDirection.LeftToRight
+                });
+            }
             meta.Children.Add(new TextBlock(new Run(DateTime.Now.ToString("yyyy-MM-dd  HH:mm")))
             {
                 FontSize = 11, Foreground = new SolidColorBrush(TextMutedColor),
@@ -376,6 +387,18 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                     VerticalAlignment   = VerticalAlignment.Center
                 }
             };
+        }
+
+        private static string GetPhonesText()
+        {
+            try
+            {
+                return Formatting.FormatPhonesForPrint(ServiceContainer.GetService<ISettingsService>()?.GetShopPhones());
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
     }
 }

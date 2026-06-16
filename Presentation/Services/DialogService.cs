@@ -131,19 +131,15 @@ namespace AlJohary.ServiceHub.Presentation.Services
             return dialog.ShowDialog();
         }
 
-        public bool? ShowSupplierPurchaseDialog(string supplierName, decimal currentDebt, out decimal purchaseAmount, out string paymentMethod, out decimal paidAmount)
+        public bool? ShowSupplierPurchaseDialog(string supplierName, decimal currentDebt, out AlJohary.ServiceHub.Application.DTOs.SupplierPurchaseDialogResult result)
         {
-            purchaseAmount = 0;
-            paidAmount = 0;
-            paymentMethod = "نقدي";
+            result = null;
             var dialog = new SupplierPurchaseDialog(supplierName, currentDebt);
             dialog.Owner = System.Windows.Application.Current.MainWindow;
 
             if (dialog.ShowDialog() == true)
             {
-                purchaseAmount = dialog.PurchaseAmount;
-                paidAmount = dialog.PaidAmount;
-                paymentMethod = dialog.PaymentMethod;
+                result = dialog.Result;
                 return true;
             }
             return false;
@@ -163,13 +159,6 @@ namespace AlJohary.ServiceHub.Presentation.Services
                 return true;
             }
             return false;
-        }
-
-        public void ShowSupplierTransactionsDialog(int supplierId, string supplierName)
-        {
-            var dialog = new SupplierTransactionsDialog(supplierId, supplierName);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
-            dialog.ShowDialog();
         }
 
         public void ShowReturnDetailsDialog(int returnId)

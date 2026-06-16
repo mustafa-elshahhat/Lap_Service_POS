@@ -166,6 +166,79 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 });
         }
 
+        public long AddSupplierPurchaseRow(int supplierId, decimal amount, decimal paidAmount, int itemCount, int userId, string paymentMethod, decimal balanceBefore, decimal balanceAfter)
+        {
+            long transactionId = _db.ExecuteAndGetId(@"
+                INSERT INTO supplier_transactions
+                (supplier_id, transaction_type, amount, transaction_date, payment_method, paid_amount, item_count, balance_before, balance_after, created_by)
+                VALUES (@supplierId, 'purchase', @amount, @transactionDate, @paymentMethod, @paidAmount, @itemCount, @balanceBefore, @balanceAfter, @userId)",
+                new Dictionary<string, object>
+                {
+                    { "@supplierId", supplierId },
+                    { "@amount", amount },
+                    { "@transactionDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") },
+                    { "@paymentMethod", paymentMethod ?? "نقدي" },
+                    { "@paidAmount", paidAmount },
+                    { "@itemCount", itemCount },
+                    { "@balanceBefore", balanceBefore },
+                    { "@balanceAfter", balanceAfter },
+                    { "@userId", userId }
+                });
+
+            _db.Execute(@"UPDATE suppliers SET total_debt = @balanceAfter, updated_at = datetime('now') WHERE id = @supplierId",
+                new Dictionary<string, object>
+                {
+                    { "@balanceAfter", balanceAfter },
+                    { "@supplierId", supplierId }
+                });
+
+            return transactionId;
+        }
+
+        public void AddSupplierPurchaseItem(SupplierPurchaseItem item)
+        {
+            _db.Execute(@"
+                INSERT INTO supplier_purchase_items
+                (supplier_transaction_id, supplier_id, product_name, quantity, unit_purchase_price, line_total)
+                VALUES (@transactionId, @supplierId, @productName, @quantity, @unitPurchasePrice, @lineTotal)",
+                new Dictionary<string, object>
+                {
+                    { "@transactionId", item.SupplierTransactionId },
+                    { "@supplierId", item.SupplierId },
+                    { "@productName", item.ProductName },
+                    { "@quantity", item.Quantity },
+                    { "@unitPurchasePrice", item.UnitPurchasePrice },
+                    { "@lineTotal", item.LineTotal }
+                });
+        }
+
+        public List<SupplierPurchaseItem> GetPurchaseItems(int supplierTransactionId)
+        {
+            var rows = _db.FetchAll(@"
+                SELECT id, supplier_transaction_id, supplier_id, product_name, quantity, unit_purchase_price, line_total, created_at
+                FROM supplier_purchase_items
+                WHERE supplier_transaction_id = @transactionId
+                ORDER BY id",
+                new Dictionary<string, object> { { "@transactionId", supplierTransactionId } });
+
+            var items = new List<SupplierPurchaseItem>();
+            foreach (var row in rows)
+            {
+                items.Add(new SupplierPurchaseItem
+                {
+                    Id = SafeConvert.ToInt(row["id"]),
+                    SupplierTransactionId = SafeConvert.ToInt(row["supplier_transaction_id"]),
+                    SupplierId = SafeConvert.ToInt(row["supplier_id"]),
+                    ProductName = SafeConvert.ToString(row["product_name"]),
+                    Quantity = SafeConvert.ToInt(row["quantity"]),
+                    UnitPurchasePrice = SafeConvert.ToDecimal(row["unit_purchase_price"]),
+                    LineTotal = SafeConvert.ToDecimal(row["line_total"]),
+                    CreatedAt = SafeConvert.ToDateTime(row["created_at"]) ?? DateTime.MinValue
+                });
+            }
+            return items;
+        }
+
         public List<Dictionary<string, object>> GetTransactions(int supplierId)
         {
             return _db.FetchAll(@"

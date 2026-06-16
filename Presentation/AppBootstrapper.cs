@@ -66,7 +66,7 @@ namespace AlJohary.ServiceHub.Presentation
             var returnService   = new ReturnService(saleRepo, productRepo, txManager);
             var saleService     = new SaleService(saleRepo, productRepo, customerService, paymentService, returnService, txManager, authService);
             var expenseService  = new ExpenseService(expenseRepo, authService, txManager);
-            var supplierService = new SupplierService(supplierRepo, authService);
+            var supplierService = new SupplierService(supplierRepo, authService, txManager);
             var reportService   = new ReportService(reportRepo);
             var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerRepo, txManager);
             var employeeService = new EmployeeService(employeeRepo, authService);
@@ -85,6 +85,8 @@ namespace AlJohary.ServiceHub.Presentation
             ServiceContainer.Register<IReportService>(reportService);
             ServiceContainer.Register<IMaintenanceService>(maintenanceService);
             ServiceContainer.Register<ISettingsService>(settingsService);
+            ServiceContainer.Register<IDbTransactionManager>(txManager);
+            ServiceContainer.Register<IPurchaseImportService>(new CsvPurchaseImportService());
             ServiceContainer.Register<IEmployeeRepository>(employeeRepo);
             ServiceContainer.Register<IEmployeeService>(employeeService);
             ServiceContainer.Register<IPrintService>(new AlJohary.ServiceHub.Infrastructure.Printing.PrintService());
@@ -104,6 +106,7 @@ namespace AlJohary.ServiceHub.Presentation
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration005_DropDeadPaymentMethodSchema.Execute();
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration006_RepairPartPurchaseCost.Execute();
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration007_Employees.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration008_SupplierPurchaseItems.Execute();
                 }
                 catch (Exception migrationEx)
                 {

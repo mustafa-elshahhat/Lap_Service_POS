@@ -5,7 +5,10 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Presentation;
+using AlJohary.ServiceHub.Shared.Helpers;
 using System.Linq;
 
 using System.Printing;
@@ -143,6 +146,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             Section mainSection = new Section();
 
             string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
+            string phonesText = GetPhonesText();
             string typeDisplay = "بيع / نقدي";
 
             bool logoLoaded = false;
@@ -163,6 +167,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             if (!logoLoaded)
             {
                 mainSection.Blocks.Add(new Paragraph(new Run(shopName)) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5) });
+            }
+            if (!string.IsNullOrWhiteSpace(phonesText))
+            {
+                mainSection.Blocks.Add(new Paragraph(new Run(phonesText)) { FontSize = 9, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 3), FlowDirection = FlowDirection.LeftToRight });
             }
             mainSection.Blocks.Add(CreateSeparator());
 
@@ -297,6 +305,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             Section mainSection = new Section();
 
             string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
+            string phonesText = GetPhonesText();
             
             bool logoLoaded = false;
             try 
@@ -316,6 +325,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             if (!logoLoaded)
             {
                 mainSection.Blocks.Add(new Paragraph(new Run(shopName)) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 5) });
+            }
+            if (!string.IsNullOrWhiteSpace(phonesText))
+            {
+                mainSection.Blocks.Add(new Paragraph(new Run(phonesText)) { FontSize = 9, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 3), FlowDirection = FlowDirection.LeftToRight });
             }
             mainSection.Blocks.Add(CreateSeparator());
 
@@ -388,8 +401,11 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
 
             Section s = new Section();
             string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
+            string phonesText = GetPhonesText();
 
             s.Blocks.Add(new Paragraph(new Run(shopName)) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 4) });
+            if (!string.IsNullOrWhiteSpace(phonesText))
+                s.Blocks.Add(new Paragraph(new Run(phonesText)) { FontSize = 9, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2), FlowDirection = FlowDirection.LeftToRight });
             s.Blocks.Add(new Paragraph(new Run("إيصال استلام جهاز للصيانة")) { FontSize = 11, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2) });
             s.Blocks.Add(CreateSeparator());
 
@@ -447,8 +463,11 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
 
             Section s = new Section();
             string shopName = DatabaseManager.Instance.GetSetting("shop_name", "الجوهري");
+            string phonesText = GetPhonesText();
 
             s.Blocks.Add(new Paragraph(new Run(shopName)) { FontSize = 14, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 4) });
+            if (!string.IsNullOrWhiteSpace(phonesText))
+                s.Blocks.Add(new Paragraph(new Run(phonesText)) { FontSize = 9, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2), FlowDirection = FlowDirection.LeftToRight });
             s.Blocks.Add(new Paragraph(new Run("فاتورة صيانة")) { FontSize = 12, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2) });
             s.Blocks.Add(CreateSeparator());
 
@@ -508,6 +527,18 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
 
             doc.Blocks.Add(s);
             return doc;
+        }
+
+        private static string GetPhonesText()
+        {
+            try
+            {
+                return Formatting.FormatPhonesForPrint(ServiceContainer.GetService<ISettingsService>()?.GetShopPhones());
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
     }
 }

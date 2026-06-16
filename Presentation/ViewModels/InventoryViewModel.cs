@@ -17,6 +17,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
     {
         private readonly IProductService _productService;
         private readonly IDialogService _dialogService;
+        private readonly IPrintService _printService;
         private ObservableCollection<Product> _products;
         private Product _selectedProduct;
         private string _searchText;
@@ -25,6 +26,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             _productService = ServiceContainer.GetService<IProductService>();
             _dialogService = dialogService ?? ServiceContainer.GetService<IDialogService>();
+            _printService = ServiceContainer.GetService<IPrintService>();
             Products = new ObservableCollection<Product>();
             LoadProducts();
         }
@@ -63,6 +65,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         public ICommand SearchCommand => new RelayCommand(PerformSearch);
         public ICommand AddProductCommand => new RelayCommand(AddProduct);
         public ICommand LowStockCommand => new RelayCommand(ShowLowStock);
+        public ICommand PrintInventoryCommand => new RelayCommand(PrintInventory);
         public ICommand EditProductCommand => new RelayCommand(EditProduct, () => SelectedProduct != null);
         public ICommand AdjustQuantityCommand => new RelayCommand(AdjustQuantity, () => SelectedProduct != null);
         public ICommand DeleteProductCommand => new RelayCommand(DeleteProduct, () => SelectedProduct != null);
@@ -127,6 +130,18 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             var list = _productService.GetLowStock();
             UpdateProductsList(list);
             OnRequestSearchFocus();
+        }
+
+        private void PrintInventory()
+        {
+            try
+            {
+                _printService.PrintInventory(_productService.GetAll(), _productService.GetTotalInventoryValue());
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError("خطأ", "فشل طباعة الجرد: " + ex.Message);
+            }
         }
 
         private void EditProduct()

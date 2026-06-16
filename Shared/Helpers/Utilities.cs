@@ -1,5 +1,7 @@
 using System;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -94,6 +96,12 @@ namespace AlJohary.ServiceHub.Shared.Helpers
             if (decimal.TryParse(amount.ToString(), out decimal value))
                 return FormatCurrency(value, includeSymbol);
             return FormatCurrency(0m, includeSymbol);
+        }
+
+        public static string FormatPhonesForPrint(IEnumerable<string> phones)
+        {
+            if (phones == null) return string.Empty;
+            return string.Join(" • ", phones.Select(p => p?.Trim()).Where(p => !string.IsNullOrWhiteSpace(p)));
         }
 
         public static string FormatDate(DateTime? date, bool includeTime = false)

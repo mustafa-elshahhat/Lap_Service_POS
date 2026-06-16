@@ -19,6 +19,10 @@ namespace AlJohary.ServiceHub.Presentation.Views
         {
             InitializeComponent();
             var vm = new SuppliersViewModel();
+            vm.NavigateToTransactionsAction = supplier =>
+            {
+                NavigationService?.Navigate(new SupplierTransactionsPage(supplier.Id));
+            };
             DataContext = vm;
             FocusHelper.SetupSearchFocus(this, SearchTextBox);
         }

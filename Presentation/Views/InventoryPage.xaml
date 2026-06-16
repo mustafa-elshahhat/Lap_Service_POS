@@ -48,6 +48,11 @@
                                 MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding LowStockCommand}"/>
+                        <Button Content="🖨️ طباعة الجرد"
+                                Style="{DynamicResource SecondaryButton}"
+                                MinWidth="140"
+                                Margin="4,0"
+                                Command="{Binding PrintInventoryCommand}"/>
                         <Button Content="📋 عرض الكل"
                                 Style="{DynamicResource DarkButton}"
                                 MinWidth="140"

@@ -73,8 +73,38 @@
                               <Label Content="العنوان الأساسي" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                               <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ShopAddress, UpdateSourceTrigger=PropertyChanged}"/>
                               
-                              <Label Content="رقم الهاتف للتواصل" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                              <TextBox Style="{DynamicResource MainTextBox}" Margin="0,0,0,20" Text="{Binding ShopPhone, UpdateSourceTrigger=PropertyChanged}"/>
+                              <Label Content="أرقام الهاتف للتواصل" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                              <ItemsControl ItemsSource="{Binding ShopPhones}" Margin="0,0,0,8">
+                                  <ItemsControl.ItemTemplate>
+                                      <DataTemplate>
+                                          <Grid Margin="0,0,0,8">
+                                              <Grid.ColumnDefinitions>
+                                                  <ColumnDefinition Width="*"/>
+                                                  <ColumnDefinition Width="Auto"/>
+                                              </Grid.ColumnDefinitions>
+                                              <TextBox Grid.Column="0"
+                                                       Style="{DynamicResource MainTextBox}"
+                                                       FlowDirection="LeftToRight"
+                                                       Text="{Binding Number, UpdateSourceTrigger=PropertyChanged}"/>
+                                              <Button Grid.Column="1"
+                                                      Content="🗑️"
+                                                      Style="{DynamicResource DangerButton}"
+                                                      Width="44"
+                                                      Height="38"
+                                                      Margin="8,0,0,0"
+                                                      Command="{Binding DataContext.RemovePhoneCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                      CommandParameter="{Binding}"/>
+                                          </Grid>
+                                      </DataTemplate>
+                                  </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                              <Button Content="➕ إضافة رقم هاتف"
+                                      Style="{DynamicResource SecondaryButton}"
+                                      Width="180"
+                                      Height="38"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,0,20"
+                                      Command="{Binding AddPhoneCommand}"/>
                         </StackPanel>
                         
                         <StackPanel x:Name="SectionBackup" Visibility="{Binding IsChecked, ElementName=TabBackup, Converter={StaticResource BooleanToVisibilityConverter}}">

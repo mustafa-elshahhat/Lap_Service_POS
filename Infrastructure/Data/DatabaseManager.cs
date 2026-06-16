@@ -508,6 +508,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                 { "shop_name", ("الجوهري", "اسم المحل") },
                 { "shop_address", ("", "عنوان المحل") },
                 { "shop_phone", ("", "رقم هاتف المحل") },
+                { "shop_phones", ("", "أرقام هاتف المحل") },
                 { "max_discount_percent", ("10.0", "الحد الأقصى للخصم (%)") },
                 { "max_markup_percent", ("20.0", "الحد الأقصى للزيادة (%)") },
                 { "low_stock_threshold", ("5", "حد التنبيه لانخفاض المخزون") },
