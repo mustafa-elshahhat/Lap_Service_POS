@@ -26,6 +26,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 PasswordHash = SafeConvert.ToString(row["password_hash"]),
                 FullName = SafeConvert.ToString(row["full_name"]),
                 Role = SafeConvert.ToString(row["role"]),
+                EmployeeId = row.ContainsKey("employee_id") && row["employee_id"] != null ? SafeConvert.ToInt(row["employee_id"]) : (int?)null,
+                EmployeeName = row.ContainsKey("employee_name") ? SafeConvert.ToString(row["employee_name"]) : "",
                 MaxDiscountPercent = SafeConvert.ToDouble(row["max_discount_percent"]),
                 MaxMarkupPercent = SafeConvert.ToDouble(row["max_markup_percent"]),
                 IsActive = SafeConvert.ToBool(row["is_active"]),
@@ -36,21 +38,32 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public User GetById(int id)
         {
-            var row = _db.FetchOne("SELECT * FROM users WHERE id = @id", new Dictionary<string, object> { { "@id", id } });
+            var row = _db.FetchOne(@"
+                SELECT u.*, e.full_name as employee_name
+                FROM users u
+                LEFT JOIN employees e ON u.employee_id = e.id
+                WHERE u.id = @id", new Dictionary<string, object> { { "@id", id } });
             return MapToEntity(row);
         }
 
         public User GetByUsername(string username)
         {
-            var row = _db.FetchOne("SELECT * FROM users WHERE username = @username", new Dictionary<string, object> { { "@username", username } });
+            var row = _db.FetchOne(@"
+                SELECT u.*, e.full_name as employee_name
+                FROM users u
+                LEFT JOIN employees e ON u.employee_id = e.id
+                WHERE u.username = @username", new Dictionary<string, object> { { "@username", username } });
             return MapToEntity(row);
         }
 
         public List<User> GetAll(bool includeInactive = false)
         {
-            string sql = "SELECT * FROM users";
-            if (!includeInactive) sql += " WHERE is_active = 1";
-            sql += " ORDER BY full_name";
+            string sql = @"
+                SELECT u.*, e.full_name as employee_name
+                FROM users u
+                LEFT JOIN employees e ON u.employee_id = e.id";
+            if (!includeInactive) sql += " WHERE u.is_active = 1";
+            sql += " ORDER BY u.full_name";
             
             var rows = _db.FetchAll(sql);
             var list = new List<User>();
@@ -61,14 +74,15 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public long Create(User user)
         {
             return _db.ExecuteAndGetId(@"
-                INSERT INTO users (username, password_hash, full_name, role, max_discount_percent, max_markup_percent, is_active, created_at, updated_at)
-                VALUES (@username, @password, @fullName, @role, @maxDiscount, @maxMarkup, 1, datetime('now'), datetime('now'))",
+                INSERT INTO users (username, password_hash, full_name, role, employee_id, max_discount_percent, max_markup_percent, is_active, created_at, updated_at)
+                VALUES (@username, @password, @fullName, @role, @employeeId, @maxDiscount, @maxMarkup, 1, datetime('now'), datetime('now'))",
                 new Dictionary<string, object>
                 {
                     { "@username", user.Username },
                     { "@password", user.PasswordHash },
                     { "@fullName", user.FullName },
                     { "@role", user.Role },
+                    { "@employeeId", user.EmployeeId },
                     { "@maxDiscount", user.MaxDiscountPercent },
                     { "@maxMarkup", user.MaxMarkupPercent }
                 });
@@ -110,6 +124,39 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         {
              var row = _db.FetchOne("SELECT id FROM users WHERE username = @username", new Dictionary<string, object> { { "@username", username } });
              return row != null;
+        }
+
+        public bool ActiveEmployeeExists(int employeeId)
+        {
+            var row = _db.FetchOne("SELECT id FROM employees WHERE id = @id AND is_active = 1",
+                new Dictionary<string, object> { { "@id", employeeId } });
+            return row != null;
+        }
+
+        public bool IsEmployeeLinkedToActiveUser(int employeeId, int? exceptUserId = null)
+        {
+            var row = _db.FetchOne(@"
+                SELECT id FROM users
+                WHERE employee_id = @employeeId
+                  AND is_active = 1
+                  AND (@exceptUserId IS NULL OR id <> @exceptUserId)
+                LIMIT 1",
+                new Dictionary<string, object>
+                {
+                    { "@employeeId", employeeId },
+                    { "@exceptUserId", exceptUserId }
+                });
+            return row != null;
+        }
+
+        public void UpdateEmployeeLink(int userId, int? employeeId)
+        {
+            _db.Execute("UPDATE users SET employee_id = @employeeId, updated_at = datetime('now') WHERE id = @id",
+                new Dictionary<string, object>
+                {
+                    { "@employeeId", employeeId },
+                    { "@id", userId }
+                });
         }
 
         public User Authenticate(string username, string password)

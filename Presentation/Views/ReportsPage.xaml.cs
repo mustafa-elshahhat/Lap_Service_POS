@@ -147,11 +147,19 @@ namespace AlJohary.ServiceHub.Presentation.Views
                     var triggerMaintenance = new DataTrigger { Binding = binding, Value = "صيانة" };
                     triggerMaintenance.Setters.Add(new Setter(TextBlock.ForegroundProperty, System.Windows.Application.Current.Resources["WarningDarkBrush"]));
 
+                    var triggerSalary = new DataTrigger { Binding = binding, Value = "مرتب موظف" };
+                    triggerSalary.Setters.Add(new Setter(TextBlock.ForegroundProperty, System.Windows.Application.Current.Resources["DangerBrush"]));
+
+                    var triggerDeduction = new DataTrigger { Binding = binding, Value = "خصم موظف" };
+                    triggerDeduction.Setters.Add(new Setter(TextBlock.ForegroundProperty, System.Windows.Application.Current.Resources["InfoDarkBrush"]));
+
                     elementStyle.Triggers.Add(triggerSale);
                     elementStyle.Triggers.Add(triggerReturn);
                     elementStyle.Triggers.Add(triggerExpense);
                     elementStyle.Triggers.Add(triggerSupplier);
                     elementStyle.Triggers.Add(triggerMaintenance);
+                    elementStyle.Triggers.Add(triggerSalary);
+                    elementStyle.Triggers.Add(triggerDeduction);
                 }
 
                 column.ElementStyle = elementStyle;

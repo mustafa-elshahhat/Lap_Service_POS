@@ -1,0 +1,94 @@
+<Window x:Class="AlJohary.ServiceHub.Presentation.Views.EmployeeFormDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="بيانات الموظف"
+        SizeToContent="WidthAndHeight"
+        MinWidth="460"
+        MaxWidth="560"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        FlowDirection="RightToLeft">
+
+    <Border Style="{DynamicResource StandardWindowContentBorder}">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,24">
+                <Button Style="{DynamicResource CloseButton}"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Click="CancelButton_Click"/>
+
+                <TextBlock Text="{Binding Title, StringFormat='👨‍💼 {0}'}"
+                           FontFamily="{DynamicResource MainFontSemibold}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryBrush}"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"/>
+            </Grid>
+
+            <StackPanel Grid.Row="1">
+                <Label Content="اسم الموظف (مطلوب)"/>
+                <TextBox x:Name="FullNameTextBox"
+                         Style="{DynamicResource MainTextBox}"
+                         Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,16"/>
+
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="2">
+                        <Label Content="الهاتف"/>
+                        <TextBox Style="{DynamicResource MainTextBox}"
+                                 Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewTextInput="PhoneTextBox_PreviewTextInput"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="0">
+                        <Label Content="المسمى الوظيفي"/>
+                        <TextBox Style="{DynamicResource MainTextBox}"
+                                 Text="{Binding JobTitle, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Label Content="الراتب الأساسي"/>
+                <TextBox Style="{DynamicResource MainTextBox}"
+                         Text="{Binding BaseSalary, UpdateSourceTrigger=PropertyChanged}"
+                         PreviewTextInput="DecimalTextBox_PreviewTextInput"
+                         Margin="0,0,0,16"/>
+
+                <Label Content="ملاحظات"/>
+                <TextBox Style="{DynamicResource MainTextBox}"
+                         Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                         Height="80"
+                         TextWrapping="Wrap"
+                         VerticalContentAlignment="Top"
+                         Padding="12,10"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
+                <Button Content="{Binding SaveButtonContent}"
+                        Style="{DynamicResource PrimaryButton}"
+                        Width="140" Margin="8,0"
+                        IsDefault="True"
+                        Click="SaveButton_Click"/>
+                <Button Content="إلغاء"
+                        Style="{DynamicResource DarkButton}"
+                        Width="120" Margin="8,0"
+                        IsCancel="True"
+                        Click="CancelButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

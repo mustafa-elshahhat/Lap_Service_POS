@@ -16,8 +16,8 @@ namespace AlJohary.ServiceHub.Application.Interfaces
         int GetUserId();
         string GetUserName();
 
-        long CreateUser(string username, string password, string fullName, string role, double maxDiscount = 10.0, double maxMarkup = 20.0);
-        void UpdateUser(int userId, string fullName = null, string role = null, double? maxDiscount = null, double? maxMarkup = null);
+        long CreateUser(string username, string password, string fullName, string role, double maxDiscount = 10.0, double maxMarkup = 20.0, int? employeeId = null);
+        void UpdateUser(int userId, string fullName = null, string role = null, double? maxDiscount = null, double? maxMarkup = null, int? employeeId = null, bool updateEmployeeLink = false);
         void ChangeUserPassword(int userId, string newPassword);
         void DeleteUser(int userId);
         List<Dictionary<string, object>> GetAllUsers(bool includeInactive = false);

@@ -71,12 +71,12 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
                 var uniqueList = new HashSet<string>
                 {
-                    "رواتب", "إيجار", "كهرباء", "أخرى", "بضاعة", "صيانة", "نقل", "ضيافة"
+                    "إيجار", "كهرباء", "أخرى", "بضاعة", "صيانة", "نقل", "ضيافة"
                 };
 
                 foreach(var c in dbCategories)
                 {
-                    if(!string.IsNullOrEmpty(c)) uniqueList.Add(c.Trim());
+                    if(!string.IsNullOrEmpty(c) && c.Trim() != "رواتب") uniqueList.Add(c.Trim());
                 }
 
                 var list = uniqueList.ToList();

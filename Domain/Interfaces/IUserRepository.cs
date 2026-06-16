@@ -14,6 +14,9 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         void Delete(int id);
         int GetAdminsCount();
         bool UsernameExists(string username);
+        bool ActiveEmployeeExists(int employeeId);
+        bool IsEmployeeLinkedToActiveUser(int employeeId, int? exceptUserId = null);
+        void UpdateEmployeeLink(int userId, int? employeeId);
         User Authenticate(string username, string password);
     }
 }

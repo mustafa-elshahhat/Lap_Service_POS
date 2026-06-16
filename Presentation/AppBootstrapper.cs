@@ -55,8 +55,9 @@ namespace AlJohary.ServiceHub.Presentation
             var supplierRepo = new SupplierRepository();
             var reportRepo = new ReportRepository();
             var repairRepo = new RepairRepository();
+            var employeeRepo = new EmployeeRepository();
 
-            var authService = new AuthService(userRepo);
+            var authService = new AuthService(userRepo, txManager);
             AuthService.Instance = authService;
 
             var productService  = new ProductService(productRepo);
@@ -68,6 +69,7 @@ namespace AlJohary.ServiceHub.Presentation
             var supplierService = new SupplierService(supplierRepo, authService);
             var reportService   = new ReportService(reportRepo);
             var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerRepo, txManager);
+            var employeeService = new EmployeeService(employeeRepo, authService);
 
             var dialogService = new DialogService();
 
@@ -83,6 +85,8 @@ namespace AlJohary.ServiceHub.Presentation
             ServiceContainer.Register<IReportService>(reportService);
             ServiceContainer.Register<IMaintenanceService>(maintenanceService);
             ServiceContainer.Register<ISettingsService>(settingsService);
+            ServiceContainer.Register<IEmployeeRepository>(employeeRepo);
+            ServiceContainer.Register<IEmployeeService>(employeeService);
             ServiceContainer.Register<IPrintService>(new AlJohary.ServiceHub.Infrastructure.Printing.PrintService());
         }
 
@@ -99,6 +103,7 @@ namespace AlJohary.ServiceHub.Presentation
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration004_RepairOrdersFullSchema.Execute();
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration005_DropDeadPaymentMethodSchema.Execute();
                     AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration006_RepairPartPurchaseCost.Execute();
+                    AlJohary.ServiceHub.Infrastructure.SQLiteMigrations.Migration007_Employees.Execute();
                 }
                 catch (Exception migrationEx)
                 {

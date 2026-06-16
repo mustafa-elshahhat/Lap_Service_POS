@@ -375,6 +375,11 @@
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Reports"/>
                                     
+                                    <Button Content="👨‍💼  الموظفين" 
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Employees"/>
+                                     
                                     <Button Content="👤  المستخدمين" 
                                             Style="{StaticResource SidebarButtonStyle}"
                                             Command="{Binding NavigateCommand}"

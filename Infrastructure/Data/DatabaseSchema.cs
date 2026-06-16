@@ -14,11 +14,39 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     password_hash TEXT NOT NULL,
                     full_name TEXT NOT NULL,
                     role TEXT NOT NULL CHECK (role IN ('admin', 'employee')),
+                    employee_id INTEGER NULL,
                     max_discount_percent REAL DEFAULT 10.0,
                     max_markup_percent REAL DEFAULT 20.0,
                     is_active INTEGER DEFAULT 1,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id)
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS employees (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    full_name TEXT NOT NULL,
+                    phone TEXT,
+                    job_title TEXT,
+                    base_salary REAL NOT NULL DEFAULT 0,
+                    notes TEXT,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS employee_salary_transactions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    employee_id INTEGER NOT NULL,
+                    transaction_type TEXT NOT NULL CHECK(transaction_type IN ('salary', 'deduction')),
+                    amount REAL NOT NULL,
+                    payment_method TEXT,
+                    transaction_date TIMESTAMP NOT NULL,
+                    notes TEXT,
+                    created_by INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(employee_id) REFERENCES employees(id),
+                    FOREIGN KEY(created_by) REFERENCES users(id)
                 )",
 
                 @"CREATE TABLE IF NOT EXISTS products (
@@ -260,6 +288,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     product_id          INTEGER,
                     part_name           TEXT NOT NULL,
                     quantity            INTEGER NOT NULL DEFAULT 1,
+                    purchase_cost       REAL NOT NULL DEFAULT 0,
                     unit_cost           REAL NOT NULL DEFAULT 0,
                     total_cost          REAL NOT NULL DEFAULT 0,
                     is_from_inventory   INTEGER NOT NULL DEFAULT 0,
@@ -293,6 +322,11 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                 "CREATE INDEX IF NOT EXISTS idx_suppliers_name ON suppliers(name)",
                 "CREATE INDEX IF NOT EXISTS idx_supplier_transactions_supplier ON supplier_transactions(supplier_id)",
                 "CREATE INDEX IF NOT EXISTS idx_supplier_transactions_date ON supplier_transactions(transaction_date)",
+                "CREATE INDEX IF NOT EXISTS idx_employees_name ON employees(full_name)",
+                "CREATE INDEX IF NOT EXISTS idx_employee_salary_transactions_employee ON employee_salary_transactions(employee_id)",
+                "CREATE INDEX IF NOT EXISTS idx_employee_salary_transactions_date ON employee_salary_transactions(transaction_date)",
+                "CREATE INDEX IF NOT EXISTS idx_employee_salary_transactions_type ON employee_salary_transactions(transaction_type)",
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_active_employee ON users(employee_id) WHERE employee_id IS NOT NULL AND is_active = 1",
                 "CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date)",
                 "CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)",
                 "CREATE INDEX IF NOT EXISTS idx_repair_orders_intake ON repair_orders(intake_date)",

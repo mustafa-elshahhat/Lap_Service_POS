@@ -105,7 +105,15 @@
                         <ComboBoxItem Tag="admin">مدير</ComboBoxItem>
                         <ComboBoxItem Tag="employee">موظف</ComboBoxItem>
                     </ComboBox>
-    
+
+                    <Label Content="الموظف المرتبط (اختياري)" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                    <ComboBox Style="{DynamicResource MainComboBox}"
+                              Margin="0,0,0,16"
+                              ItemsSource="{Binding EmployeeOptions}"
+                              DisplayMemberPath="DisplayName"
+                              SelectedValuePath="Id"
+                              SelectedValue="{Binding SelectedEmployeeId, UpdateSourceTrigger=PropertyChanged}"/>
+     
                     <Grid Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

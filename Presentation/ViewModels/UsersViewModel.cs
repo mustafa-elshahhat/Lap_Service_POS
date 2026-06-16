@@ -83,7 +83,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     {
 
                         _auth.CreateUser(vm.Username, vm.Password, vm.FullName, vm.Role,
-                            vm.MaxDiscountPercent, vm.MaxMarkupPercent);
+                            vm.MaxDiscountPercent, vm.MaxMarkupPercent, vm.EmployeeId);
                         _dialogService.ShowSuccess("نجاح", "تم إنشاء المستخدم بنجاح");
                         LoadUsers();
                     }
@@ -109,6 +109,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 string username = SafeConvert.ToString(SelectedUser["username"]);
                 string fullName = SafeConvert.ToString(SelectedUser["full_name"]);
                 string role = SafeConvert.ToString(SelectedUser["role"]);
+                int employeeId = SafeConvert.ToInt(SelectedUser.ContainsKey("employee_id") ? SelectedUser["employee_id"] : null);
+                string employeeName = SafeConvert.ToString(SelectedUser.ContainsKey("employee_name") ? SelectedUser["employee_name"] : null);
                 double maxDiscount = SafeConvert.ToDouble(SelectedUser["max_discount_percent"]);
                 double maxMarkup = SafeConvert.ToDouble(SelectedUser["max_markup_percent"]);
 
@@ -120,11 +122,15 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     MaxDiscountPercent = maxDiscount,
                     MaxMarkupPercent = maxMarkup
                 };
+                int? originalEmployeeId = employeeId > 0 ? employeeId : (int?)null;
+                vm.LoadEmployees(originalEmployeeId, employeeName);
 
                 if (_dialogService.ShowUserFormDialog(vm) == true)
                 {
-
-                    _auth.UpdateUser(userId, vm.FullName, vm.Role, vm.MaxDiscountPercent, vm.MaxMarkupPercent);
+                    // Only touch (and validate) the employee link when it actually changed, so editing a user
+                    // whose linked employee has since been deactivated is not blocked by the active-employee check.
+                    bool employeeLinkChanged = vm.EmployeeId != originalEmployeeId;
+                    _auth.UpdateUser(userId, vm.FullName, vm.Role, vm.MaxDiscountPercent, vm.MaxMarkupPercent, vm.EmployeeId, employeeLinkChanged);
 
                     if (!string.IsNullOrEmpty(vm.Password))
                     {

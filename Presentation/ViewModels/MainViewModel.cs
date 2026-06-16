@@ -106,10 +106,13 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     if (CheckAdmin()) SetPage("🏢", "الموردين", new SuppliersPage());
                     break;
                 case "Reports":
-                     if (CheckAdmin()) SetPage("📊", "التقارير", new ReportsPage());
+                      if (CheckAdmin()) SetPage("📊", "التقارير", new ReportsPage());
+                    break;
+                case "Employees":
+                     if (CheckAdmin()) SetPage("👨‍💼", "الموظفين", new EmployeesPage());
                     break;
                 case "Users":
-                     if (CheckAdmin()) SetPage("👤", "المستخدمين", new UsersPage());
+                      if (CheckAdmin()) SetPage("👤", "المستخدمين", new UsersPage());
                     break;
                 case "Settings":
                      if (CheckAdmin()) SetPage("⚙️", "الإعدادات", new SettingsPage());

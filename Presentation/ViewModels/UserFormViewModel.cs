@@ -1,4 +1,6 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Presentation.Interfaces;
@@ -6,6 +8,12 @@ using AlJohary.ServiceHub.Shared.Helpers;
 
 namespace AlJohary.ServiceHub.Presentation.ViewModels
 {
+    public class EmployeeOption
+    {
+        public int Id { get; set; }
+        public string DisplayName { get; set; }
+    }
+
     public class UserFormViewModel : BaseViewModel
     {
         private readonly IDialogService _dialogService;
@@ -13,6 +21,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private string _fullName;
         private string _password;
         private string _role;
+        private ObservableCollection<EmployeeOption> _employeeOptions;
+        private int _selectedEmployeeId;
         private bool _isEditMode;
         private string _title;
         private string _buttonText;
@@ -26,6 +36,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             Title = isEditMode ? "تعديل مستخدم" : "إضافة مستخدم";
             ButtonText = isEditMode ? "حفظ التعديلات" : "إنشاء";
             Role = "employee";
+            EmployeeOptions = new ObservableCollection<EmployeeOption>();
+            LoadEmployees();
         }
 
         #region Properties
@@ -53,6 +65,20 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             get => _role;
             set => SetProperty(ref _role, value);
         }
+
+        public ObservableCollection<EmployeeOption> EmployeeOptions
+        {
+            get => _employeeOptions;
+            set => SetProperty(ref _employeeOptions, value);
+        }
+
+        public int SelectedEmployeeId
+        {
+            get => _selectedEmployeeId;
+            set => SetProperty(ref _selectedEmployeeId, value);
+        }
+
+        public int? EmployeeId => SelectedEmployeeId > 0 ? SelectedEmployeeId : (int?)null;
 
         private double _maxDiscountPercent;
         public double MaxDiscountPercent
@@ -96,6 +122,43 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         #endregion
 
         #region Methods
+
+        public void LoadEmployees(int? currentEmployeeId = null, string currentEmployeeName = null)
+        {
+            EmployeeOptions.Clear();
+            EmployeeOptions.Add(new EmployeeOption { Id = 0, DisplayName = "بدون ربط" });
+
+            try
+            {
+                var employeeService = ServiceContainer.GetService<IEmployeeService>();
+                var employees = employeeService.GetActiveEmployees();
+                foreach (var employee in employees)
+                {
+                    EmployeeOptions.Add(new EmployeeOption { Id = employee.Id, DisplayName = employee.FullName });
+                }
+
+                if (currentEmployeeId.HasValue && currentEmployeeId.Value > 0 && !EmployeeOptions.Any(e => e.Id == currentEmployeeId.Value))
+                {
+                    var employee = employeeService.GetById(currentEmployeeId.Value);
+                    if (employee != null)
+                    {
+                        string suffix = employee.IsActive ? string.Empty : " (غير نشط)";
+                        EmployeeOptions.Add(new EmployeeOption { Id = employee.Id, DisplayName = employee.FullName + suffix });
+                    }
+                    else if (!string.IsNullOrWhiteSpace(currentEmployeeName) && currentEmployeeName != "-")
+                    {
+                        EmployeeOptions.Add(new EmployeeOption { Id = currentEmployeeId.Value, DisplayName = currentEmployeeName });
+                    }
+                }
+            }
+            catch
+            {
+                if (currentEmployeeId.HasValue && currentEmployeeId.Value > 0 && !string.IsNullOrWhiteSpace(currentEmployeeName) && currentEmployeeName != "-")
+                    EmployeeOptions.Add(new EmployeeOption { Id = currentEmployeeId.Value, DisplayName = currentEmployeeName });
+            }
+
+            SelectedEmployeeId = currentEmployeeId ?? 0;
+        }
 
         private void Save()
         {
@@ -141,4 +204,3 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         #endregion
     }
 }
-

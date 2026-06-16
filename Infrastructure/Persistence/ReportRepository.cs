@@ -73,6 +73,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 AND transaction_date >= @start AND transaction_date < @end", args);
             summary["total_supplier_payments"] = SafeConvert.ToDecimal(supplierPaymentsQuery["total"]);
 
+            AddEmployeeSalarySummary(summary, args);
+            decimal totalSalaryPayments = SafeConvert.ToDecimal(summary["total_salary_payments"]);
+            decimal netSalaryExpense = SafeConvert.ToDecimal(summary["net_salary_expense"]);
+
             var lostProfitQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(
                     (ri.total_price - (ri.quantity * si.unit_purchase_price))
@@ -86,12 +90,13 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
             summary["gross_profit"] = grossProfitFromSales;
             summary["lost_profit"] = lostProfit;
-            summary["net_profit"] = grossProfitFromSales - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]);
+            summary["net_profit"] = grossProfitFromSales - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
 
             summary["net_cash_flow"] = totalCashReceived
-                                     - SafeConvert.ToDecimal(summary["cash_refunds"])
-                                     - SafeConvert.ToDecimal(summary["total_expenses"])
-                                     - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
+                                      - SafeConvert.ToDecimal(summary["cash_refunds"])
+                                      - SafeConvert.ToDecimal(summary["total_expenses"])
+                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
+                                      - totalSalaryPayments;
 
             var maintenanceCashQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(amount), 0) as maintenance_total
@@ -120,13 +125,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
             summary["gross_profit"] = grossProfitFromSales + maintenanceProfit;
             summary["lost_profit"]  = lostProfit;
-            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]);
+            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
 
             summary["net_cash_flow"] = totalCashReceived
-                                     + maintenanceCashReceived
-                                     - SafeConvert.ToDecimal(summary["cash_refunds"])
-                                     - SafeConvert.ToDecimal(summary["total_expenses"])
-                                     - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
+                                      + maintenanceCashReceived
+                                      - SafeConvert.ToDecimal(summary["cash_refunds"])
+                                      - SafeConvert.ToDecimal(summary["total_expenses"])
+                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
+                                      - totalSalaryPayments;
 
             AddPaymentBreakdowns(summary, args);
 
@@ -193,6 +199,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 AND transaction_date >= @start AND transaction_date < @end", args);
             summary["total_supplier_payments"] = SafeConvert.ToDecimal(supplierPaymentsQuery["total"]);
 
+            AddEmployeeSalarySummary(summary, args);
+            decimal totalSalaryPayments = SafeConvert.ToDecimal(summary["total_salary_payments"]);
+            decimal netSalaryExpense = SafeConvert.ToDecimal(summary["net_salary_expense"]);
+
             var lostProfitQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(
                     (ri.total_price - (ri.quantity * si.unit_purchase_price))
@@ -206,12 +216,13 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
             summary["gross_profit"] = grossProfitFromSales;
             summary["lost_profit"] = lostProfit;
-            summary["net_profit"] = grossProfitFromSales - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]);
+            summary["net_profit"] = grossProfitFromSales - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
 
             summary["net_cash_flow"] = SafeConvert.ToDecimal(summary["cash_received"]) 
-                                     - SafeConvert.ToDecimal(summary["cash_refunds"]) 
-                                     - SafeConvert.ToDecimal(summary["total_expenses"]) 
-                                     - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
+                                      - SafeConvert.ToDecimal(summary["cash_refunds"]) 
+                                      - SafeConvert.ToDecimal(summary["total_expenses"]) 
+                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
+                                      - totalSalaryPayments;
 
             var maintenanceCashPeriodQuery = _db.FetchOne(@"
                 SELECT COALESCE(SUM(amount), 0) as maintenance_total
@@ -240,13 +251,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
             summary["gross_profit"] = grossProfitFromSales + maintenanceProfitPeriod;
             summary["lost_profit"]  = lostProfit;
-            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]);
+            summary["net_profit"]   = (decimal)summary["gross_profit"] - lostProfit - SafeConvert.ToDecimal(summary["total_expenses"]) - netSalaryExpense;
 
             summary["net_cash_flow"] = SafeConvert.ToDecimal(summary["cash_received"])
-                                     + maintenanceCashPeriod
-                                     - SafeConvert.ToDecimal(summary["cash_refunds"])
-                                     - SafeConvert.ToDecimal(summary["total_expenses"])
-                                     - SafeConvert.ToDecimal(summary["total_supplier_payments"]);
+                                      + maintenanceCashPeriod
+                                      - SafeConvert.ToDecimal(summary["cash_refunds"])
+                                      - SafeConvert.ToDecimal(summary["total_expenses"])
+                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
+                                      - totalSalaryPayments;
 
             AddPaymentBreakdowns(summary, args);
 
@@ -304,6 +316,22 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
                 UNION ALL
 
+                SELECT CASE WHEN est.transaction_type = 'salary' THEN 'مرتب موظف' ELSE 'خصم موظف' END as OperationName,
+                       'N/A' as Reference,
+                       e.full_name as Details,
+                       est.amount as Amount,
+                       0 as Remaining,
+                       'N/A' as SaleType,
+                       CASE WHEN est.transaction_type = 'salary' THEN COALESCE(est.payment_method, 'نقدي') ELSE 'خصم' END as PaymentMethod,
+                       est.transaction_date as Date,
+                       u.full_name as UserName
+                FROM employee_salary_transactions est
+                JOIN employees e ON est.employee_id = e.id
+                LEFT JOIN users u ON est.created_by = u.id
+                WHERE est.transaction_date >= @start AND est.transaction_date < @end
+
+                UNION ALL
+
                 SELECT 'صيانة' as OperationName, ro.order_number as Reference,
                        COALESCE(ro.customer_name, 'عميل') as Details, ro.paid_amount as Amount,
                        ro.remaining_amount as Remaining,
@@ -348,6 +376,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                     SELECT payment_method, amount FROM supplier_transactions
                     WHERE transaction_type = 'payment'
                     AND transaction_date >= @start AND transaction_date < @end
+                    UNION ALL
+                    SELECT payment_method, amount FROM employee_salary_transactions
+                    WHERE transaction_type = 'salary'
+                    AND transaction_date >= @start AND transaction_date < @end
                 ) GROUP BY payment_method", args);
 
             var outflows = new Dictionary<string, decimal>();
@@ -357,6 +389,23 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             summary["payment_inflows"]  = inflows;
             summary["payment_outflows"] = outflows;
             summary["payment_details"]  = inflows;
+        }
+
+        private void AddEmployeeSalarySummary(Dictionary<string, object> summary, Dictionary<string, object> args)
+        {
+            var salaryQuery = _db.FetchOne(@"
+                SELECT
+                    COALESCE(SUM(CASE WHEN transaction_type = 'salary' THEN amount ELSE 0 END), 0) as total_salary_payments,
+                    COALESCE(SUM(CASE WHEN transaction_type = 'deduction' THEN amount ELSE 0 END), 0) as total_employee_deductions
+                FROM employee_salary_transactions
+                WHERE transaction_date >= @start AND transaction_date < @end", args);
+
+            decimal salaryPayments = SafeConvert.ToDecimal(salaryQuery["total_salary_payments"]);
+            decimal deductions = SafeConvert.ToDecimal(salaryQuery["total_employee_deductions"]);
+
+            summary["total_salary_payments"] = salaryPayments;
+            summary["total_employee_deductions"] = deductions;
+            summary["net_salary_expense"] = salaryPayments - deductions;
         }
 
         private (string start, string end) GetDateRange(string date)

@@ -13,11 +13,13 @@ namespace AlJohary.ServiceHub.Application.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepo;
+        private readonly IDbTransactionManager _txManager;
         private Dictionary<string, object> _currentUser;
 
-        public AuthService(IUserRepository userRepo)
+        public AuthService(IUserRepository userRepo, IDbTransactionManager txManager = null)
         {
             _userRepo = userRepo;
+            _txManager = txManager;
         }
 
         private static IAuthService _instance;
@@ -37,6 +39,8 @@ namespace AlJohary.ServiceHub.Application.Services
                 { "username", user.Username },
                 { "full_name", user.FullName },
                 { "role", user.Role },
+                { "employee_id", user.EmployeeId },
+                { "employee_name", string.IsNullOrWhiteSpace(user.EmployeeName) ? "-" : user.EmployeeName },
                 { "max_discount_percent", user.MaxDiscountPercent },
                 { "max_markup_percent", user.MaxMarkupPercent },
                 { "is_active", user.IsActive }
@@ -68,10 +72,11 @@ namespace AlJohary.ServiceHub.Application.Services
         #region User Management (Admin Only)
 
         public long CreateUser(string username, string password, string fullName, string role,
-            double maxDiscount = 10.0, double maxMarkup = 20.0)
+            double maxDiscount = 10.0, double maxMarkup = 20.0, int? employeeId = null)
         {
             if (!IsAdmin) throw new UnauthorizedAccessException("ليس لديك صلاحية إنشاء مستخدمين");
             if (_userRepo.UsernameExists(username)) throw new InvalidOperationException("اسم المستخدم موجود بالفعل");
+            ValidateEmployeeLink(employeeId, null);
 
             string passwordHash = Security.HashPassword(password);
             var user = new User
@@ -80,6 +85,7 @@ namespace AlJohary.ServiceHub.Application.Services
                 PasswordHash = passwordHash,
                 FullName = fullName,
                 Role = role,
+                EmployeeId = employeeId,
                 MaxDiscountPercent = maxDiscount,
                 MaxMarkupPercent = maxMarkup
             };
@@ -88,9 +94,10 @@ namespace AlJohary.ServiceHub.Application.Services
         }
 
         public void UpdateUser(int userId, string fullName = null, string role = null,
-            double? maxDiscount = null, double? maxMarkup = null)
+            double? maxDiscount = null, double? maxMarkup = null, int? employeeId = null, bool updateEmployeeLink = false)
         {
             if (!IsAdmin) throw new UnauthorizedAccessException("ليس لديك صلاحية تعديل المستخدمين");
+            if (updateEmployeeLink) ValidateEmployeeLink(employeeId, userId);
 
             var user = new User { Id = userId, MaxDiscountPercent = -1.0, MaxMarkupPercent = -1.0 };
             if (fullName != null) user.FullName = fullName;
@@ -98,7 +105,34 @@ namespace AlJohary.ServiceHub.Application.Services
             if (maxDiscount.HasValue) user.MaxDiscountPercent = maxDiscount.Value;
             if (maxMarkup.HasValue) user.MaxMarkupPercent = maxMarkup.Value;
 
-            _userRepo.Update(user);
+            if (!updateEmployeeLink)
+            {
+                _userRepo.Update(user);
+                return;
+            }
+
+            if (_txManager == null)
+            {
+                // No transaction manager wired (e.g. in unit tests): fall back to sequential writes.
+                _userRepo.Update(user);
+                _userRepo.UpdateEmployeeLink(userId, employeeId);
+                return;
+            }
+
+            // Update the profile and the employee link atomically so a constraint failure on the link
+            // (e.g. the unique active-employee index) does not leave a partially-applied edit.
+            _txManager.BeginTransaction();
+            try
+            {
+                _userRepo.Update(user);
+                _userRepo.UpdateEmployeeLink(userId, employeeId);
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
         }
 
         public void ChangeUserPassword(int userId, string newPassword)
@@ -132,6 +166,17 @@ namespace AlJohary.ServiceHub.Application.Services
         {
             if (!IsAdmin && GetUserId() != userId) throw new UnauthorizedAccessException("ليس لديك صلاحية عرض بيانات هذا المستخدم");
             return UserToDictionary(_userRepo.GetById(userId));
+        }
+
+        private void ValidateEmployeeLink(int? employeeId, int? exceptUserId)
+        {
+            if (!employeeId.HasValue) return;
+
+            if (!_userRepo.ActiveEmployeeExists(employeeId.Value))
+                throw new InvalidOperationException("الموظف المحدد غير نشط أو غير موجود");
+
+            if (_userRepo.IsEmployeeLinkedToActiveUser(employeeId.Value, exceptUserId))
+                throw new InvalidOperationException("هذا الموظف مرتبط بالفعل بحساب مستخدم نشط");
         }
 
         #endregion

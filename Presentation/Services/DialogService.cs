@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Presentation.Interfaces;
 using AlJohary.ServiceHub.Presentation.Views;
 using AlJohary.ServiceHub.Presentation.ViewModels;
@@ -93,6 +94,34 @@ namespace AlJohary.ServiceHub.Presentation.Services
             var dialog = new ExpenseDialog(viewModel);
             dialog.Owner = System.Windows.Application.Current.MainWindow;
             return dialog.ShowDialog();
+        }
+
+        public bool? ShowEmployeeFormDialog(EmployeeFormViewModel viewModel)
+        {
+            var dialog = new EmployeeFormDialog(viewModel);
+            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            return dialog.ShowDialog();
+        }
+
+        public bool? ShowEmployeeSalaryTransactionDialog(Employee employee, string transactionType, out decimal amount, out string paymentMethod, out DateTime transactionDate, out string notes)
+        {
+            amount = 0;
+            paymentMethod = null;
+            transactionDate = DateTime.Now;
+            notes = null;
+
+            var dialog = new EmployeeSalaryTransactionDialog(employee, transactionType);
+            dialog.Owner = System.Windows.Application.Current.MainWindow;
+
+            if (dialog.ShowDialog() == true)
+            {
+                amount = dialog.Amount;
+                paymentMethod = dialog.PaymentMethod;
+                transactionDate = dialog.TransactionDate;
+                notes = dialog.Notes;
+                return true;
+            }
+            return false;
         }
 
         public bool? ShowSupplierFormDialog(SupplierFormViewModel viewModel)
