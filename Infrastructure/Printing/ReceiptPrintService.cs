@@ -209,8 +209,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                 TableRow row = new TableRow();
                 row.Cells.Add(new TableCell(new Paragraph(new Run(item.ProductName)) { TextAlignment = TextAlignment.Center }));
                 row.Cells.Add(new TableCell(new Paragraph(new Run(item.Quantity.ToString())) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.UnitFinalPrice.ToString("0.##"))) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run((item.Quantity * item.UnitFinalPrice).ToString("0.##"))) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(Formatting.FormatNumber(item.UnitFinalPrice))) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(Formatting.FormatNumber(item.Quantity * item.UnitFinalPrice))) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
                 group.Rows.Add(row);
             }
 
@@ -220,9 +220,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
 
             var totalItems = new List<(string, string)>
             {
-                ("إجمالي الفاتورة", sale.TotalAmount.ToString("N2")),
-                ("المدفوع", sale.PaidAmount.ToString("N2")),
-                ("المتبقي", sale.RemainingAmount.ToString("N2"))
+                ("إجمالي الفاتورة", Formatting.FormatNumber(sale.TotalAmount)),
+                ("المدفوع", Formatting.FormatNumber(sale.PaidAmount)),
+                ("المتبقي", Formatting.FormatNumber(sale.RemainingAmount))
             };
             mainSection.Blocks.Add(CreateAlignedInfoTable(totalItems, true));
             mainSection.Blocks.Add(CreateSeparator());
@@ -371,7 +371,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                 TableRow row = new TableRow();
                 row.Cells.Add(new TableCell(new Paragraph(new Run(item.ProductName)) { TextAlignment = TextAlignment.Center }));
                 row.Cells.Add(new TableCell(new Paragraph(new Run(item.Quantity.ToString())) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.TotalPrice.ToString("0.##"))) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(Formatting.FormatNumber(item.TotalPrice))) { TextAlignment = TextAlignment.Center }) { BorderThickness = new Thickness(1, 0, 0, 0), BorderBrush = Brushes.Black });
                 group.Rows.Add(row);
             }
 
@@ -379,7 +379,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             mainSection.Blocks.Add(table);
             mainSection.Blocks.Add(CreateSeparator());
 
-            var rtItems = new List<(string, string)> { ("إجمالي المرتجع", @return.TotalAmount.ToString("N2")) };
+            var rtItems = new List<(string, string)> { ("إجمالي المرتجع", Formatting.FormatNumber(@return.TotalAmount)) };
             mainSection.Blocks.Add(CreateAlignedInfoTable(rtItems, true));
             mainSection.Blocks.Add(CreateSeparator());
 
@@ -495,20 +495,20 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                 if (deviceParts.Count > 0)
                 {
                     foreach (var p in deviceParts)
-                        s.Blocks.Add(new Paragraph(new Run($"  • {p.PartName} x{p.Quantity} = {p.TotalCost:N2}")) { Margin = new Thickness(0), FontSize = 9 });
+                        s.Blocks.Add(new Paragraph(new Run($"  • {p.PartName} x{p.Quantity} = {Formatting.FormatNumber(p.TotalCost)}")) { Margin = new Thickness(0), FontSize = 9 });
                 }
 
                 if (d.LaborCost > 0)
-                    s.Blocks.Add(new Paragraph(new Run($"  أجر العمل: {d.LaborCost:N2}")) { Margin = new Thickness(0), FontSize = 9 });
+                    s.Blocks.Add(new Paragraph(new Run($"  أجر العمل: {Formatting.FormatNumber(d.LaborCost)}")) { Margin = new Thickness(0), FontSize = 9 });
             }
 
             s.Blocks.Add(CreateSeparator());
 
             var totals = new List<(string, string)>
             {
-                ("الإجمالي",  order.TotalAmount.ToString("N2") + " ج.م"),
-                ("المدفوع",   order.PaidAmount.ToString("N2") + " ج.م"),
-                ("المتبقي",   order.RemainingAmount.ToString("N2") + " ج.م")
+                ("الإجمالي",  Formatting.FormatCurrency(order.TotalAmount)),
+                ("المدفوع",   Formatting.FormatCurrency(order.PaidAmount)),
+                ("المتبقي",   Formatting.FormatCurrency(order.RemainingAmount))
             };
             s.Blocks.Add(CreateAlignedInfoTable(totals, true));
             s.Blocks.Add(CreateSeparator());
@@ -517,7 +517,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             {
                 s.Blocks.Add(new Paragraph(new Run("سجل المدفوعات")) { FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 2, 0, 2) });
                 foreach (var p in payments)
-                    s.Blocks.Add(new Paragraph(new Run($"  {p.PaymentDate:yyyy-MM-dd}  |  {p.PaymentMethod}  |  {p.Amount:N2} ج.م")) { Margin = new Thickness(0), FontSize = 9 });
+                    s.Blocks.Add(new Paragraph(new Run($"  {p.PaymentDate:yyyy-MM-dd}  |  {p.PaymentMethod}  |  {Formatting.FormatCurrency(p.Amount)}")) { Margin = new Thickness(0), FontSize = 9 });
                 s.Blocks.Add(CreateSeparator());
             }
 

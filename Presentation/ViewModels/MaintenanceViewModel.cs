@@ -173,7 +173,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             if (SelectedOrder == null) return;
             if (SelectedOrder.RemainingAmount > 0)
             {
-                if (!_dialogService.Confirm("تسليم مع رصيد متبقي", $"يوجد مبلغ متبقي {SelectedOrder.RemainingAmount:N2} ج.م\nهل تريد المتابعة؟"))
+                if (!_dialogService.Confirm("تسليم مع رصيد متبقي", $"يوجد مبلغ متبقي {Formatting.FormatCurrency(SelectedOrder.RemainingAmount)}\nهل تريد المتابعة؟"))
                     return;
             }
 

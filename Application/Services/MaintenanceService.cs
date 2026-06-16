@@ -296,7 +296,7 @@ namespace AlJohary.ServiceHub.Application.Services
             if (amount > order.RemainingAmount + 0.01m)
             {
                 Logger.LogWarning($"MaintenanceService: Overpayment attempt on order {order.OrderNumber}. Remaining={order.RemainingAmount}, Attempted={amount}.");
-                throw new InvalidOperationException($"المبلغ المدخل ({amount:N2}) يتجاوز المتبقي ({order.RemainingAmount:N2}).");
+                throw new InvalidOperationException($"المبلغ المدخل ({Formatting.FormatCurrency(amount)}) يتجاوز المتبقي ({Formatting.FormatCurrency(order.RemainingAmount)}).");
             }
 
             var payment = new RepairPayment
@@ -310,7 +310,7 @@ namespace AlJohary.ServiceHub.Application.Services
             };
 
             _repo.AddPayment(payment);
-            Logger.LogInfo($"MaintenanceService: Payment {amount:N2} registered for order {order.OrderNumber}.");
+            Logger.LogInfo($"MaintenanceService: Payment {Formatting.FormatNumber(amount)} registered for order {order.OrderNumber}.");
         }
 
         public void CancelOrder(long orderId, int userId)

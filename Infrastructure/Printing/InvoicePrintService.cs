@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Shared.Helpers;
 
 namespace AlJohary.ServiceHub.Infrastructure.Printing
 {
@@ -55,8 +56,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             {
                 i.ProductName,
                 i.Quantity.ToString(),
-                i.UnitFinalPrice.ToString("N2") + " ج.م",
-                (i.Quantity * i.UnitFinalPrice).ToString("N2") + " ج.م"
+                Formatting.FormatCurrency(i.UnitFinalPrice),
+                Formatting.FormatCurrency(i.Quantity * i.UnitFinalPrice)
             }).ToList();
             doc.Blocks.Add(CreateItemsTable(
                 new[] { "المنتج", "الكمية", "سعر الوحدة", "الإجمالي" },
@@ -65,15 +66,15 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
 
             var totals = new List<(string, string, bool)>
             {
-                ("الإجمالي الفرعي", sale.Subtotal.ToString("N2") + " ج.م", false)
+                ("الإجمالي الفرعي", Formatting.FormatCurrency(sale.Subtotal), false)
             };
             if (sale.DiscountAmount > 0)
-                totals.Add(("الخصم", "−  " + sale.DiscountAmount.ToString("N2") + " ج.م", false));
+                totals.Add(("الخصم", "−  " + Formatting.FormatCurrency(sale.DiscountAmount), false));
             if (sale.MarkupAmount > 0)
-                totals.Add(("الإضافة", "+  " + sale.MarkupAmount.ToString("N2") + " ج.م", false));
-            totals.Add(("الإجمالي", sale.TotalAmount.ToString("N2") + " ج.م", true));
-            totals.Add(("المدفوع",   sale.PaidAmount.ToString("N2") + " ج.م", false));
-            totals.Add(("المتبقي",   sale.RemainingAmount.ToString("N2") + " ج.م", sale.RemainingAmount > 0));
+                totals.Add(("الإضافة", "+  " + Formatting.FormatCurrency(sale.MarkupAmount), false));
+            totals.Add(("الإجمالي", Formatting.FormatCurrency(sale.TotalAmount), true));
+            totals.Add(("المدفوع",   Formatting.FormatCurrency(sale.PaidAmount), false));
+            totals.Add(("المتبقي",   Formatting.FormatCurrency(sale.RemainingAmount), sale.RemainingAmount > 0));
             AddTotalsBox(doc, totals);
 
             if (!string.IsNullOrEmpty(sale.Notes))
@@ -114,8 +115,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             {
                 i.ProductName,
                 i.Quantity.ToString(),
-                i.UnitPrice.ToString("N2") + " ج.م",
-                i.TotalPrice.ToString("N2") + " ج.م"
+                Formatting.FormatCurrency(i.UnitPrice),
+                Formatting.FormatCurrency(i.TotalPrice)
             }).ToList();
             doc.Blocks.Add(CreateItemsTable(
                 new[] { "المنتج", "الكمية", "سعر الوحدة", "الإجمالي" },
@@ -124,7 +125,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
 
             AddTotalsBox(doc, new List<(string, string, bool)>
             {
-                ("إجمالي المرتجع", @return.TotalAmount.ToString("N2") + " ج.م", true)
+                ("إجمالي المرتجع", Formatting.FormatCurrency(@return.TotalAmount), true)
             });
 
             AddSignatureLine(doc);
@@ -227,8 +228,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                     {
                         p.PartName,
                         p.Quantity.ToString(),
-                        p.UnitCost.ToString("N2") + " ج.م",
-                        p.TotalCost.ToString("N2") + " ج.م"
+                        Formatting.FormatCurrency(p.UnitCost),
+                        Formatting.FormatCurrency(p.TotalCost)
                     }).ToList();
                     doc.Blocks.Add(CreateItemsTable(
                         new[] { "قطعة الغيار", "الكمية", "سعر الوحدة", "الإجمالي" },
@@ -237,7 +238,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                 }
 
                 if (device.LaborCost > 0)
-                    doc.Blocks.Add(new Paragraph(new Run("أجر العمل:  " + device.LaborCost.ToString("N2") + " ج.م"))
+                    doc.Blocks.Add(new Paragraph(new Run("أجر العمل:  " + Formatting.FormatCurrency(device.LaborCost)))
                     {
                         TextAlignment = TextAlignment.Right,
                         FontWeight = FontWeights.SemiBold,
@@ -249,9 +250,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             AddSectionTitle(doc, "ملخص الفاتورة");
             var totals = new List<(string, string, bool)>
             {
-                ("إجمالي الفاتورة", order.TotalAmount.ToString("N2")     + " ج.م", true),
-                ("المدفوع",          order.PaidAmount.ToString("N2")      + " ج.م", false),
-                ("المتبقي",          order.RemainingAmount.ToString("N2") + " ج.م", order.RemainingAmount > 0),
+                ("إجمالي الفاتورة", Formatting.FormatCurrency(order.TotalAmount), true),
+                ("المدفوع",          Formatting.FormatCurrency(order.PaidAmount), false),
+                ("المتبقي",          Formatting.FormatCurrency(order.RemainingAmount), order.RemainingAmount > 0),
             };
             AddTotalsBox(doc, totals);
 
@@ -262,7 +263,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                 {
                     p.PaymentDate.ToString("yyyy-MM-dd  HH:mm"),
                     p.PaymentMethod ?? "نقدي",
-                    p.Amount.ToString("N2") + " ج.م",
+                    Formatting.FormatCurrency(p.Amount),
                     p.Notes ?? ""
                 }).ToList();
                 doc.Blocks.Add(CreateItemsTable(

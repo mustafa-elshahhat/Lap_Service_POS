@@ -138,11 +138,11 @@
                         
                         <DataGridTextColumn Header="النوع" Binding="{Binding SaleType, Converter={StaticResource SaleTypeConverter}}" Width="100"/>
 
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, StringFormat=N2}" Width="110" FontWeight="Bold"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" FontWeight="Bold"/>
 
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, StringFormat=N2}" Width="110" Foreground="{DynamicResource SecondaryBrush}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" Foreground="{DynamicResource SecondaryBrush}"/>
 
-                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, StringFormat=N2}" Width="110" Foreground="{DynamicResource WarningDarkBrush}" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" Foreground="{DynamicResource WarningDarkBrush}" FontWeight="SemiBold"/>
                         
                         <DataGridTemplateColumn Header="الحالة" Width="*">
                             <DataGridTemplateColumn.CellTemplate>

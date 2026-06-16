@@ -76,8 +76,8 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="اسم المنتج" Binding="{Binding ProductName}" Width="*"/>
                         <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="سعر الشراء" Binding="{Binding UnitPurchasePrice, StringFormat=N2}" Width="160" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding LineTotal, StringFormat=N2}" Width="160" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="سعر الشراء" Binding="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Width="160" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Width="160" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 

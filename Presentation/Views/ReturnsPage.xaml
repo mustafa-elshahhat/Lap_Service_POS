@@ -150,7 +150,7 @@
                         </DataGridTemplateColumn>
                         <DataGridTextColumn Header="العميل" Binding="{Binding CustomerName}" Width="*"/>
                         <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, StringFormat=N2}" Width="120">
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="120">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>

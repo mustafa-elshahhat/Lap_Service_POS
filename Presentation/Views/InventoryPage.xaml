@@ -103,7 +103,7 @@
                         <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="الفئة" Binding="{Binding Category}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="سعر البيع" Binding="{Binding SellingPrice, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="سعر البيع" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.ContextMenu>

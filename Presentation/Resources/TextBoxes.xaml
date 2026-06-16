@@ -59,6 +59,7 @@
 
     
     <Style x:Key="MainPasswordBox" TargetType="PasswordBox">
+        <Setter Property="behaviors:TextBoxBehavior.SelectAllOnFocus" Value="True"/>
         <Setter Property="Background" Value="{DynamicResource BgInputBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
@@ -165,9 +166,10 @@
                                                 VerticalAlignment="Center" 
                                                 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
 
-                            <TextBox x:Name="PART_EditableTextBox" 
-                                     Style="{x:Null}"
-                                     HorizontalAlignment="Stretch" 
+                             <TextBox x:Name="PART_EditableTextBox" 
+                                      Style="{x:Null}"
+                                      behaviors:TextBoxBehavior.SelectAllOnFocus="True"
+                                      HorizontalAlignment="Stretch" 
                                      VerticalAlignment="Center" 
                                      Margin="12,1" 
                                      Focusable="True" 

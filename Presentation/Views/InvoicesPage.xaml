@@ -122,9 +122,9 @@
                         <DataGridTextColumn Header="التاريخ" Binding="{Binding SaleDate, StringFormat='yyyy-MM-dd hh:mm tt'}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="العميل" Binding="{Binding CustomerName}" Width="*"/>
                         <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, StringFormat=N2}" Width="Auto">
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto">
                              <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
                                     <Setter Property="Foreground" Value="{DynamicResource WarningDarkBrush}"/>

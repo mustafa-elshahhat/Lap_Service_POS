@@ -38,6 +38,19 @@ namespace AlJohary.ServiceHub.Presentation.Behaviors
                     textBox.PreviewMouseLeftButtonDown -= OnTextBoxPreviewMouseLeftButtonDown;
                 }
             }
+            else if (d is PasswordBox passwordBox)
+            {
+                if ((bool)e.NewValue)
+                {
+                    passwordBox.GotKeyboardFocus += OnPasswordBoxGotKeyboardFocus;
+                    passwordBox.PreviewMouseLeftButtonDown += OnPasswordBoxPreviewMouseLeftButtonDown;
+                }
+                else
+                {
+                    passwordBox.GotKeyboardFocus -= OnPasswordBoxGotKeyboardFocus;
+                    passwordBox.PreviewMouseLeftButtonDown -= OnPasswordBoxPreviewMouseLeftButtonDown;
+                }
+            }
         }
 
         private static void OnTextBoxGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -56,6 +69,23 @@ namespace AlJohary.ServiceHub.Presentation.Behaviors
                 e.Handled = true;
                 textBox.Focus();
 
+            }
+        }
+
+        private static void OnPasswordBoxGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is PasswordBox passwordBox)
+            {
+                passwordBox.SelectAll();
+            }
+        }
+
+        private static void OnPasswordBoxPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is PasswordBox passwordBox && !passwordBox.IsKeyboardFocusWithin)
+            {
+                e.Handled = true;
+                passwordBox.Focus();
             }
         }
     }

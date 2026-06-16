@@ -32,6 +32,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private decimal _paidAmount;
         private string _paymentMethod = "نقدي";
         private SupplierPurchaseLineRow _selectedLine;
+        private string _newProductName;
+        private string _newQuantity = "1";
+        private string _newUnitPurchasePrice;
 
         public SupplierPurchaseDialogViewModel(string supplierName, decimal currentDebt, IDialogService dialogService = null)
         {
@@ -52,7 +55,29 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         public SupplierPurchaseLineRow SelectedLine
         {
             get => _selectedLine;
-            set => SetProperty(ref _selectedLine, value);
+            set
+            {
+                if (SetProperty(ref _selectedLine, value))
+                    CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        public string NewProductName
+        {
+            get => _newProductName;
+            set => SetProperty(ref _newProductName, value);
+        }
+
+        public string NewQuantity
+        {
+            get => _newQuantity;
+            set => SetProperty(ref _newQuantity, value);
+        }
+
+        public string NewUnitPurchasePrice
+        {
+            get => _newUnitPurchasePrice;
+            set => SetProperty(ref _newUnitPurchasePrice, value);
         }
 
         public decimal ManualAmount
@@ -107,10 +132,45 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private void AddLine()
         {
-            var row = new SupplierPurchaseLineRow();
+            string productName = NewProductName?.Trim();
+            if (string.IsNullOrWhiteSpace(productName))
+            {
+                _dialogService.ShowWarning("تنبيه", "اسم المنتج مطلوب لإضافة سطر مشتريات");
+                return;
+            }
+
+            decimal quantityValue = SafeConvert.ToDecimal(NewQuantity, -1m);
+            if (quantityValue <= 0 || quantityValue != decimal.Truncate(quantityValue) || quantityValue > int.MaxValue)
+            {
+                _dialogService.ShowWarning("تنبيه", "الكمية يجب أن تكون رقماً صحيحاً أكبر من صفر");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(NewUnitPurchasePrice))
+            {
+                _dialogService.ShowWarning("تنبيه", "سعر الشراء مطلوب لإضافة سطر مشتريات");
+                return;
+            }
+
+            decimal unitPurchasePrice = SafeConvert.ToDecimal(NewUnitPurchasePrice, -1m);
+            if (unitPurchasePrice < 0)
+            {
+                _dialogService.ShowWarning("تنبيه", "سعر الشراء يجب أن يكون رقماً غير سالب");
+                return;
+            }
+
+            var row = new SupplierPurchaseLineRow
+            {
+                ProductName = productName,
+                Quantity = (int)quantityValue,
+                UnitPurchasePrice = unitPurchasePrice
+            };
             AttachRow(row);
             Lines.Add(row);
             SelectedLine = row;
+            NewProductName = string.Empty;
+            NewQuantity = "1";
+            NewUnitPurchasePrice = string.Empty;
         }
 
         private void RemoveLine()

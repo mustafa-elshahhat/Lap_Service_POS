@@ -181,8 +181,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             {
                 new ReportColumn { Header = "الموظف", BindingPath = "UserName" },
                 new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
-                new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "N2" },
-                new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "N2" },
+                new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "FlexibleNumber" },
                 new ReportColumn { Header = "التفاصيل", BindingPath = "Details" },
                 new ReportColumn { Header = "الوقت", BindingPath = "Date", Format = "yyyy-MM-dd HH:mm" },
                 new ReportColumn { Header = "رقم العملية", BindingPath = "Reference" },
@@ -245,8 +245,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             {
                 new ReportColumn { Header = "الموظف", BindingPath = "UserName" },
                 new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
-                new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "N2" },
-                new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "N2" },
+                new ReportColumn { Header = "الباقي", BindingPath = "Remaining", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "المبلغ", BindingPath = "Amount", Format = "FlexibleNumber" },
                 new ReportColumn { Header = "العميل", BindingPath = "Details" },
                 new ReportColumn { Header = "التاريخ", BindingPath = "Date", Format = "yyyy-MM-dd HH:mm" },
                 new ReportColumn { Header = "رقم العملية", BindingPath = "Reference" },
@@ -276,7 +276,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             {
                 new ReportColumn { Header = "الموظف", BindingPath = "UserName", IsProperty = true },
                 new ReportColumn { Header = "السبب / المرتجع", BindingPath = "Reason", IsProperty = true },
-                new ReportColumn { Header = "القيمة", BindingPath = "TotalAmount", Format = "N2", IsProperty = true },
+                new ReportColumn { Header = "القيمة", BindingPath = "TotalAmount", Format = "FlexibleNumber", IsProperty = true },
                 new ReportColumn { Header = "العميل", BindingPath = "CustomerName", IsProperty = true },
                 new ReportColumn { Header = "رقم الفاتورة", BindingPath = "InvoiceNumber", IsProperty = true },
                 new ReportColumn { Header = "تاريخ", BindingPath = "ReturnDate", Format = "yyyy-MM-dd HH:mm", IsProperty = true },
@@ -339,7 +339,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             _currentColumns = new List<ReportColumn>
             {
                 new ReportColumn { Header = "العنوان", BindingPath = "Address", IsProperty = true },
-                new ReportColumn { Header = "المديونية", BindingPath = "TotalDebt", Format = "N2", IsProperty = true },
+                new ReportColumn { Header = "المديونية", BindingPath = "TotalDebt", Format = "FlexibleNumber", IsProperty = true },
                 new ReportColumn { Header = "الهاتف", BindingPath = "Phone", IsProperty = true },
                 new ReportColumn { Header = "المورد", BindingPath = "Name", IsProperty = true }
             };
@@ -370,12 +370,25 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 var data = new List<Dictionary<string, object>>();
                 foreach (var item in ReportData)
                 {
-                    if (item is Dictionary<string, object> dict) data.Add(dict);
+                    if (item is Dictionary<string, object> dict) data.Add(new Dictionary<string, object>(dict));
                     else
                     {
                         var d = new Dictionary<string, object>();
                         foreach (var prop in item.GetType().GetProperties()) d[prop.Name] = prop.GetValue(item);
                         data.Add(d);
+                    }
+                }
+
+                if (_currentColumns != null)
+                {
+                    foreach (var row in data)
+                    {
+                        foreach (var col in _currentColumns)
+                        {
+                            string key = col.BindingPath.TrimStart('[').TrimEnd(']');
+                            if (row.ContainsKey(key))
+                                row[key] = FormatReportValue(row[key], col.Format);
+                        }
                     }
                 }
 
@@ -388,6 +401,15 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             {
                 _dialogService.ShowError("خطأ", "فشل الطباعة: " + ex.Message);
             }
+        }
+
+        private static object FormatReportValue(object value, string format)
+        {
+            if (format == "FlexibleNumber")
+                return Formatting.FormatNumber(value);
+            if (!string.IsNullOrEmpty(format) && value is IFormattable formattable)
+                return formattable.ToString(format, null);
+            return value;
         }
     }
 }

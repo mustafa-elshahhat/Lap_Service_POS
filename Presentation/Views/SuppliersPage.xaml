@@ -99,7 +99,7 @@
                         <DataGridTextColumn Header="اسم المورد" Binding="{Binding Name}" Width="2*"/>
                         <DataGridTextColumn Header="الهاتف" Binding="{Binding Phone}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="العنوان" Binding="{Binding Address}" Width="*"/>
-                        <DataGridTextColumn Header="المديونية" Binding="{Binding TotalDebt, StringFormat=N2}" Width="150">
+                        <DataGridTextColumn Header="المديونية" Binding="{Binding TotalDebt, Converter={StaticResource FlexibleNumberConverter}}" Width="150">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>

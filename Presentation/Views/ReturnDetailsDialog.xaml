@@ -74,7 +74,7 @@
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="السعر" Binding="{Binding [unit_price], StringFormat=N2}" Width="100">
+                        <DataGridTextColumn Header="السعر" Binding="{Binding [unit_price], Converter={StaticResource FlexibleNumberConverter}}" Width="100">
                              <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -82,7 +82,7 @@
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding [total_price], StringFormat=N2}" Width="100">
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding [total_price], Converter={StaticResource FlexibleNumberConverter}}" Width="100">
                              <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -98,7 +98,7 @@
                 <Border Grid.Row="2" Margin="0,16,0,0" Padding="16" Background="{DynamicResource DangerLighterBrush}" CornerRadius="8" BorderBrush="{DynamicResource DangerLightBrush}" BorderThickness="1">
                      <Grid>
                          <TextBlock Text="إجمالي المبلغ المسترد" FontWeight="SemiBold" Foreground="{DynamicResource DangerDarkBrush}" VerticalAlignment="Center"/>
-                         <TextBlock x:Name="TotalAmountText" Text="0.00" HorizontalAlignment="Right" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
+                         <TextBlock x:Name="TotalAmountText" Text="0" HorizontalAlignment="Right" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                      </Grid>
                 </Border>
             </Grid>

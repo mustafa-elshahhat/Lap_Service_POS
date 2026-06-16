@@ -218,7 +218,7 @@
                                 <DataGridTextColumn Header="الجهاز"     Binding="{Binding DisplayName}"   Width="*"/>
                                 <DataGridTextColumn Header="المشكلة"    Binding="{Binding ReportedIssue}" Width="*"/>
                                 <DataGridTextColumn Header="الحالة"     Binding="{Binding DeviceStatusAr}" Width="100"/>
-                                <DataGridTextColumn Header="أجر العمل"  Binding="{Binding LaborCost, StringFormat=N2}" Width="90"/>
+                                <DataGridTextColumn Header="أجر العمل"  Binding="{Binding LaborCost, Converter={StaticResource FlexibleNumberConverter}}" Width="90"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
@@ -289,7 +289,7 @@
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True" CanUserAddRows="False">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="المبلغ"       Binding="{Binding Amount, StringFormat=N2}"  Width="100"/>
+                                <DataGridTextColumn Header="المبلغ"       Binding="{Binding Amount, Converter={StaticResource FlexibleNumberConverter}}"  Width="100"/>
                                 <DataGridTextColumn Header="طريقة الدفع"  Binding="{Binding PaymentMethod}"            Width="120"/>
                                 <DataGridTextColumn Header="التاريخ"      Binding="{Binding PaymentDate}"              Width="140"/>
                                 <DataGridTextColumn Header="ملاحظات"      Binding="{Binding Notes}"                   Width="*"/>
@@ -304,15 +304,15 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <StackPanel HorizontalAlignment="Center" Margin="0,0,32,0">
                                     <TextBlock Text="الإجمالي" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding OrderTotal, StringFormat=N2}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OrderTotal, Converter={StaticResource FlexibleNumberConverter}}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel HorizontalAlignment="Center" Margin="0,0,32,0">
                                     <TextBlock Text="المدفوع" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding OrderPaid, StringFormat=N2}" Foreground="{DynamicResource SuccessBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OrderPaid, Converter={StaticResource FlexibleNumberConverter}}" Foreground="{DynamicResource SuccessBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="المتبقي" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding OrderRemaining, StringFormat=N2}" Foreground="{DynamicResource DangerBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OrderRemaining, Converter={StaticResource FlexibleNumberConverter}}" Foreground="{DynamicResource DangerBrush}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>

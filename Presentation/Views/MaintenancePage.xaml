@@ -122,9 +122,9 @@
                         <DataGridTextColumn Header="الهاتف"          Binding="{Binding CustomerPhone}"          Width="110"/>
                         <DataGridTextColumn Header="الفني"           Binding="{Binding TechnicianName}"         Width="100"/>
                         <DataGridTextColumn Header="الأجهزة"         Binding="{Binding DeviceCount}"            Width="60"/>
-                        <DataGridTextColumn Header="الإجمالي"        Binding="{Binding TotalAmount, StringFormat=N2}"    Width="90"/>
-                        <DataGridTextColumn Header="المدفوع"         Binding="{Binding PaidAmount, StringFormat=N2}"     Width="90"/>
-                        <DataGridTextColumn Header="المتبقي"         Binding="{Binding RemainingAmount, StringFormat=N2}" Width="90"/>
+                        <DataGridTextColumn Header="الإجمالي"        Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}"    Width="90"/>
+                        <DataGridTextColumn Header="المدفوع"         Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}"     Width="90"/>
+                        <DataGridTextColumn Header="المتبقي"         Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90"/>
                         <DataGridTemplateColumn Header="الحالة"      Width="110">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

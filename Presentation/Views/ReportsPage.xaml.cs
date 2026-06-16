@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Presentation.Converters;
 using AlJohary.ServiceHub.Presentation.Interfaces;
 using AlJohary.ServiceHub.Presentation.Services;
 using AlJohary.ServiceHub.Presentation.ViewModels;
@@ -39,7 +40,10 @@ namespace AlJohary.ServiceHub.Presentation.Views
                 var col = columns[i];
                 var bindingPath = col.IsProperty ? col.BindingPath : $"[{col.BindingPath}]";
                 var binding = new Binding(bindingPath);
-                if (!string.IsNullOrEmpty(col.Format)) binding.StringFormat = col.Format;
+                if (col.Format == "FlexibleNumber")
+                    binding.Converter = new FlexibleNumberConverter();
+                else if (!string.IsNullOrEmpty(col.Format))
+                    binding.StringFormat = col.Format;
 
                 bool isCopyable = col.Header == "رقم العملية" || col.Header == "رقم الفاتورة" || col.Header == "رقم المرتجع" || col.Header == "الهاتف";
 

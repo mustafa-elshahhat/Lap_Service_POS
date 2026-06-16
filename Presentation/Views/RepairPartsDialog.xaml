@@ -171,8 +171,8 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="القطعة"      Binding="{Binding PartName}"                    Width="*"/>
                             <DataGridTextColumn Header="الكمية"      Binding="{Binding Quantity}"                    Width="65"/>
-                            <DataGridTextColumn Header="سعر الوحدة"  Binding="{Binding UnitCost, StringFormat=N2}"   Width="110"/>
-                            <DataGridTextColumn Header="الإجمالي"    Binding="{Binding TotalCost, StringFormat=N2}"  Width="110"/>
+                            <DataGridTextColumn Header="سعر الوحدة"  Binding="{Binding UnitCost, Converter={StaticResource FlexibleNumberConverter}}"   Width="110"/>
+                            <DataGridTextColumn Header="الإجمالي"    Binding="{Binding TotalCost, Converter={StaticResource FlexibleNumberConverter}}"  Width="110"/>
                             <DataGridTextColumn Header="المصدر"      Binding="{Binding SourceLabel}"                 Width="90"/>
                         </DataGrid.Columns>
                     </DataGrid>
@@ -195,7 +195,7 @@
                                 <TextBlock Text="إجمالي القطع: "
                                            Foreground="{DynamicResource TextMutedBrush}"
                                            FontSize="13" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalPartsCost, StringFormat=N2}"
+                                <TextBlock Text="{Binding TotalPartsCost, Converter={StaticResource FlexibleNumberConverter}}"
                                            Foreground="{DynamicResource PrimaryBrush}"
                                            FontSize="16" FontWeight="Bold"
                                            VerticalAlignment="Center"/>

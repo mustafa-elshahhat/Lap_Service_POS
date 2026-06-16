@@ -67,7 +67,7 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"/>
                         <TextBlock x:Name="TotalLabel"
-                                   Text="{Binding TotalAmount, StringFormat='{}{0:N2} ج.م'}"
+                                   Text="{Binding TotalAmount, Converter={StaticResource FlexibleCurrencyConverter}}"
                                    FontFamily="{DynamicResource MainFontSemibold}"
                                    FontSize="26"
                                    FontWeight="Bold"

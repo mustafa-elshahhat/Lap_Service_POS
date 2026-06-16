@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="تسجيل مشتريات"
-        Width="980" Height="720"
+        Width="980" Height="780"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="NoResize"
@@ -15,6 +15,7 @@
     <Border Style="{DynamicResource StandardWindowContentBorder}">
         <Grid Margin="24">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -51,24 +52,88 @@
                 </Grid>
             </Border>
 
-            <DataGrid Grid.Row="2"
+            <Border Grid.Row="2" Background="{DynamicResource BgCardBrush}" CornerRadius="12" Padding="16" Margin="0,0,0,16" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <Label Content="اسم المنتج" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                        <TextBox Style="{DynamicResource MainTextBox}"
+                                 Text="{Binding NewProductName, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <Label Content="الكمية" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                        <TextBox Style="{DynamicResource MainTextBox}"
+                                 Text="{Binding NewQuantity, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4">
+                        <Label Content="سعر الشراء" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                        <TextBox Style="{DynamicResource MainTextBox}"
+                                 Text="{Binding NewUnitPurchasePrice, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="6"
+                            Content="إضافة السطر"
+                            Style="{DynamicResource SecondaryButton}"
+                            Width="130"
+                            Height="45"
+                            VerticalAlignment="Bottom"
+                            Command="{Binding AddLineCommand}"/>
+                </Grid>
+            </Border>
+
+            <DataGrid Grid.Row="3"
                       Style="{DynamicResource DialogDataGrid}"
                       ItemsSource="{Binding Lines}"
                       SelectedItem="{Binding SelectedLine}"
                       AutoGenerateColumns="False"
                       CanUserAddRows="False"
-                      IsReadOnly="False"
+                      IsReadOnly="True"
                       FlowDirection="RightToLeft"
                       Margin="0,0,0,16">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="اسم المنتج" Binding="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}" Width="2*"/>
-                    <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
-                    <DataGridTextColumn Header="سعر الشراء" Binding="{Binding UnitPurchasePrice, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" Width="120"/>
-                    <DataGridTextColumn Header="الإجمالي" Binding="{Binding LineTotal, StringFormat=N2}" IsReadOnly="True" Width="120"/>
+                    <DataGridTemplateColumn Header="اسم المنتج" Width="2*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ProductName}" Style="{DynamicResource DataGridTextCenter}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="الكمية" Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Quantity}" Style="{DynamicResource DataGridTextCenter}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="سعر الشراء" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextCenter}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="الإجمالي" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextCenter}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
 
-            <Grid Grid.Row="3" Margin="0,0,0,16">
+            <Grid Grid.Row="4" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
@@ -100,12 +165,11 @@
                         <ComboBoxItem Content="محافظ إلكترونية"/>
                         <ComboBoxItem Content="إنستا باي"/>
                     </ComboBox>
-                    <TextBlock Text="{Binding TotalAmount, StringFormat=إجمالي الفاتورة: {0:N2}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}" Margin="0,6,0,0"/>
+                    <TextBlock Text="{Binding TotalAmount, Converter={StaticResource FlexibleCurrencyConverter}, StringFormat=إجمالي الفاتورة: {0}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryBrush}" Margin="0,6,0,0"/>
                 </StackPanel>
             </Grid>
 
-            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="➕ إضافة سطر" Style="{DynamicResource SecondaryButton}" Width="130" Margin="6,0" Command="{Binding AddLineCommand}"/>
+            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Content="🗑️ حذف السطر" Style="{DynamicResource DangerButton}" Width="130" Margin="6,0" Command="{Binding RemoveLineCommand}"/>
                 <Button Content="📥 استيراد CSV" Style="{DynamicResource SecondaryButton}" Width="140" Margin="6,0" Command="{Binding ImportExcelCommand}"/>
                 <Button Content="📋 نسخ برومبت الذكاء الاصطناعي" Style="{DynamicResource DarkButton}" Width="240" Margin="6,0" Command="{Binding CopyAiPromptCommand}"/>

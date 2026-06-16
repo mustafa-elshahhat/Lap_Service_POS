@@ -106,7 +106,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="#" Binding="{Binding Id}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                             <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*"/>
-                            <DataGridTextColumn Header="السعر" Binding="{Binding SellingPrice, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="السعر" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                             <DataGridTextColumn Header="المخزون" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         </DataGrid.Columns>
                         
@@ -181,7 +181,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="المنتج" Binding="{Binding ProductName}" Width="*"/>
                         <DataGridTextColumn Header="العدد" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="إجمالي" Binding="{Binding Total, StringFormat=N2}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}" FontWeight="Bold"/>
+                        <DataGridTextColumn Header="إجمالي" Binding="{Binding Total, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}" FontWeight="Bold"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.InputBindings>
@@ -223,7 +223,7 @@
 
                         <TextBlock Grid.Row="1" 
                                    x:Name="TotalLabel" 
-                                   Text="{Binding CartTotal, StringFormat='{}{0:N2} ج.م'}" 
+                                   Text="{Binding CartTotal, Converter={StaticResource FlexibleCurrencyConverter}}" 
                                    NumberSubstitution.Substitution="European"
                                    FontFamily="{DynamicResource MainFont}"
                                    Foreground="{DynamicResource SecondaryDarkBrush}" 

@@ -126,7 +126,7 @@
                             <Border Background="{DynamicResource WhiteBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,12,0">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Key}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="{Binding Value, StringFormat=': {0:N2}'}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" 
+                                    <TextBlock Text="{Binding Value, Converter={StaticResource FlexibleNumberConverter}, StringFormat=': {0}'}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" 
                                                Visibility="{Binding ShowAmount, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                 </StackPanel>
                             </Border> 
@@ -186,7 +186,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     
-                    <DataGridTextColumn Header="سعر الوحدة" Binding="{Binding UnitPrice, StringFormat=N2}" Width="120" IsReadOnly="True">
+                    <DataGridTextColumn Header="سعر الوحدة" Binding="{Binding UnitPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="120" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -195,7 +195,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     
-                    <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalPrice, StringFormat=N2}" Width="120" IsReadOnly="True">
+                    <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="120" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -253,4 +253,3 @@
         </Grid>
     </Border>
 </Window>
-

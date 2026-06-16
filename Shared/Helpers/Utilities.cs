@@ -72,17 +72,42 @@ namespace AlJohary.ServiceHub.Shared.Helpers
         private const string DateFormat = "dd/MM/yyyy";
         private const string DateTimeFormat = "dd/MM/yyyy HH:mm:ss";
 
-        public static string FormatCurrency(decimal? amount, bool includeSymbol = true)
+        private static NumberFormatInfo CreateNumberFormatInfo()
         {
-            decimal value = amount ?? 0;
-            var nfi = new NumberFormatInfo
+            return new NumberFormatInfo
             {
                 NumberDecimalSeparator = ",",
-                NumberGroupSeparator = ".",
-                NumberDecimalDigits = 2
+                NumberGroupSeparator = "."
             };
-            string formatted = value.ToString("N2", nfi);
+        }
+
+        public static string FormatNumber(decimal? value, int maxDecimals = 2)
+        {
+            if (maxDecimals < 0) maxDecimals = 0;
+            decimal amount = value ?? 0m;
+            string pattern = maxDecimals == 0 ? "#,##0" : "#,##0." + new string('#', maxDecimals);
+            return amount.ToString(pattern, CreateNumberFormatInfo());
+        }
+
+        public static string FormatNumber(double? value, int maxDecimals = 2)
+        {
+            return FormatNumber((decimal)(value ?? 0d), maxDecimals);
+        }
+
+        public static string FormatNumber(object value, int maxDecimals = 2)
+        {
+            return FormatNumber(SafeConvert.ToDecimal(value), maxDecimals);
+        }
+
+        public static string FormatCurrency(decimal? amount, bool includeSymbol = true)
+        {
+            string formatted = FormatNumber(amount);
             return includeSymbol ? $"{formatted} {CurrencySymbol}" : formatted;
+        }
+
+        public static string FormatCurrencyFlexible(decimal? amount, bool includeSymbol = true)
+        {
+            return FormatCurrency(amount, includeSymbol);
         }
 
         public static string FormatCurrency(double? amount, bool includeSymbol = true)
@@ -92,10 +117,7 @@ namespace AlJohary.ServiceHub.Shared.Helpers
 
         public static string FormatCurrency(object amount, bool includeSymbol = true)
         {
-            if (amount == null) return FormatCurrency(0m, includeSymbol);
-            if (decimal.TryParse(amount.ToString(), out decimal value))
-                return FormatCurrency(value, includeSymbol);
-            return FormatCurrency(0m, includeSymbol);
+            return FormatCurrency(SafeConvert.ToDecimal(amount), includeSymbol);
         }
 
         public static string FormatPhonesForPrint(IEnumerable<string> phones)
@@ -172,7 +194,10 @@ namespace AlJohary.ServiceHub.Shared.Helpers
             s = s.Replace('٠', '0').Replace('١', '1').Replace('٢', '2').Replace('٣', '3').Replace('٤', '4')
                  .Replace('٥', '5').Replace('٦', '6').Replace('٧', '7').Replace('٨', '8').Replace('٩', '9');
 
-            if (decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result))
+            if (TryParseFlexibleDecimal(s, out decimal result))
+                return result;
+
+            if (decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
                 return result;
 
             if (decimal.TryParse(s, NumberStyles.Any, CultureInfo.CurrentCulture, out result))
@@ -181,18 +206,58 @@ namespace AlJohary.ServiceHub.Shared.Helpers
             var arEg = CultureInfo.GetCultureInfo("ar-EG");
             if (decimal.TryParse(s, NumberStyles.Any, arEg, out result))
                 return result;
-            if (s.Contains(",") && !s.Contains("."))
-            {
-                if (decimal.TryParse(s.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out result))
-                    return result;
-            }
-            else if (s.Contains(".") && !s.Contains(","))
-            {
-                if (decimal.TryParse(s.Replace(".", ","), NumberStyles.Any, CultureInfo.CurrentCulture, out result))
-                    return result;
-            }
 
             return defaultValue;
+        }
+
+        private static bool TryParseFlexibleDecimal(string value, out decimal result)
+        {
+            result = 0m;
+            string s = value.Trim();
+
+            if (s.Contains(".") && s.Contains(","))
+            {
+                bool commaIsDecimal = s.LastIndexOf(',') > s.LastIndexOf('.');
+                string normalized = commaIsDecimal
+                    ? s.Replace(".", "").Replace(",", ".")
+                    : s.Replace(",", "");
+                return decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out result);
+            }
+
+            if (s.Contains(","))
+            {
+                if (TryParseGroupedNumber(s, ',', out result))
+                    return true;
+                return decimal.TryParse(s.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out result);
+            }
+
+            if (s.Contains("."))
+            {
+                if (TryParseGroupedNumber(s, '.', out result))
+                    return true;
+                return decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out result);
+            }
+
+            return decimal.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out result);
+        }
+
+        private static bool TryParseGroupedNumber(string value, char groupSeparator, out decimal result)
+        {
+            result = 0m;
+            string s = value.Trim();
+            string unsigned = s.TrimStart('+', '-');
+            string[] parts = unsigned.Split(groupSeparator);
+            if (parts.Length <= 1 || parts[0].Length < 1 || parts[0].Length > 3)
+                return false;
+            for (int i = 0; i < parts.Length; i++)
+            {
+                int expectedLength = i == 0 ? parts[i].Length : 3;
+                if (parts[i].Length != expectedLength || !parts[i].All(char.IsDigit))
+                    return false;
+            }
+
+            string normalized = s.Replace(groupSeparator.ToString(), string.Empty);
+            return decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out result);
         }
 
         public static int ToInt(object value, int defaultValue = 0)
@@ -203,6 +268,9 @@ namespace AlJohary.ServiceHub.Shared.Helpers
                 return result;
             if (double.TryParse(value.ToString(), out double doubleResult))
                 return (int)doubleResult;
+            decimal decimalResult = ToDecimal(value, decimal.MinValue);
+            if (decimalResult != decimal.MinValue)
+                return (int)decimalResult;
             return defaultValue;
         }
 
