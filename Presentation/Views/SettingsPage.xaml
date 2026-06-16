@@ -100,7 +100,7 @@
                               </ItemsControl>
                               <Button Content="➕ إضافة رقم هاتف"
                                       Style="{DynamicResource SecondaryButton}"
-                                      Width="180"
+                                      MinWidth="180"
                                       Height="38"
                                       HorizontalAlignment="Right"
                                       Margin="0,0,0,20"
@@ -130,7 +130,7 @@
                                   <Button Content="📥 إنشاء نسخة احتياطية الآن"
                                           Style="{DynamicResource SecondaryButton}"
                                           HorizontalAlignment="Left"
-                                          Width="260"
+                                          MinWidth="260"
                                           Height="50"
                                           Margin="0,0,16,0"
                                           FontFamily="{DynamicResource MainFontSemibold}"
@@ -139,7 +139,7 @@
                                   <Button Content="📤 استعادة نسخة احتياطية"
                                           Style="{DynamicResource DangerButton}"
                                           HorizontalAlignment="Left"
-                                          Width="260"
+                                          MinWidth="260"
                                           Height="50"
                                           FontFamily="{DynamicResource MainFontSemibold}"
                                           Command="{Binding RestoreDatabaseCommand}"/>
@@ -151,7 +151,7 @@
                         <Button Content="💾 حفظ الإعدادات"
                                 Style="{DynamicResource PrimaryButton}"
                                 HorizontalAlignment="Right"
-                                Width="220"
+                                MinWidth="220"
                                 Height="50"
                                 FontFamily="{DynamicResource MainFontSemibold}"
                                 Command="{Binding SaveSettingsCommand}"/>

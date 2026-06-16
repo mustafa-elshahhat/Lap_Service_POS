@@ -22,8 +22,8 @@
                 <Grid Grid.Row="0" Margin="24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
@@ -38,7 +38,7 @@
                                    Margin="0,4,0,0"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <Button Content="➕ إضافة موظف"
                                 Style="{DynamicResource PrimaryButton}"
                                 MinWidth="130"
@@ -64,7 +64,7 @@
                                 MinWidth="120"
                                 Margin="4,0"
                                 Command="{Binding LoadAllCommand}"/>
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
 
                 <Grid Grid.Row="1" Margin="24,0,24,16">

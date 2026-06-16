@@ -145,7 +145,7 @@
                         <!-- Add button -->
                         <Button Grid.Column="10" Content="➕ إضافة"
                                 Style="{DynamicResource PrimaryButton}"
-                                VerticalAlignment="Bottom" Height="36" Width="90"
+                                VerticalAlignment="Bottom" Height="36" MinWidth="90"
                                 Command="{Binding AddPartCommand}"/>
                     </Grid>
                 </StackPanel>
@@ -211,7 +211,7 @@
             <!-- Close -->
             <Button Grid.Row="3" Content="إغلاق"
                     Style="{DynamicResource DarkButton}"
-                    Width="120" HorizontalAlignment="Center"
+                    MinWidth="120" HorizontalAlignment="Center"
                     Margin="0,12,0,0"
                     Click="CloseButton_Click"/>
         </Grid>

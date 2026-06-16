@@ -24,8 +24,8 @@
                 <Grid Grid.Row="0" Margin="24,24,24,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
                     <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -37,7 +37,7 @@
                                    VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <Button Content="➕ إضافة منتج"
                                 Style="{DynamicResource PrimaryButton}"
                                 MinWidth="140"
@@ -58,7 +58,7 @@
                                 MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding RefreshCommand}"/>
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
                 
                 

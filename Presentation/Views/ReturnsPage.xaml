@@ -23,8 +23,8 @@
                 <Grid Grid.Row="0" Margin="24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
                     <TextBlock Grid.Column="0" 
@@ -35,7 +35,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <Button Content="➕ مرتجع جديد"
                                 Style="{DynamicResource PrimaryButton}"
                                 MinWidth="140"
@@ -46,7 +46,7 @@
                                 MinWidth="140"
                                 Margin="4,0"
                                 Command="{Binding LoadAllCommand}"/>
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
                 
                 

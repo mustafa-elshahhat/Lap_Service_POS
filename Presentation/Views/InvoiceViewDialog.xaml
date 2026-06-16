@@ -242,11 +242,11 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Content="إغلاق" Style="{DynamicResource DarkButton}" Width="100" IsCancel="True" Command="{Binding CloseCommand}"/>
+                <Button Grid.Column="0" Content="إغلاق" Style="{DynamicResource DarkButton}" MinWidth="100" IsCancel="True" Command="{Binding CloseCommand}"/>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Button Content="🖨️ طباعة الفاتورة" Style="{DynamicResource PrimaryButton}" Width="150" Margin="0,0,16,0" Command="{Binding PrintCommand}"/>
-                    <Button Content="{Binding RefundButtonContent}" Style="{DynamicResource DangerButton}" Width="150" 
+                    <Button Content="🖨️ طباعة الفاتورة" Style="{DynamicResource PrimaryButton}" MinWidth="150" Margin="0,0,16,0" Command="{Binding PrintCommand}"/>
+                    <Button Content="{Binding RefundButtonContent}" Style="{DynamicResource DangerButton}" MinWidth="150"
                             Command="{Binding ProcessRefundCommand}" IsEnabled="{Binding IsRefundButtonEnabled}"/>
                 </StackPanel>
             </Grid>

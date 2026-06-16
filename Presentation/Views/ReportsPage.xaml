@@ -11,21 +11,22 @@
     <Page.Resources>
         
         <DataTemplate x:Key="KpiCardTemplate">
-            <Border Background="{DynamicResource BgCardBrush}" 
-                    CornerRadius="12" 
-                    BorderBrush="{DynamicResource BorderBrush}" 
-                    BorderThickness="1" 
-                    Margin="0,0,16,16" 
-                    Width="240" 
-                    Padding="16"
+            <Border Background="{DynamicResource BgCardBrush}"
+                    CornerRadius="12"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    Margin="0,0,12,12"
+                    Width="220"
+                    MinHeight="78"
+                    Padding="14"
                     ToolTip="{Binding ToolTip}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    
-                    <Border Grid.Column="0" Width="48" Height="48" CornerRadius="12" Margin="0,0,12,0">
+
+                    <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10" Margin="0,0,12,0">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Background" Value="{DynamicResource PrimaryLighterBrush}"/>
@@ -46,7 +47,7 @@
                             </Style>
                         </Border.Style>
                         
-                        <TextBlock Text="{Binding Icon}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Icon}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -139,40 +140,50 @@
                     </DockPanel>
                 </Border>
                 
-                <Border Grid.Column="1" Background="{DynamicResource BgMainBrush}" Padding="32">
+                <Border Grid.Column="1" Background="{DynamicResource BgMainBrush}" Padding="28,24,28,24">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <Grid Grid.Row="0" Margin="0,0,0,32">
+                        <!-- Header: report title/subtitle + export/print actions -->
+                        <Grid Grid.Row="0" Margin="0,0,0,18">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="{Binding ReportTitle}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="{Binding ReportSubtitle}" FontSize="14" Foreground="{DynamicResource TextMutedBrush}" Margin="0,4,0,0"/>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ReportTitle}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding ReportSubtitle}" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" Margin="0,4,0,0"/>
                             </StackPanel>
-         
+
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Content="📥 تصدير CSV" Style="{DynamicResource PrimaryButton}" Width="130" Command="{Binding ExportCommand}" Margin="0,0,12,0"/>
-                                <Button x:Name="PrintButton" Content="🖨️ طباعة التقرير" Style="{DynamicResource PrimaryButton}" Width="160" Command="{Binding PrintReportCommand}"/>
+                                <Button Content="📥 تصدير CSV" Style="{DynamicResource PrimaryButton}" MinWidth="130" Command="{Binding ExportCommand}" Margin="0,0,12,0"/>
+                                <Button x:Name="PrintButton" Content="🖨️ طباعة التقرير" Style="{DynamicResource PrimaryButton}" MinWidth="160" Command="{Binding PrintReportCommand}"/>
                             </StackPanel>
                         </Grid>
 
-                        <Border Grid.Row="1" Visibility="{Binding DateFilterVisibility}" Background="Transparent" Margin="0,0,0,16">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                <TextBlock Text="من تاريخ" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <DatePicker SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center" Margin="0,0,24,0"/>
-                                <TextBlock Text="إلى تاريخ" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <DatePicker SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center" Margin="0,0,24,0"/>
-                                <TextBlock Text="{Binding DateValidationMessage}" FontSize="12" Foreground="Red" VerticalAlignment="Center">
+                        <!-- Filter bar: grouped date pickers in a connected, aligned container -->
+                        <Border Grid.Row="1"
+                                Visibility="{Binding DateFilterVisibility}"
+                                Background="{DynamicResource BgCardBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Padding="16,10"
+                                Margin="0,0,0,18"
+                                HorizontalAlignment="Right">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="🗓️ الفترة:" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                <TextBlock Text="من" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <DatePicker SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                                <TextBlock Text="إلى" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <DatePicker SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding DateValidationMessage}" FontSize="12" Foreground="Red" VerticalAlignment="Center" Margin="16,0,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -189,67 +200,88 @@
                                 </TextBlock>
                             </StackPanel>
                         </Border>
-          
-                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
-                                      Visibility="{Binding KpiVisibility}" Margin="0,0,0,16">
-                            <ItemsControl ItemsSource="{Binding Source={StaticResource GroupedKpiCards}}"
-                                          ItemTemplate="{DynamicResource KpiCardTemplate}">
-                                <ItemsControl.GroupStyle>
-                                    <GroupStyle>
-                                        <GroupStyle.Panel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </GroupStyle.Panel>
-                                        <GroupStyle.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Name}"
-                                                           FontSize="14"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource TextMutedBrush}"
-                                                           Margin="0,12,0,8"
-                                                           FontFamily="{DynamicResource MainFontSemibold}"/>
-                                            </DataTemplate>
-                                        </GroupStyle.HeaderTemplate>
-                                    </GroupStyle>
-                                </ItemsControl.GroupStyle>
-                            </ItemsControl>
-                        </ScrollViewer>
 
-                        <Border Grid.Row="3"
-                                Visibility="{Binding OperationsVisibility}"
-                                Background="{DynamicResource BgCardBrush}"
-                                CornerRadius="16"
-                                BorderBrush="{DynamicResource BorderBrush}"
-                                BorderThickness="1"
-                                Padding="24">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.05" Color="#000000"/>
-                            </Border.Effect>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-         
-                                <TextBlock Text="{Binding DetailHeader}" 
-                                           FontSize="20" 
-                                           FontWeight="Bold" 
-                                           Foreground="{DynamicResource TextPrimaryBrush}" 
-                                           Margin="0,0,0,24"
-                                           FontFamily="{DynamicResource MainFontSemibold}"/>
-                                
-                                <DataGrid x:Name="ReportDataGrid" 
-                                          Grid.Row="1" 
-                                          Style="{DynamicResource MainDataGrid}"
-                                          ItemsSource="{Binding ReportData}"
-                                          IsReadOnly="True"
-                                          BorderThickness="0"
-                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                </DataGrid>
-                            </Grid>
-                        </Border>
+                        <!-- Single main scroll area: grouped KPI cards and/or the details grid.
+                             Cards-only reports fill and scroll here; operations pages show the
+                             grid (height-capped to the viewport so it keeps virtualizing and
+                             does not force an oversized page). -->
+                        <ScrollViewer Grid.Row="2" x:Name="MainScroll"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="0,0,4,0">
+                            <StackPanel>
+                                <ItemsControl Visibility="{Binding KpiVisibility}"
+                                              ItemsSource="{Binding Source={StaticResource GroupedKpiCards}}"
+                                              ItemTemplate="{DynamicResource KpiCardTemplate}">
+                                    <ItemsControl.GroupStyle>
+                                        <GroupStyle>
+                                            <GroupStyle.Panel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </GroupStyle.Panel>
+                                            <GroupStyle.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,10">
+                                                        <StackPanel.Style>
+                                                            <Style TargetType="StackPanel">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </StackPanel.Style>
+                                                        <Border Width="4" Height="16" CornerRadius="2" Background="{DynamicResource PrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   FontSize="14"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                   VerticalAlignment="Center"
+                                                                   FontFamily="{DynamicResource MainFontSemibold}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GroupStyle.HeaderTemplate>
+                                        </GroupStyle>
+                                    </ItemsControl.GroupStyle>
+                                </ItemsControl>
+
+                                <Border Visibility="{Binding OperationsVisibility}"
+                                        MaxHeight="{Binding ViewportHeight, ElementName=MainScroll}"
+                                        Background="{DynamicResource BgCardBrush}"
+                                        CornerRadius="16"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        Padding="20">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.05" Color="#000000"/>
+                                    </Border.Effect>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="{Binding DetailHeader}"
+                                                   FontSize="18"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,16"
+                                                   FontFamily="{DynamicResource MainFontSemibold}"/>
+
+                                        <DataGrid x:Name="ReportDataGrid"
+                                                  Grid.Row="1"
+                                                  Style="{DynamicResource MainDataGrid}"
+                                                  ItemsSource="{Binding ReportData}"
+                                                  IsReadOnly="True"
+                                                  BorderThickness="0"
+                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                        </DataGrid>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
                     </Grid>
                 </Border>
             </Grid>

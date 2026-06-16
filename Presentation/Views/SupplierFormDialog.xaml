@@ -47,8 +47,8 @@
             </StackPanel>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
-                <Button x:Name="SaveButton" Content="{Binding SaveButtonContent}" Style="{DynamicResource PrimaryButton}" Width="120" Margin="8,0" IsDefault="True" Click="SaveButton_Click"/>
-                <Button Content="إلغاء" Style="{DynamicResource DarkButton}" Width="100" Margin="8,0" IsCancel="True" Click="CancelButton_Click"/>
+                <Button x:Name="SaveButton" Content="{Binding SaveButtonContent}" Style="{DynamicResource PrimaryButton}" MinWidth="120" Margin="8,0" IsDefault="True" Click="SaveButton_Click"/>
+                <Button Content="إلغاء" Style="{DynamicResource DarkButton}" MinWidth="100" Margin="8,0" IsCancel="True" Click="CancelButton_Click"/>
             </StackPanel>
         </Grid>
     </Border>

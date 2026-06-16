@@ -105,8 +105,8 @@
 
             
             <StackPanel Grid.Row="2" Margin="0,24,0,0" HorizontalAlignment="Center" Orientation="Horizontal">
-                <Button Content="🖨️ طباعة المرتجع" Style="{DynamicResource PrimaryButton}" Width="140" Margin="10,0" Click="PrintButton_Click"/>
-                <Button Content="إغلاق" Style="{DynamicResource DarkButton}" Width="120" IsCancel="True" Click="CloseButton_Click"/>
+                <Button Content="🖨️ طباعة المرتجع" Style="{DynamicResource PrimaryButton}" MinWidth="140" Margin="10,0" Click="PrintButton_Click"/>
+                <Button Content="إغلاق" Style="{DynamicResource DarkButton}" MinWidth="120" IsCancel="True" Click="CloseButton_Click"/>
             </StackPanel>
         </Grid>
     </Border>

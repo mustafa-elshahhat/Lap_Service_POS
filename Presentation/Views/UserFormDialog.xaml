@@ -157,12 +157,12 @@
                 <Button x:Name="CreateButton" 
                         Content="{Binding ButtonText}" 
                         Style="{DynamicResource PrimaryButton}" 
-                        Width="140" Margin="8,0" 
+                        MinWidth="140" Margin="8,0"
                         IsDefault="True"
                         Command="{Binding SaveCommand}"/>
                 <Button Content="إلغاء" 
                         Style="{DynamicResource DarkButton}" 
-                        Width="120" Margin="8,0" 
+                        MinWidth="120" Margin="8,0"
                         IsCancel="True"
                         Command="{Binding CancelCommand}"/>
             </StackPanel>

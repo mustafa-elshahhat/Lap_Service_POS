@@ -172,7 +172,7 @@
 
                             <Button Content="💾 حفظ بيانات الطلب"
                                     Style="{DynamicResource PrimaryButton}"
-                                    Width="200" HorizontalAlignment="Center"
+                                    MinWidth="200" HorizontalAlignment="Center"
                                     Command="{Binding SaveOrderInfoCommand}"/>
                         </StackPanel>
                     </ScrollViewer>
@@ -190,20 +190,20 @@
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
                             <Button Content="➕ إضافة جهاز"
                                     Style="{DynamicResource PrimaryButton}"
-                                    Width="140" Margin="4,0"
+                                    MinWidth="140" Margin="4,0"
                                     Command="{Binding AddDeviceCommand}"/>
                             <Button Content="🔩 قطع"
                                     Style="{DynamicResource WarningButton}"
-                                    Width="100" Margin="4,0"
+                                    MinWidth="100" Margin="4,0"
                                     ToolTip="إدارة قطع الجهاز المحدد"
                                     Command="{Binding ManagePartsCommand}"/>
                             <Button Content="✏️ تعديل"
                                     Style="{DynamicResource DarkButton}"
-                                    Width="100" Margin="4,0"
+                                    MinWidth="100" Margin="4,0"
                                     Command="{Binding EditDeviceCommand}"/>
                             <Button Content="🗑 حذف"
                                     Style="{DynamicResource DangerButton}"
-                                    Width="100" Margin="4,0"
+                                    MinWidth="100" Margin="4,0"
                                     Command="{Binding RemoveDeviceCommand}"/>
                         </StackPanel>
 
@@ -330,7 +330,7 @@
             <!-- Footer -->
             <Button Grid.Row="2" Content="إغلاق"
                     Style="{DynamicResource DarkButton}"
-                    Width="120" HorizontalAlignment="Center" Margin="0,12,0,0"
+                    MinWidth="120" HorizontalAlignment="Center" Margin="0,12,0,0"
                     Click="CloseButton_Click"/>
         </Grid>
     </Border>

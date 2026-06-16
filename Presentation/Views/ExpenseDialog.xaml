@@ -74,13 +74,13 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
             <Button Content="حفظ"
                     Style="{DynamicResource PrimaryButton}"
-                    Width="120"
+                    MinWidth="120"
                     Margin="8,0"
                     IsDefault="True"
                     Click="SaveButton_Click"/>
             <Button Content="إلغاء"
                     Style="{DynamicResource DarkButton}"
-                    Width="100"
+                    MinWidth="100"
                     Margin="8,0"
                     IsCancel="True"
                     Click="CancelButton_Click"/>

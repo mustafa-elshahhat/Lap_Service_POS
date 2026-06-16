@@ -92,15 +92,15 @@
                 <Button x:Name="SaveButton"
                         Content="تأكيد السداد" 
                         Style="{DynamicResource SecondaryButton}" 
-                        Width="140" 
-                        Margin="8,0" 
+                        MinWidth="140"
+                        Margin="8,0"
                         IsDefault="True"
                         IsEnabled="False"
                         Click="SaveButton_Click"/>
                 <Button Content="إلغاء" 
                         Style="{DynamicResource DarkButton}" 
-                        Width="120" 
-                        Margin="8,0" 
+                        MinWidth="120"
+                        Margin="8,0"
                         IsCancel="True"
                         Click="CancelButton_Click"/>
             </StackPanel>

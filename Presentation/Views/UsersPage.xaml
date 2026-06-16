@@ -41,7 +41,7 @@
                     <Button Grid.Column="2" 
                             Content="➕ إضافة مستخدم جديد"
                             Style="{DynamicResource PrimaryButton}"
-                            Width="200"
+                            MinWidth="200"
                             Height="48"
                             FontFamily="{DynamicResource MainFontSemibold}"
                             Command="{Binding AddUserCommand}"/>

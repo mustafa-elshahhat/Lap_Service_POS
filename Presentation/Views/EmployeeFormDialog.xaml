@@ -80,12 +80,12 @@
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
                 <Button Content="{Binding SaveButtonContent}"
                         Style="{DynamicResource PrimaryButton}"
-                        Width="140" Margin="8,0"
+                        MinWidth="140" Margin="8,0"
                         IsDefault="True"
                         Click="SaveButton_Click"/>
                 <Button Content="إلغاء"
                         Style="{DynamicResource DarkButton}"
-                        Width="120" Margin="8,0"
+                        MinWidth="120" Margin="8,0"
                         IsCancel="True"
                         Click="CancelButton_Click"/>
             </StackPanel>

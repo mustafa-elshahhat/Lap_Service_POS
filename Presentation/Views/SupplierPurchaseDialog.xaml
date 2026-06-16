@@ -85,7 +85,7 @@
                     <Button Grid.Column="6"
                             Content="إضافة السطر"
                             Style="{DynamicResource SecondaryButton}"
-                            Width="130"
+                            MinWidth="130"
                             Height="45"
                             VerticalAlignment="Bottom"
                             Command="{Binding AddLineCommand}"/>
@@ -166,11 +166,11 @@
             </Grid>
 
             <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="🗑️ حذف السطر" Style="{DynamicResource DangerButton}" Width="130" Margin="6,0" Command="{Binding RemoveLineCommand}"/>
-                <Button Content="📥 استيراد CSV / XLSX" Style="{DynamicResource SecondaryButton}" Width="170" Margin="6,0" Command="{Binding ImportExcelCommand}"/>
-                <Button Content="📋 نسخ برومبت الذكاء الاصطناعي" Style="{DynamicResource DarkButton}" Width="240" Margin="6,0" Command="{Binding CopyAiPromptCommand}"/>
-                <Button Content="حفظ" Style="{DynamicResource WarningButton}" Width="120" Margin="6,0" IsDefault="True" Command="{Binding SaveCommand}"/>
-                <Button Content="إلغاء" Style="{DynamicResource DarkButton}" Width="120" Margin="6,0" IsCancel="True" Command="{Binding CancelCommand}"/>
+                <Button Content="🗑️ حذف السطر" Style="{DynamicResource DangerButton}" MinWidth="130" Margin="6,0" Command="{Binding RemoveLineCommand}"/>
+                <Button Content="📥 استيراد CSV / XLSX" Style="{DynamicResource SecondaryButton}" MinWidth="170" Margin="6,0" Command="{Binding ImportExcelCommand}"/>
+                <Button Content="📋 نسخ برومبت الذكاء الاصطناعي" Style="{DynamicResource DarkButton}" MinWidth="240" Margin="6,0" Command="{Binding CopyAiPromptCommand}"/>
+                <Button Content="حفظ" Style="{DynamicResource WarningButton}" MinWidth="120" Margin="6,0" IsDefault="True" Command="{Binding SaveCommand}"/>
+                <Button Content="إلغاء" Style="{DynamicResource DarkButton}" MinWidth="120" Margin="6,0" IsCancel="True" Command="{Binding CancelCommand}"/>
             </StackPanel>
         </Grid>
     </Border>

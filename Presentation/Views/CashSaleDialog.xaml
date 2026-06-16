@@ -115,7 +115,7 @@
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
                 <Button Content="✓ تنفيذ وإصدار الفاتورة"
                         Style="{DynamicResource SecondaryButton}"
-                        Width="220"
+                        MinWidth="220"
                         Height="54"
                         FontSize="16"
                         Margin="8,0"
@@ -123,7 +123,7 @@
                         Command="{Binding ConfirmCommand}"/>
                 <Button Content="إلغاء"
                         Style="{DynamicResource DarkButton}"
-                        Width="120"
+                        MinWidth="120"
                         Height="54"
                         Margin="8,0"
                         IsCancel="True"
