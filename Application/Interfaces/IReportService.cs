@@ -6,7 +6,6 @@ namespace AlJohary.ServiceHub.Application.Interfaces
     {
         Dictionary<string, object> GetDailySummary(string targetDate = null);
         Dictionary<string, object> GetMonthlySummary(int year, int month);
-        List<Dictionary<string, object>> GetOperationsReport(string startDate, string endDate);
         List<Dictionary<string, object>> GetFinancialOperations(string startDate, string endDate);
     }
 }

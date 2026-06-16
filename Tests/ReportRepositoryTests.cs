@@ -305,5 +305,54 @@ namespace AlJohary.ServiceHub.Tests
             Assert.Equal(0m, SafeConvert.ToDecimal(result["maintenance_total"]));
             Assert.Equal(0m, SafeConvert.ToDecimal(result["maintenance_profit"]));
         }
+
+        // ---- P7-T04: Combined labor+parts with two payments ----
+        [Fact]
+        public void MaintenanceProfit_LaborAndParts_TwoPayments_RecognizedOnceNoDoubleCount()
+        {
+            DateTime day1 = DateTime.Today.AddDays(-1).AddHours(10);
+            DateTime day2 = DateTime.Today.AddHours(10);
+            string day1Text = day1.ToString("yyyy-MM-dd");
+            string day2Text = day2.ToString("yyyy-MM-dd");
+
+            // Labor = 200, Parts: totalCost=400, purchaseCost=250 => profit=150
+            // Total revenue = 600, Total profit = 350
+            long orderId = CreateRepairOrder("MNT-PROFIT-010");
+            AddDevice(orderId, 200m);
+            AddPart(orderId, totalCost: 400m, purchaseCost: 250m);
+            AddPayment(orderId, 200m, day1);
+            AddPayment(orderId, 400m, day2);
+
+            var repo = new ReportRepository();
+            var day1Result = repo.GetDailySummary(day1Text);
+            var day2Result = repo.GetDailySummary(day2Text);
+            var fullPeriod = repo.GetPeriodSummary(day1Text, day2Text);
+
+            decimal totalRevenue = 600m;
+            decimal totalProfit = 350m;
+            decimal expectedPartialProfit = (200m / totalRevenue) * totalProfit;
+            decimal expectedFinalProfit = (400m / totalRevenue) * totalProfit;
+
+            Assert.Equal(expectedPartialProfit, SafeConvert.ToDecimal(day1Result["maintenance_profit"]));
+            Assert.Equal(expectedFinalProfit, SafeConvert.ToDecimal(day2Result["maintenance_profit"]));
+            Assert.Equal(totalProfit, SafeConvert.ToDecimal(fullPeriod["maintenance_profit"]));
+        }
+
+        [Fact]
+        public void MaintenanceProfit_Overpayment_CappedAtTotalProfit()
+        {
+            DateTime paymentDate = DateTime.Today.AddHours(10);
+            string today = paymentDate.ToString("yyyy-MM-dd");
+
+            long orderId = CreateRepairOrder("MNT-PROFIT-011");
+            AddDevice(orderId, 150m);
+            // Overpay: revenue=150, profit=150, but pay 300
+            AddPayment(orderId, 300m, paymentDate);
+
+            var result = new ReportRepository().GetDailySummary(today);
+
+            Assert.Equal(300m, SafeConvert.ToDecimal(result["maintenance_total"]));
+            Assert.Equal(150m, SafeConvert.ToDecimal(result["maintenance_profit"]));
+        }
     }
 }

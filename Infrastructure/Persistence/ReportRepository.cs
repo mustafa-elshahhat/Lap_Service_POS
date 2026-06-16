@@ -38,11 +38,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             return summary;
         }
 
-        public List<Dictionary<string, object>> GetOperationsReport(string startDate, string endDate)
-        {
-            return _operationsLogQueries.GetOperationsReport(startDate, endDate);
-        }
-
         public List<Dictionary<string, object>> GetFinancialOperations(string startDate, string endDate)
         {
             return _operationsLogQueries.GetFinancialOperations(startDate, endDate);

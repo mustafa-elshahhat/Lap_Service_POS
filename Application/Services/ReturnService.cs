@@ -122,7 +122,7 @@ namespace AlJohary.ServiceHub.Application.Services
                 decimal newPaid = Math.Max(0, sale.PaidAmount - cashRefund);
                 decimal newRemaining = Math.Max(0, sale.RemainingAmount - debtDeduction);
 
-                _saleRepo.updatePaymentStatus(saleId, newPaid, newRemaining);
+                _saleRepo.UpdatePaymentStatus(saleId, newPaid, newRemaining);
 
                 for (int i = 0; i < items.Count; i++)
                 {

@@ -115,29 +115,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                });
         }
 
-        public void updatePaymentStatus(long saleId, decimal paid, decimal remaining)
+        public void UpdatePaymentStatus(long saleId, decimal paid, decimal remaining)
         {
             _db.Execute(@"UPDATE sales SET paid_amount = @paid, remaining_amount = @remaining WHERE id = @id",
                 new Dictionary<string, object> { { "@paid", paid }, { "@remaining", remaining }, { "@id", saleId } });
-        }
-
-        public void UpdateSaleFinancials(long saleId, decimal total, decimal paid, decimal remaining, decimal profit)
-        {
-            _db.Execute(@"
-                UPDATE sales SET 
-                    total_amount = @total,
-                    paid_amount = @paid, 
-                    remaining_amount = @remaining,
-                    profit = @profit
-                WHERE id = @id",
-                new Dictionary<string, object> 
-                { 
-                    { "@total", total },
-                    { "@paid", paid }, 
-                    { "@remaining", remaining }, 
-                    { "@profit", profit },
-                    { "@id", saleId } 
-                });
         }
 
         public Sale GetById(long id)
@@ -204,19 +185,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             return list;
         }
 
-        [Obsolete("Credit sales / receivables are not supported. All sales are fully paid; no unpaid sales exist.")]
-        public List<Sale> GetUnpaidByCustomer(int customerId)
-        {
-            var rows = _db.FetchAll(@"
-                SELECT * FROM sales 
-                WHERE customer_id = @customerId AND remaining_amount > 0.01
-                ORDER BY sale_date ASC",
-                new Dictionary<string, object> { { "@customerId", customerId } });
-             var list = new List<Sale>();
-             foreach(var row in rows) list.Add(MapToEntity(row));
-             return list;
-        }
-
          public List<Sale> GetSalesReport(string startDate, string endDate)
         {
             string start = startDate + " 00:00:00";
@@ -239,13 +207,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         {
             _db.Execute("UPDATE sale_items SET paid_amount = @paid, remaining_amount = @remaining WHERE id = @id",
                 new Dictionary<string, object> { { "@paid", paid }, { "@remaining", remaining }, { "@id", itemId } });
-        }
-
-        [Obsolete("Unused legacy helper from the credit/receivable era. Not called anywhere.")]
-        public void UpdateSaleItemFinancialsAfterReturn(int itemId, decimal newTotalPrice, decimal newProfit)
-        {
-            _db.Execute("UPDATE sale_items SET total_price = @total, profit = @profit WHERE id = @id",
-                new Dictionary<string, object> { { "@total", newTotalPrice }, { "@profit", newProfit }, { "@id", itemId } });
         }
 
         public void AddSaleItem(long saleId, SaleItem item)
@@ -289,13 +250,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         }
         
 
-        
-        public void UpdateItemPayment(int itemId, decimal newPaidAmount)
-        {
-            _db.Execute("UPDATE sale_items SET paid_amount = @paid WHERE id = @id",
-                new Dictionary<string, object> { { "@paid", newPaidAmount }, { "@id", itemId } });
-        }
-
         public void AddSalePayment(long saleId, string method, decimal amount, string notes)
         {
             _db.Execute(@"
@@ -333,37 +287,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             var list = new List<Sale>();
             foreach (var row in rows) list.Add(MapToEntity(row));
             return list;
-        }
-
-        [Obsolete("Use IReportRepository.GetDailySummary / GetPeriodSummary for the full financial summary.")]
-        public Dictionary<string, object> GetDailySummary(DateTime date)
-        {
-            string start = date.ToString("yyyy-MM-dd") + " 00:00:00";
-            string end = date.AddDays(1).ToString("yyyy-MM-dd") + " 00:00:00";
-            return _db.FetchOne(@"
-                SELECT
-                    COUNT(*) as total_sales,
-                    COALESCE(SUM(total_amount), 0) as total_revenue,
-                    COALESCE(SUM(profit), 0) as total_profit
-                FROM sales
-                WHERE sale_date >= @start AND sale_date < @end",
-                new Dictionary<string, object> { { "@start", start }, { "@end", end } });
-        }
-
-        [Obsolete("Use IReportRepository.GetPeriodSummary for the full period financial summary.")]
-        public Dictionary<string, object> GetMonthlySummary(DateTime startDate, DateTime endDate)
-        {
-            string start = startDate.ToString("yyyy-MM-dd") + " 00:00:00";
-            string end = endDate.AddDays(1).ToString("yyyy-MM-dd") + " 00:00:00";
-            return _db.FetchOne(@"
-                SELECT
-                    COUNT(*) as total_sales,
-                    COALESCE(SUM(total_amount), 0) as total_revenue,
-                    COALESCE(SUM(remaining_amount), 0) as total_credit,
-                    COALESCE(SUM(profit), 0) as total_profit
-                FROM sales
-                WHERE sale_date >= @start AND sale_date < @end",
-                new Dictionary<string, object> { { "@start", start }, { "@end", end } });
         }
 
         public string GenerateInvoiceNumber()

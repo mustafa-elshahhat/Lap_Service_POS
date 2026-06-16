@@ -131,41 +131,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 });
         }
 
-        public void AddSupplierPurchase(int supplierId, decimal amount, int userId, string paymentMethod = null)
-        {
-            var supplier = _db.FetchOne("SELECT total_debt FROM suppliers WHERE id = @id",
-                new Dictionary<string, object> { { "@id", supplierId } });
-
-            if (supplier == null)
-                throw new Exception("المورد غير موجود");
-
-            decimal currentDebt = SafeConvert.ToDecimal(supplier["total_debt"]);
-            decimal balanceBefore = currentDebt;
-            decimal balanceAfter = currentDebt + amount;
-
-            _db.Execute(@"
-                INSERT INTO supplier_transactions
-                (supplier_id, transaction_type, amount, transaction_date, payment_method, balance_before, balance_after, created_by)
-                VALUES (@supplierId, 'purchase', @amount, @transactionDate, @paymentMethod, @balanceBefore, @balanceAfter, @userId)",
-                new Dictionary<string, object>
-                {
-                    { "@supplierId", supplierId },
-                    { "@amount", amount },
-                    { "@transactionDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") },
-                    { "@paymentMethod", paymentMethod ?? "نقدي" },
-                    { "@balanceBefore", balanceBefore },
-                    { "@balanceAfter", balanceAfter },
-                    { "@userId", userId }
-                });
-
-            _db.Execute(@"UPDATE suppliers SET total_debt = total_debt + @amount, updated_at = datetime('now') WHERE id = @supplierId",
-                new Dictionary<string, object>
-                {
-                    { "@amount", amount },
-                    { "@supplierId", supplierId }
-                });
-        }
-
         public long AddSupplierPurchaseRow(int supplierId, decimal amount, decimal paidAmount, int itemCount, int userId, string paymentMethod, decimal balanceBefore, decimal balanceAfter)
         {
             long transactionId = _db.ExecuteAndGetId(@"

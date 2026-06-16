@@ -54,7 +54,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                  
                  logoElement = new Image() { Source = bitmap, Width = 110, Height = 90, Stretch = Stretch.Uniform, FlowDirection = FlowDirection.LeftToRight };
             } 
-            catch { }
+            catch { } // best-effort: logo from pack:// may fail silently
 
             if (logoElement == null)
             {
@@ -65,7 +65,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                          var bitmap = new System.Windows.Media.Imaging.BitmapImage();
                          bitmap.BeginInit(); bitmap.UriSource = new Uri(logoPath); bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad; bitmap.EndInit();
                          logoElement = new Image() { Source = bitmap, Width = 110, Height = 90, Stretch = Stretch.Uniform, FlowDirection = FlowDirection.LeftToRight };
-                     } catch { }
+                     } catch { } // best-effort: logo from file path may be missing/corrupt
                  }
             }
 

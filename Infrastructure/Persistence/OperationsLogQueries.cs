@@ -14,88 +14,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             _db = db;
         }
 
-        private const string OperationsReportSql = @"
-            SELECT 'بيع' as OperationName, invoice_number as Reference,
-                   COALESCE(c.name, 'عميل نقدي') as Details, total_amount as Amount,
-                   remaining_amount as Remaining,
-                   'نقدي' as SaleType,
-                   payment_method as PaymentMethod,
-                   sale_date as Date, u.full_name as UserName
-            FROM sales s
-            LEFT JOIN customers c ON s.customer_id = c.id
-            LEFT JOIN users u ON s.user_id = u.id
-            WHERE sale_date >= @start AND sale_date < @end
-
-            UNION ALL
-
-            SELECT 'استرجاع' as OperationName, return_number as Reference,
-                   COALESCE(c.name, 'عميل نقدي') as Details, total_amount as Amount,
-                   0 as Remaining, 'N/A' as SaleType, payment_method as PaymentMethod,
-                   return_date as Date, u.full_name as UserName
-            FROM returns r
-            LEFT JOIN customers c ON r.customer_id = c.id
-            LEFT JOIN users u ON r.user_id = u.id
-            WHERE return_date >= @start AND return_date < @end
-
-            UNION ALL
-
-            SELECT 'مصروفات' as OperationName, 'N/A' as Reference,
-                   description as Details, amount as Amount,
-                   0 as Remaining, 'N/A' as SaleType, payment_method as PaymentMethod,
-                   expense_date as Date, u.full_name as UserName
-            FROM expenses e
-            LEFT JOIN users u ON e.user_id = u.id
-            WHERE expense_date >= @start AND expense_date < @end
-              AND COALESCE(e.is_deleted, 0) = 0
-
-            UNION ALL
-
-            SELECT 'سداد مورد' as OperationName, 'N/A' as Reference,
-                   sup.name as Details, amount as Amount,
-                   0 as Remaining, 'N/A' as SaleType, payment_method as PaymentMethod,
-                   transaction_date as Date, u.full_name as UserName
-            FROM supplier_transactions st
-            JOIN suppliers sup ON st.supplier_id = sup.id
-            LEFT JOIN users u ON st.created_by = u.id
-            WHERE st.transaction_type = 'payment' AND transaction_date >= @start AND transaction_date < @end
-
-            UNION ALL
-
-            SELECT CASE WHEN est.transaction_type = 'salary' THEN 'مرتب موظف' ELSE 'خصم موظف' END as OperationName,
-                   'N/A' as Reference,
-                   e.full_name as Details,
-                   est.amount as Amount,
-                   0 as Remaining,
-                   'N/A' as SaleType,
-                   CASE WHEN est.transaction_type = 'salary' THEN COALESCE(est.payment_method, 'نقدي') ELSE 'خصم' END as PaymentMethod,
-                   est.transaction_date as Date,
-                   u.full_name as UserName
-            FROM employee_salary_transactions est
-            JOIN employees e ON est.employee_id = e.id
-            LEFT JOIN users u ON est.created_by = u.id
-            WHERE est.transaction_date >= @start AND est.transaction_date < @end
-
-            UNION ALL
-
-            SELECT 'صيانة' as OperationName, ro.order_number as Reference,
-                   COALESCE(ro.customer_name, 'عميل') as Details, ro.paid_amount as Amount,
-                   ro.remaining_amount as Remaining,
-                   'N/A' as SaleType,
-                   CASE WHEN (SELECT COUNT(*) FROM repair_payments rp WHERE rp.order_id = ro.id) > 1
-                        THEN 'متعدد'
-                        ELSE COALESCE(
-                               (SELECT payment_method FROM repair_payments
-                                WHERE order_id = ro.id ORDER BY payment_date DESC LIMIT 1),
-                               'نقدي')
-                   END as PaymentMethod,
-                   ro.delivery_date as Date, u.full_name as UserName
-            FROM repair_orders ro
-            LEFT JOIN users u ON ro.user_id = u.id
-            WHERE ro.order_status = 'delivered'
-              AND ro.delivery_date >= @start AND ro.delivery_date < @end
-
-            ORDER BY Date DESC";
-
         private const string FinancialOperationsSql = @"
             -- بيع (sale payment received)
             SELECT sp.payment_date as Date, 'بيع' as OperationType,
@@ -201,13 +119,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
               AND r.cash_refund > 0
 
             ORDER BY Date";
-
-        public List<Dictionary<string, object>> GetOperationsReport(string startDate, string endDate)
-        {
-            var range = GetPeriodRange(startDate, endDate);
-            var args = new Dictionary<string, object> { { "@start", range.start }, { "@end", range.end } };
-            return _db.FetchAll(OperationsReportSql, args);
-        }
 
         public List<Dictionary<string, object>> GetFinancialOperations(string startDate, string endDate)
         {

@@ -46,6 +46,13 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private System.Windows.Visibility _kpiVisibility = System.Windows.Visibility.Visible;
         private System.Windows.Visibility _operationsVisibility = System.Windows.Visibility.Collapsed;
 
+        private DateTime _filterStartDate = DateTime.Today;
+        private DateTime _filterEndDate = DateTime.Today;
+        private System.Windows.Visibility _dateFilterVisibility = System.Windows.Visibility.Collapsed;
+        private bool _isDateRangeValid = true;
+        private string _dateValidationMessage;
+        private bool _isSettingDefaults;
+
         public event EventHandler<List<ReportColumn>> ColumnsChanged;
 
         public ReportsViewModel(IDialogService dialogService = null)
@@ -97,6 +104,70 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             set { _reportData = value; OnPropertyChanged(); }
         }
 
+        public DateTime FilterStartDate
+        {
+            get => _filterStartDate;
+            set
+            {
+                if (_filterStartDate != value)
+                {
+                    _filterStartDate = value;
+                    OnPropertyChanged();
+                    ValidateDateRange();
+                    if (!_isSettingDefaults && IsDateRangeValid && !string.IsNullOrEmpty(_currentReportType))
+                        LoadReport(_currentReportType);
+                }
+            }
+        }
+
+        public DateTime FilterEndDate
+        {
+            get => _filterEndDate;
+            set
+            {
+                if (_filterEndDate != value)
+                {
+                    _filterEndDate = value;
+                    OnPropertyChanged();
+                    ValidateDateRange();
+                    if (!_isSettingDefaults && IsDateRangeValid && !string.IsNullOrEmpty(_currentReportType))
+                        LoadReport(_currentReportType);
+                }
+            }
+        }
+
+        public System.Windows.Visibility DateFilterVisibility
+        {
+            get => _dateFilterVisibility;
+            set { _dateFilterVisibility = value; OnPropertyChanged(); }
+        }
+
+        public bool IsDateRangeValid
+        {
+            get => _isDateRangeValid;
+            set { _isDateRangeValid = value; OnPropertyChanged(); }
+        }
+
+        public string DateValidationMessage
+        {
+            get => _dateValidationMessage;
+            set { _dateValidationMessage = value; OnPropertyChanged(); }
+        }
+
+        private void ValidateDateRange()
+        {
+            if (_filterStartDate > _filterEndDate)
+            {
+                IsDateRangeValid = false;
+                DateValidationMessage = "تاريخ البداية يجب أن يكون قبل تاريخ النهاية";
+            }
+            else
+            {
+                IsDateRangeValid = true;
+                DateValidationMessage = null;
+            }
+        }
+
         // Reports show KPI cards only; operations pages show the detailed log grid only.
         public System.Windows.Visibility KpiVisibility
         {
@@ -130,30 +201,51 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 KpiVisibility = System.Windows.Visibility.Visible;
                 OperationsVisibility = System.Windows.Visibility.Visible;
 
+                _isSettingDefaults = true;
+
                 switch (type)
                 {
                     case "Daily":
+                        FilterStartDate = DateTime.Today;
+                        FilterEndDate = DateTime.Today;
+                        DateFilterVisibility = System.Windows.Visibility.Visible;
                         LoadDailyReport();
                         break;
                     case "Monthly":
+                        FilterStartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                        FilterEndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
+                        DateFilterVisibility = System.Windows.Visibility.Visible;
                         LoadMonthlyReport();
                         break;
                     case "DailyOperations":
+                        FilterStartDate = DateTime.Today;
+                        FilterEndDate = DateTime.Today;
+                        DateFilterVisibility = System.Windows.Visibility.Visible;
                         LoadDailyOperations();
                         break;
                     case "MonthlyOperations":
+                        FilterStartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                        FilterEndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
+                        DateFilterVisibility = System.Windows.Visibility.Visible;
                         LoadMonthlyOperations();
                         break;
                     case "Inventory":
+                        DateFilterVisibility = System.Windows.Visibility.Collapsed;
                         LoadInventoryReport();
                         break;
                     case "Returns":
+                        FilterStartDate = DateTime.Today.AddDays(-30);
+                        FilterEndDate = DateTime.Today;
+                        DateFilterVisibility = System.Windows.Visibility.Visible;
                         LoadReturnsReport();
                         break;
                     case "Suppliers":
+                        DateFilterVisibility = System.Windows.Visibility.Collapsed;
                         LoadSuppliersReport();
                         break;
                 }
+
+                _isSettingDefaults = false;
             }
             catch (System.Exception ex)
             {
@@ -164,17 +256,17 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private void LoadDailyReport()
         {
             ReportTitle = "التقرير اليومي";
-            ReportSubtitle = $"إحصائيات {DateTime.Today:yyyy/MM/dd}";
+            ReportSubtitle = $"إحصائيات {FilterStartDate:yyyy/MM/dd}";
 
-            var summary = _reportService.GetDailySummary();
+            var summary = _reportService.GetDailySummary(FilterStartDate.ToString("yyyy-MM-dd"));
             BuildSummaryCards(summary, "صافي الربح اليومي");
         }
 
 
         private void LoadMonthlyReport()
         {
-            int year = DateTime.Today.Year;
-            int month = DateTime.Today.Month;
+            int year = FilterStartDate.Year;
+            int month = FilterStartDate.Month;
             string[] months = { "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
 
             ReportTitle = "التقرير الشهري";
@@ -253,17 +345,17 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private void LoadDailyOperations()
         {
             ReportTitle = "العمليات المالية اليومية";
-            ReportSubtitle = $"كل الحركات المالية ليوم {DateTime.Today:yyyy/MM/dd}";
+            ReportSubtitle = $"كل الحركات المالية ليوم {FilterStartDate:yyyy/MM/dd}";
             DetailHeader = "سجل العمليات المالية اليومية";
 
-            string today = DateTime.Today.ToString("yyyy-MM-dd");
-            LoadOperations(today, today);
+            string start = FilterStartDate.ToString("yyyy-MM-dd");
+            LoadOperations(start, start);
         }
 
         private void LoadMonthlyOperations()
         {
-            int year = DateTime.Today.Year;
-            int month = DateTime.Today.Month;
+            int year = FilterStartDate.Year;
+            int month = FilterStartDate.Month;
             string[] months = { "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
 
             ReportTitle = "العمليات المالية الشهرية";
@@ -304,11 +396,14 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private void LoadReturnsReport()
         {
             ReportTitle = "تقرير المرتجعات";
-            ReportSubtitle = "الفواتير المسترجعة وحالتها";
+            string dateLabel = FilterStartDate == FilterEndDate
+                ? $"لتاريخ {FilterStartDate:yyyy/MM/dd}"
+                : $"من {FilterStartDate:yyyy/MM/dd} إلى {FilterEndDate:yyyy/MM/dd}";
+            ReportSubtitle = $"الفواتير المسترجعة {dateLabel}";
             DetailHeader = "سجل المرتجعات";
 
-            var start = DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd");
-            var end = DateTime.Today.ToString("yyyy-MM-dd");
+            var start = FilterStartDate.ToString("yyyy-MM-dd");
+            var end = FilterEndDate.ToString("yyyy-MM-dd");
             var returns = _returnService.GetReturnsReport(start, end);
 
             decimal totalReturns = returns.Sum(r => r.TotalAmount);
@@ -400,7 +495,74 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private void ExportReport()
         {
-            _dialogService.ShowInfo("تصدير", "ميزة التصدير قيد التطوير");
+            if (ReportData == null || ReportData.Count == 0)
+            {
+                _dialogService.ShowWarning("تصدير", "لا توجد بيانات للتصدير");
+                return;
+            }
+
+            if (_currentColumns == null || _currentColumns.Count == 0)
+            {
+                _dialogService.ShowWarning("تصدير", "لا توجد أعمدة للتصدير");
+                return;
+            }
+
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "تصدير التقرير",
+                Filter = "ملفات CSV (*.csv)|*.csv",
+                FileName = $"{_currentReportType}_{DateTime.Now:yyyyMMdd}.csv"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                using (var writer = new System.IO.StreamWriter(dialog.FileName, false, new System.Text.UTF8Encoding(true)))
+                {
+                    writer.WriteLine(string.Join(",", _currentColumns.Select(c => $"\"{c.Header}\"")));
+
+                    foreach (var item in ReportData)
+                    {
+                        var values = new List<string>();
+                        foreach (var col in _currentColumns)
+                        {
+                            string key = col.BindingPath.TrimStart('[').TrimEnd(']');
+                            object val = null;
+
+                            if (item is Dictionary<string, object> dict)
+                            {
+                                dict.TryGetValue(key, out val);
+                            }
+                            else
+                            {
+                                var prop = item.GetType().GetProperty(key);
+                                if (prop != null)
+                                    val = prop.GetValue(item);
+                            }
+
+                            string formatted = FormatReportValue(val, col.Format)?.ToString() ?? "";
+                            values.Add($"\"{formatted.Replace("\"", "\"\"")}\"");
+                        }
+                        writer.WriteLine(string.Join(",", values));
+                    }
+                }
+
+                _dialogService.ShowSuccess("تصدير", $"تم تصدير التقرير بنجاح إلى:\n{dialog.FileName}");
+            }
+            catch (System.IO.IOException ex)
+            {
+                _dialogService.ShowError("تصدير", $"الملف قيد الاستخدام: {ex.Message}");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _dialogService.ShowError("تصدير", $"لا يمكن الكتابة إلى الملف: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowError("تصدير", $"فشل التصدير: {ex.Message}");
+            }
         }
 
         private void PrintReport()
@@ -459,7 +621,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         // Prints the daily/monthly report as a two-column KPI summary (البيان / القيمة), reusing
         // the generic table printer. Reports are cards-only, so there is no operations table here.
-        // TODO: a richer card-style print layout could be added later if needed.
+        // Card-style print layout deferred: would require ReportPrintService changes and is
+        // optional polish outside Phase 5 scope. The current two-column table is functional and
+        // prints identical numbers.
         private void PrintKpiSummary()
         {
             if (KpiCards == null || KpiCards.Count == 0)

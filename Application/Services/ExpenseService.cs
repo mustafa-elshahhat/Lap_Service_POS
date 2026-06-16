@@ -47,10 +47,10 @@ namespace AlJohary.ServiceHub.Application.Services
             if (string.IsNullOrWhiteSpace(searchText))
                 return expenses;
 
-            string q = searchText.ToLower();
+            string q = searchText.ToLowerInvariant();
             return expenses.FindAll(x => 
-                SafeConvert.ToString(x["description"]).ToLower().Contains(q) ||
-                SafeConvert.ToString(x["category"]).ToLower().Contains(q)
+                SafeConvert.ToString(x["description"]).ToLowerInvariant().Contains(q) ||
+                SafeConvert.ToString(x["category"]).ToLowerInvariant().Contains(q)
             );
         }
 

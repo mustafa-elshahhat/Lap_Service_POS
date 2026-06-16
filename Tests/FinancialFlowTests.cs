@@ -307,6 +307,185 @@ namespace AlJohary.ServiceHub.Tests
         }
 
         // ---- Per-method breakdown reconciliation ----
+        // ---- Partial and repeated returns ----
+        [Fact]
+        public void PartialReturns_ThenMoreReturns_ThenOverReturn_GuardsCorrectly()
+        {
+            int productId = SeedProduct(cost: 60, sell: 100, qty: 5, code: "P-RET");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = productId, Quantity = 3, UnitFinalPrice = 100 }
+            };
+            var result = svc.CreateCashSale(items, paymentMethod: PaymentMethods.Cash);
+            Assert.True(result.Success, result.Message);
+            int saleId = (int)result.SaleId;
+
+            var saleItems = svc.GetSaleItems(saleId);
+            Assert.Single(saleItems);
+            int saleItemId = saleItems[0].Id;
+
+            // First return: 1 of 3 units
+            var return1 = svc.CreateReturn(saleId, new List<ReturnItem> { new ReturnItem { SaleItemId = saleItemId, Quantity = 1 } }, userId: 1);
+            Assert.NotNull(return1);
+
+            var sale1 = svc.GetSaleById(saleId);
+            Assert.Equal(200m, sale1.PaidAmount);
+            Assert.Equal(0m, sale1.RemainingAmount);
+            var productRepo = new ProductRepository();
+            Assert.Equal(3, productRepo.GetById(productId).Quantity); // 5 - 3 + 1
+
+            // Second return: 1 more unit
+            var return2 = svc.CreateReturn(saleId, new List<ReturnItem> { new ReturnItem { SaleItemId = saleItemId, Quantity = 1 } }, userId: 1);
+            Assert.NotNull(return2);
+
+            var sale2 = svc.GetSaleById(saleId);
+            Assert.Equal(100m, sale2.PaidAmount);
+            Assert.Equal(4, productRepo.GetById(productId).Quantity); // 5 - 3 + 2
+
+            // Over-return attempt: 2 units, but only 1 available for return (3 sold - 2 already returned = 1)
+            Assert.Throws<Exception>(() =>
+                svc.CreateReturn(saleId, new List<ReturnItem> { new ReturnItem { SaleItemId = saleItemId, Quantity = 2 } }, userId: 1));
+
+            // Stock unchanged after failed over-return
+            Assert.Equal(4, productRepo.GetById(productId).Quantity);
+        }
+
+        // ---- Multi-item distribution with invoice-level discount ----
+        [Fact]
+        public void MultiItemSale_WithInvoiceDiscount_DistributionSumsExactly()
+        {
+            int productA = SeedProduct(cost: 60, sell: 100, qty: 10, code: "P-A");
+            int productB = SeedProduct(cost: 35, sell: 90, qty: 10, code: "P-B");
+            int productC = SeedProduct(cost: 110, sell: 170, qty: 10, code: "P-C");
+
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = productA, Quantity = 2, UnitFinalPrice = 100 },
+                new SaleItem { ProductId = productB, Quantity = 1, UnitFinalPrice = 90 },
+                new SaleItem { ProductId = productC, Quantity = 1, UnitFinalPrice = 170 }
+            };
+
+            decimal invoiceDiscount = 25m;
+            var result = svc.CreateCashSale(items, discountAmount: invoiceDiscount, paymentMethod: PaymentMethods.Cash);
+
+            Assert.True(result.Success, result.Message);
+            var sale = svc.GetSaleById((int)result.SaleId);
+            Assert.Equal(435m, sale.TotalAmount);
+
+            var saleItems = svc.GetSaleItems((int)result.SaleId);
+            Assert.Equal(3, saleItems.Count);
+
+            decimal sumTotalPrice = 0, sumProfit = 0;
+            foreach (var si in saleItems) { sumTotalPrice += si.TotalPrice; sumProfit += si.Profit; }
+
+            Assert.Equal(sale.TotalAmount, sumTotalPrice);
+            Assert.Equal(sale.Profit, sumProfit);
+
+            var productRepo = new ProductRepository();
+            Assert.Equal(8, productRepo.GetById(productA).Quantity);
+            Assert.Equal(9, productRepo.GetById(productB).Quantity);
+            Assert.Equal(9, productRepo.GetById(productC).Quantity);
+
+            var payments = svc.GetSalePayments((int)result.SaleId);
+            Assert.Single(payments);
+            Assert.Equal(435m, SafeConvert.ToDecimal(payments[0]["amount"]));
+        }
+
+        // ---- Invoice-level discount guard (P2-T01 validation) ----
+        [Fact]
+        public void InvoiceDiscount_BelowTotalCost_Rejected()
+        {
+            int productId = SeedProduct(cost: 100, sell: 150, qty: 5, code: "P-BC");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 50, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 150 }
+            };
+            // discount=100 => total=50 < cost=100 => rejected
+            var result = svc.CreateCashSale(items, discountAmount: 100m, paymentMethod: PaymentMethods.Cash);
+            Assert.False(result.Success);
+        }
+
+        [Fact]
+        public void InvoiceDiscount_ExceedsEmployeeCeiling_Rejected()
+        {
+            int productId = SeedProduct(cost: 100, sell: 150, qty: 5, code: "P-EC");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 150 }
+            };
+            // discount=30 => 20% > 10% ceiling => rejected
+            var result = svc.CreateCashSale(items, discountAmount: 30m, paymentMethod: PaymentMethods.Cash);
+            Assert.False(result.Success);
+        }
+
+        [Fact]
+        public void InvoiceDiscount_Admin_CannotGoBelowCost()
+        {
+            int productId = SeedProduct(cost: 100, sell: 150, qty: 5, code: "P-AB");
+            var auth = new FakeAuthService { Admin = true, BypassPriceLimits = true, MaxDiscount = 100, MaxMarkup = 100 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 150 }
+            };
+            // discount=100 => total=50 < cost=100 => rejected even for admin
+            var result = svc.CreateCashSale(items, discountAmount: 100m, paymentMethod: PaymentMethods.Cash);
+            Assert.False(result.Success);
+        }
+
+        [Fact]
+        public void InvoiceDiscount_AtCostFloor_Accepted()
+        {
+            int productId = SeedProduct(cost: 100, sell: 150, qty: 5, code: "P-AF");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 50, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 150 }
+            };
+            // discount=50 => total=100, exactly at cost floor => accepted
+            var result = svc.CreateCashSale(items, discountAmount: 50m, paymentMethod: PaymentMethods.Cash);
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(100m, svc.GetSaleById((int)result.SaleId).TotalAmount);
+        }
+
+        [Fact]
+        public void InvoiceDiscount_ValidInBounds_AcceptedAndDistributesCorrectly()
+        {
+            int productId = SeedProduct(cost: 60, sell: 100, qty: 5, code: "P-VI");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 100 }
+            };
+            var result = svc.CreateCashSale(items, discountAmount: 5m, paymentMethod: PaymentMethods.Cash);
+            Assert.True(result.Success, result.Message);
+
+            var sale = svc.GetSaleById((int)result.SaleId);
+            Assert.Equal(95m, sale.TotalAmount);
+
+            var saleItems = svc.GetSaleItems((int)result.SaleId);
+            Assert.Single(saleItems);
+            Assert.Equal(95m, saleItems[0].TotalPrice);
+            Assert.Equal(35m, saleItems[0].Profit); // 95 - 60
+        }
+
         [Fact]
         public void PerMethodBreakdowns_ReconcileWithRawSql()
         {

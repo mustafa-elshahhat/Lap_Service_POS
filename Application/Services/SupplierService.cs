@@ -102,35 +102,6 @@ namespace AlJohary.ServiceHub.Application.Services
             }
         }
 
-        // LEGACY / DE-SCOPED: superseded by AddSupplierPurchaseWithItems (invoice-only line items).
-        // Retained for compatibility but has no caller; wrapped defensively in case it is ever used.
-        [Obsolete("Use AddSupplierPurchaseWithItems instead. This standalone purchase path is legacy.")]
-        public void AddSupplierPurchase(int supplierId, decimal amount, string paymentMethod = null)
-        {
-            if (amount <= 0)
-                throw new ArgumentException("قيمة المشتريات يجب أن تكون أكبر من الصفر");
-
-            int userId = _auth.GetUserId();
-
-            if (_txManager == null)
-            {
-                _supplierRepo.AddSupplierPurchase(supplierId, amount, userId, paymentMethod);
-                return;
-            }
-
-            _txManager.BeginTransaction();
-            try
-            {
-                _supplierRepo.AddSupplierPurchase(supplierId, amount, userId, paymentMethod);
-                _txManager.CommitTransaction();
-            }
-            catch
-            {
-                _txManager.RollbackTransaction();
-                throw;
-            }
-        }
-
         public SupplierPurchaseResult AddSupplierPurchaseWithItems(int supplierId, decimal totalAmount, decimal paidAmount, string paymentMethod, List<SupplierPurchaseLineInput> lines)
         {
             if (_txManager == null)

@@ -347,5 +347,60 @@ namespace AlJohary.ServiceHub.Tests
             var row = Ops().Single(r => SafeConvert.ToString(r["OperationType"]) == "بيع");
             Assert.Equal("غير محدد", SafeConvert.ToString(row["PaymentMethod"]));
         }
+
+        // ---- Non-canonical (NULL/empty/unknown) methods land in other bucket and reconcile ----
+        [Fact]
+        public void NonCanonicalMethods_AppearInOtherBucket_AndInflowsReconcile()
+        {
+            var db = DatabaseManager.Instance;
+            string ts = _ts;
+
+            // Canonical methods
+            SeedSaleWithPayment("INV-CC", total: 1000, profit: 0, paid: 1000, method: PaymentMethods.Cash);
+            SeedSaleWithPayment("INV-CI", total: 500, profit: 0, paid: 500, method: PaymentMethods.InstaPay);
+
+            // Empty method
+            long sidEmpty = db.ExecuteAndGetId(@"
+                INSERT INTO sales (invoice_number, sale_type, user_id, total_amount, paid_amount, remaining_amount, payment_method, sale_date)
+                VALUES ('INV-EMP', 'cash', 1, 200, 200, 0, @pm, @d)",
+                new Dictionary<string, object> { { "@pm", "" }, { "@d", ts } });
+            db.Execute("INSERT INTO sale_payments (sale_id, payment_method, amount, payment_date) VALUES (@s, @pm, 200, @d)",
+                new Dictionary<string, object> { { "@s", sidEmpty }, { "@pm", "" }, { "@d", ts } });
+
+            // NULL method
+            long sidNull = db.ExecuteAndGetId(@"
+                INSERT INTO sales (invoice_number, sale_type, user_id, total_amount, paid_amount, remaining_amount, payment_method, sale_date)
+                VALUES ('INV-NUL', 'cash', 1, 300, 300, 0, NULL, @d)",
+                new Dictionary<string, object> { { "@d", ts } });
+            db.Execute("INSERT INTO sale_payments (sale_id, payment_method, amount, payment_date) VALUES (@s, NULL, 300, @d)",
+                new Dictionary<string, object> { { "@s", sidNull }, { "@d", ts } });
+
+            // Non-canonical method string
+            long sidOther = db.ExecuteAndGetId(@"
+                INSERT INTO sales (invoice_number, sale_type, user_id, total_amount, paid_amount, remaining_amount, payment_method, sale_date)
+                VALUES ('INV-OTH', 'cash', 1, 150, 150, 0, 'unknown_wallet', @d)",
+                new Dictionary<string, object> { { "@d", ts } });
+            db.Execute("INSERT INTO sale_payments (sale_id, payment_method, amount, payment_date) VALUES (@s, 'unknown_wallet', 150, @d)",
+                new Dictionary<string, object> { { "@s", sidOther }, { "@d", ts } });
+
+            var s = new ReportRepository().GetDailySummary(_today);
+            var inflows = (Dictionary<string, decimal>)s["payment_inflows"];
+
+            Assert.Equal(1000m, inflows[PaymentMethods.Cash]);
+            Assert.Equal(500m, inflows[PaymentMethods.InstaPay]);
+
+            // NULL and empty string coalesce to "غير محدد" (other/unknown bucket)
+            string undetermined = "غير محدد";
+            Assert.True(inflows.ContainsKey(undetermined));
+            Assert.Equal(500m, inflows[undetermined]); // 200 empty + 300 NULL
+
+            // Non-canonical string 'unknown_wallet' appears as its own bucket
+            Assert.True(inflows.ContainsKey("unknown_wallet"));
+            Assert.Equal(150m, inflows["unknown_wallet"]);
+
+            // All inflows reconcile by summing every bucket
+            decimal totalInflows = inflows.Values.Sum();
+            Assert.Equal(2150m, totalInflows);
+        }
     }
 }

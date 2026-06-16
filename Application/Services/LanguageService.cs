@@ -106,9 +106,8 @@ namespace AlJohary.ServiceHub.Application.Services
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                System.Diagnostics.Debug.WriteLine($"Error setting language: {ex.Message}");
             }
         }
 

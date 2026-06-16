@@ -90,7 +90,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                                 finalHeight = 500; 
                             }
                         }
-                        catch 
+                        catch // best-effort: page-size estimation fallback
                         {
                             finalHeight = 1000; 
                         }
@@ -124,7 +124,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
 
                     try {
                         printDialog.PrintTicket.PageMediaSize = new System.Printing.PageMediaSize(pageWidth, finalHeight);
-                    } catch {}
+                    } catch {} // best-effort: printer may not support custom PageMediaSize
 
                     printDialog.PrintDocument(paginator, jobName);
                 }

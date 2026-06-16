@@ -59,7 +59,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
             summary["payment_inflows"] = inflows;
             summary["payment_outflows"] = outflows;
-            summary["payment_details"] = inflows;
         }
     }
 }

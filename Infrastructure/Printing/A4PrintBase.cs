@@ -359,7 +359,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                 bmp.EndInit();
                 return new Image { Source = bmp, Width = 110, Height = 90, Stretch = Stretch.Uniform, FlowDirection = FlowDirection.LeftToRight };
             }
-            catch { }
+            catch { } // best-effort: logo from pack:// may fail silently
 
             string path = DatabaseManager.Instance.GetSetting("logo_path", "");
             if (!string.IsNullOrEmpty(path) && System.IO.File.Exists(path))
@@ -373,7 +373,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
                     bmp.EndInit();
                     return new Image { Source = bmp, Width = 110, Height = 90, Stretch = Stretch.Uniform, FlowDirection = FlowDirection.LeftToRight };
                 }
-                catch { }
+                catch { } // best-effort: logo from file path may be missing/corrupt
             }
 
             return new Border
@@ -395,7 +395,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Printing
             {
                 return Formatting.FormatPhonesForPrint(ServiceContainer.GetService<ISettingsService>()?.GetShopPhones());
             }
-            catch
+            catch // best-effort: phones formatting fallback
             {
                 return string.Empty;
             }

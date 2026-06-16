@@ -14,7 +14,6 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         void DeleteSupplier(int id);
 
         void AddSupplierPayment(int supplierId, decimal amount, int userId, string paymentMethod = null);
-        void AddSupplierPurchase(int supplierId, decimal amount, int userId, string paymentMethod = null);
         long AddSupplierPurchaseRow(int supplierId, decimal amount, decimal paidAmount, int itemCount, int userId, string paymentMethod, decimal balanceBefore, decimal balanceAfter);
         void AddSupplierPurchaseItem(SupplierPurchaseItem item);
         List<SupplierPurchaseItem> GetPurchaseItems(int supplierTransactionId);

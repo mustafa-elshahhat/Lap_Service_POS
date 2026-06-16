@@ -144,6 +144,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
@@ -160,11 +161,36 @@
                             </StackPanel>
          
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="📥 تصدير CSV" Style="{DynamicResource PrimaryButton}" Width="130" Command="{Binding ExportCommand}" Margin="0,0,12,0"/>
                                 <Button x:Name="PrintButton" Content="🖨️ طباعة التقرير" Style="{DynamicResource PrimaryButton}" Width="160" Command="{Binding PrintReportCommand}"/>
                             </StackPanel>
                         </Grid>
-         
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+
+                        <Border Grid.Row="1" Visibility="{Binding DateFilterVisibility}" Background="Transparent" Margin="0,0,0,16">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <TextBlock Text="من تاريخ" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <DatePicker SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center" Margin="0,0,24,0"/>
+                                <TextBlock Text="إلى تاريخ" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <DatePicker SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center" Margin="0,0,24,0"/>
+                                <TextBlock Text="{Binding DateValidationMessage}" FontSize="12" Foreground="Red" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding DateValidationMessage}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <Trigger Property="Text" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+          
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
                                       Visibility="{Binding KpiVisibility}" Margin="0,0,0,16">
                             <ItemsControl ItemsSource="{Binding Source={StaticResource GroupedKpiCards}}"
                                           ItemTemplate="{DynamicResource KpiCardTemplate}">
@@ -190,7 +216,7 @@
                             </ItemsControl>
                         </ScrollViewer>
 
-                        <Border Grid.Row="2"
+                        <Border Grid.Row="3"
                                 Visibility="{Binding OperationsVisibility}"
                                 Background="{DynamicResource BgCardBrush}"
                                 CornerRadius="16"
