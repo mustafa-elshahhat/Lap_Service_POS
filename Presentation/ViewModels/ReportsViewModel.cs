@@ -32,10 +32,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
     public class ReportsViewModel : BaseViewModel
     {
         private readonly IProductService _productService;
-        private readonly ISaleService _saleService;
         private readonly IReportService _reportService;
         private readonly IReturnService _returnService;
-        private readonly ISupplierService _supplierService;
         private readonly IDialogService _dialogService;
         private readonly IPrintService _printService;
 
@@ -53,10 +51,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         public ReportsViewModel(IDialogService dialogService = null)
         {
             _productService = ServiceContainer.GetService<IProductService>();
-            _saleService = ServiceContainer.GetService<ISaleService>();
             _reportService = ServiceContainer.GetService<IReportService>();
             _returnService = ServiceContainer.GetService<IReturnService>();
-            _supplierService = ServiceContainer.GetService<ISupplierService>();
             _dialogService = dialogService ?? ServiceContainer.GetService<IDialogService>();
             _printService = ServiceContainer.GetService<IPrintService>();
 
@@ -394,19 +390,6 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             if (methods == null) return 0;
             return methods.TryGetValue(key, out decimal val) ? val : 0;
-        }
-
-        // Catch-all for any non-canonical / unknown / blank payment method so the per-method cards
-        // always sum to the true total (nothing is silently dropped). = Σ(all) − Σ(known three).
-        private decimal GetOtherMethodsSum(Dictionary<string, decimal> methods)
-        {
-            if (methods == null) return 0;
-            decimal total = 0;
-            foreach (var kv in methods) total += kv.Value;
-            return total
-                   - GetMethodSum(methods, PaymentMethods.Cash)
-                   - GetMethodSum(methods, PaymentMethods.InstaPay)
-                   - GetMethodSum(methods, PaymentMethods.EWallet);
         }
 
         private void ExportReport()

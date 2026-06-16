@@ -24,5 +24,6 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         List<RepairPayment> GetPayments(long orderId);
         List<RepairOrder> GetOrders(string statusFilter, string search, string startDate, string endDate);
         RepairPart GetPart(long partId);
+        string GenerateRepairOrderNumber();
     }
 }

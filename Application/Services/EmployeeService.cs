@@ -4,7 +4,6 @@ using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
-using AlJohary.ServiceHub.Infrastructure.Data;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -13,12 +12,14 @@ namespace AlJohary.ServiceHub.Application.Services
         private readonly IEmployeeRepository _employeeRepo;
         private readonly IAuthService _auth;
         private readonly IDbTransactionManager _txManager;
+        private readonly IActivityLog _activityLog;
 
-        public EmployeeService(IEmployeeRepository employeeRepo, IAuthService auth, IDbTransactionManager txManager = null)
+        public EmployeeService(IEmployeeRepository employeeRepo, IAuthService auth, IDbTransactionManager txManager = null, IActivityLog activityLog = null)
         {
             _employeeRepo = employeeRepo;
             _auth = auth;
             _txManager = txManager;
+            _activityLog = activityLog;
         }
 
         public List<Employee> GetAllEmployees(bool includeInactive = false)
@@ -139,7 +140,7 @@ namespace AlJohary.ServiceHub.Application.Services
             try
             {
                 long id = write();
-                DatabaseManager.Instance.LogActivity(userId ?? 0, action, "employee_salary_transactions", (int)id,
+                _activityLog.LogActivity(userId ?? 0, action, "employee_salary_transactions", (int)id,
                     $"EmployeeId={employeeId}; {details}");
                 _txManager.CommitTransaction();
                 return id;

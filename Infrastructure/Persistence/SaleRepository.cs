@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Infrastructure.Data;
+using AlJohary.ServiceHub.Infrastructure.Services;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
@@ -11,10 +13,12 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
     public class SaleRepository : ISaleRepository
     {
         private readonly DatabaseManager _db;
+        private readonly IActivityLog _activityLog;
 
         public SaleRepository()
         {
             _db = DatabaseManager.Instance;
+            _activityLog = new ActivityLog();
         }
 
         private Sale MapToEntity(Dictionary<string, object> row)
@@ -514,7 +518,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public void LogActivity(int userId, string action, string table, int recordId, string details)
         {
-            _db.LogActivity(userId, action, table, recordId, details);
+            _activityLog.LogActivity(userId, action, table, recordId, details);
         }
     }
 }

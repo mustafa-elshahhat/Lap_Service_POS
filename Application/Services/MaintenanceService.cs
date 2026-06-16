@@ -4,7 +4,6 @@ using AlJohary.ServiceHub.Application.DTOs;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
-using AlJohary.ServiceHub.Infrastructure.Data;
 using AlJohary.ServiceHub.Shared.Helpers;
 
 namespace AlJohary.ServiceHub.Application.Services
@@ -15,17 +14,20 @@ namespace AlJohary.ServiceHub.Application.Services
         private readonly IProductRepository   _productRepo;
         private readonly ICustomerRepository  _customerRepo;
         private readonly IDbTransactionManager _txManager;
+        private readonly IActivityLog         _activityLog;
 
         public MaintenanceService(
             IRepairRepository    repo,
             IProductRepository   productRepo,
             ICustomerRepository  customerRepo,
-            IDbTransactionManager txManager)
+            IDbTransactionManager txManager,
+            IActivityLog         activityLog = null)
         {
             _repo         = repo;
             _productRepo  = productRepo;
             _customerRepo = customerRepo;
             _txManager    = txManager;
+            _activityLog  = activityLog;
         }
 
         private int? ResolveCustomer(string name, string phone)
@@ -66,7 +68,7 @@ namespace AlJohary.ServiceHub.Application.Services
 
                 var order = new RepairOrder
                 {
-                    OrderNumber    = DatabaseManager.Instance.GenerateRepairOrderNumber(),
+                    OrderNumber    = _repo.GenerateRepairOrderNumber(),
                     CustomerId     = customerId,
                     CustomerName   = input.CustomerName?.Trim(),
                     CustomerPhone  = input.CustomerPhone?.Trim(),
@@ -393,7 +395,7 @@ namespace AlJohary.ServiceHub.Application.Services
                 order.OrderStatus = RepairStatus.Cancelled;
                 _repo.UpdateOrder(order);
 
-                DatabaseManager.Instance.LogActivity(userId, "cancel_repair_order", "repair_orders",
+                _activityLog.LogActivity(userId, "cancel_repair_order", "repair_orders",
                     (int)orderId, $"Order {order.OrderNumber} cancelled.");
 
                 _txManager.CommitTransaction();
@@ -426,7 +428,7 @@ namespace AlJohary.ServiceHub.Application.Services
             {
                 _repo.UpdateOrder(order);
 
-                DatabaseManager.Instance.LogActivity(userId, "deliver_repair_order", "repair_orders",
+                _activityLog.LogActivity(userId, "deliver_repair_order", "repair_orders",
                     (int)orderId, $"Order {order.OrderNumber} delivered.");
 
                 _txManager.CommitTransaction();

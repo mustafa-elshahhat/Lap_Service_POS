@@ -17,6 +17,7 @@ namespace AlJohary.ServiceHub.Tests
     public class FinancialFlowTests : IDisposable
     {
         private readonly DbTransactionManager _tx = new DbTransactionManager();
+        private readonly ActivityLog _activityLog = new ActivityLog();
         private readonly string _today = DateTime.Today.ToString("yyyy-MM-dd");
 
         public FinancialFlowTests()
@@ -184,7 +185,7 @@ namespace AlJohary.ServiceHub.Tests
         {
             var auth = new FakeAuthService { Admin = true };
             var repo = new ExpenseRepository();
-            var svc = new ExpenseService(repo, auth, _tx);
+            var svc = new ExpenseService(repo, auth, _tx, _activityLog);
 
             svc.CreateExpense("كهرباء", 40, "فواتير", PaymentMethods.Cash, DateTime.Today.AddHours(10));
             var report = new ReportRepository();
@@ -206,7 +207,7 @@ namespace AlJohary.ServiceHub.Tests
         [Fact]
         public void Expense_ProtectedCategory_Rejected()
         {
-            var svc = new ExpenseService(new ExpenseRepository(), new FakeAuthService { Admin = true }, _tx);
+            var svc = new ExpenseService(new ExpenseRepository(), new FakeAuthService { Admin = true }, _tx, _activityLog);
             Assert.Throws<InvalidOperationException>(() =>
                 svc.CreateExpense("راتب", 500, "مرتبات", PaymentMethods.Cash, DateTime.Today));
         }
@@ -217,7 +218,7 @@ namespace AlJohary.ServiceHub.Tests
         {
             var repo = new SupplierRepository();
             var auth = new FakeAuthService { Admin = true };
-            var svc = new SupplierService(repo, auth, _tx);
+            var svc = new SupplierService(repo, auth, _tx, _activityLog);
 
             int supplierId = (int)DatabaseManager.Instance.ExecuteAndGetId(
                 "INSERT INTO suppliers (name, total_debt) VALUES ('مورد', 0)");
@@ -250,7 +251,7 @@ namespace AlJohary.ServiceHub.Tests
         public void Supplier_OverPayment_Rejected_NoOrphanRow()
         {
             var repo = new SupplierRepository();
-            var svc = new SupplierService(repo, new FakeAuthService { Admin = true }, _tx);
+            var svc = new SupplierService(repo, new FakeAuthService { Admin = true }, _tx, _activityLog);
             int supplierId = (int)DatabaseManager.Instance.ExecuteAndGetId(
                 "INSERT INTO suppliers (name, total_debt) VALUES ('مورد2', 100)");
 
@@ -271,7 +272,7 @@ namespace AlJohary.ServiceHub.Tests
         {
             var auth = new FakeAuthService { Admin = true, UserId = 1 };
             var empRepo = new EmployeeRepository();
-            var svc = new EmployeeService(empRepo, auth, _tx);
+            var svc = new EmployeeService(empRepo, auth, _tx, _activityLog);
 
             int empId = (int)DatabaseManager.Instance.ExecuteAndGetId(
                 "INSERT INTO employees (full_name, base_salary, is_active) VALUES ('موظف', 3000, 1)");
@@ -294,7 +295,7 @@ namespace AlJohary.ServiceHub.Tests
         public void Maintenance_PaymentOnCancelledOrder_Rejected()
         {
             var repairRepo = new RepairRepository();
-            var svc = new MaintenanceService(repairRepo, new ProductRepository(), new CustomerRepository(), _tx);
+            var svc = new MaintenanceService(repairRepo, new ProductRepository(), new CustomerRepository(), _tx, _activityLog);
 
             long orderId = DatabaseManager.Instance.ExecuteAndGetId(@"
                 INSERT INTO repair_orders (order_number, user_id, order_status, total_amount, paid_amount, remaining_amount, intake_date, created_at, updated_at)

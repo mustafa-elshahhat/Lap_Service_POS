@@ -346,6 +346,32 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             return list;
         }
 
+        public string GenerateRepairOrderNumber()
+        {
+            string prefix = _db.GetSetting("repair_order_prefix", "MNT");
+            string datePart = DateTime.Now.ToString("yyyyMMdd");
+
+            var result = _db.FetchOne(
+                @"SELECT order_number FROM repair_orders
+                  WHERE order_number LIKE @pattern
+                  ORDER BY id DESC LIMIT 1",
+                new Dictionary<string, object> { { "@pattern", $"{prefix}-{datePart}-%" } });
+
+            int seq = 1;
+            if (result != null)
+            {
+                string lastNumber = result["order_number"]?.ToString();
+                if (!string.IsNullOrEmpty(lastNumber))
+                {
+                    string[] parts = lastNumber.Split('-');
+                    if (parts.Length >= 3 && int.TryParse(parts[parts.Length - 1], out int lastSeq))
+                        seq = lastSeq + 1;
+                }
+            }
+
+            return $"{prefix}-{datePart}-{seq:D4}";
+        }
+
         private static RepairOrder MapOrder(Dictionary<string, object> r) => new RepairOrder
         {
             Id               = SafeConvert.ToLong(r["id"]),

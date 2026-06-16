@@ -5,7 +5,6 @@ using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
-using AlJohary.ServiceHub.Infrastructure.Data;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -14,12 +13,14 @@ namespace AlJohary.ServiceHub.Application.Services
         private readonly IExpenseRepository _expenseRepo;
         private readonly IAuthService _auth;
         private readonly IDbTransactionManager _txManager;
+        private readonly IActivityLog _activityLog;
 
-        public ExpenseService(IExpenseRepository expenseRepo, IAuthService auth, IDbTransactionManager txManager)
+        public ExpenseService(IExpenseRepository expenseRepo, IAuthService auth, IDbTransactionManager txManager, IActivityLog activityLog = null)
         {
             _expenseRepo = expenseRepo;
             _auth = auth;
             _txManager = txManager;
+            _activityLog = activityLog;
         }
 
         public List<Dictionary<string, object>> GetExpensesByDateRange(string startDate, string endDate)
@@ -99,7 +100,7 @@ namespace AlJohary.ServiceHub.Application.Services
             try
             {
                 long id = _expenseRepo.Create(expense);
-                DatabaseManager.Instance.LogActivity(userId, "create_expense", "expenses", (int)id,
+                _activityLog.LogActivity(userId, "create_expense", "expenses", (int)id,
                     $"{category}: {description} - {amount} ({paymentMethod})");
                 _txManager.CommitTransaction();
             }
@@ -124,7 +125,7 @@ namespace AlJohary.ServiceHub.Application.Services
             try
             {
                 _expenseRepo.Delete(id, userId);
-                DatabaseManager.Instance.LogActivity(userId, "delete_expense", "expenses", id,
+                _activityLog.LogActivity(userId, "delete_expense", "expenses", id,
                     "Soft-deleted expense.");
                 _txManager.CommitTransaction();
             }

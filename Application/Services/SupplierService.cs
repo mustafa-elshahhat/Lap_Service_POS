@@ -6,7 +6,6 @@ using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
-using AlJohary.ServiceHub.Infrastructure.Data;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -15,12 +14,14 @@ namespace AlJohary.ServiceHub.Application.Services
         private readonly ISupplierRepository _supplierRepo;
         private readonly IAuthService _auth;
         private readonly IDbTransactionManager _txManager;
+        private readonly IActivityLog _activityLog;
 
-        public SupplierService(ISupplierRepository supplierRepo, IAuthService auth, IDbTransactionManager txManager = null)
+        public SupplierService(ISupplierRepository supplierRepo, IAuthService auth, IDbTransactionManager txManager = null, IActivityLog activityLog = null)
         {
             _supplierRepo = supplierRepo;
             _auth = auth;
             _txManager = txManager;
+            _activityLog = activityLog;
         }
 
         public List<Supplier> GetAllSuppliers()
@@ -190,7 +191,7 @@ namespace AlJohary.ServiceHub.Application.Services
                     _supplierRepo.AddSupplierPayment(supplierId, paidAmount, userId, paymentMethod);
                 }
 
-                DatabaseManager.Instance.LogActivity(userId, "supplier_purchase", "supplier_transactions", (int)transactionId,
+                _activityLog.LogActivity(userId, "supplier_purchase", "supplier_transactions", (int)transactionId,
                     $"SupplierId={supplierId}; Total={totalAmount}; Paid={paidAmount}; Items={validLines.Count}");
 
                 _txManager.CommitTransaction();

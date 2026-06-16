@@ -45,6 +45,7 @@ namespace AlJohary.ServiceHub.Presentation
         {
             var txManager = new DbTransactionManager();
             var settingsService = new SettingsService();
+            var activityLog = new ActivityLog();
 
             var userRepo = new UserRepository();
             var productRepo = new ProductRepository();
@@ -65,11 +66,11 @@ namespace AlJohary.ServiceHub.Presentation
             var paymentService  = new PaymentService(paymentRepo);
             var returnService   = new ReturnService(saleRepo, productRepo, txManager);
             var saleService     = new SaleService(saleRepo, productRepo, customerService, paymentService, returnService, txManager, authService);
-            var expenseService  = new ExpenseService(expenseRepo, authService, txManager);
-            var supplierService = new SupplierService(supplierRepo, authService, txManager);
+            var expenseService  = new ExpenseService(expenseRepo, authService, txManager, activityLog);
+            var supplierService = new SupplierService(supplierRepo, authService, txManager, activityLog);
             var reportService   = new ReportService(reportRepo);
-            var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerRepo, txManager);
-            var employeeService = new EmployeeService(employeeRepo, authService, txManager);
+            var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerRepo, txManager, activityLog);
+            var employeeService = new EmployeeService(employeeRepo, authService, txManager, activityLog);
 
             var dialogService = new DialogService();
 
@@ -86,6 +87,7 @@ namespace AlJohary.ServiceHub.Presentation
             ServiceContainer.Register<IMaintenanceService>(maintenanceService);
             ServiceContainer.Register<ISettingsService>(settingsService);
             ServiceContainer.Register<IDbTransactionManager>(txManager);
+            ServiceContainer.Register<IActivityLog>(activityLog);
             ServiceContainer.Register<IPurchaseImportService>(new CsvPurchaseImportService());
             ServiceContainer.Register<IEmployeeRepository>(employeeRepo);
             ServiceContainer.Register<IEmployeeService>(employeeService);
