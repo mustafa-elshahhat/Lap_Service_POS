@@ -49,6 +49,10 @@ namespace AlJohary.ServiceHub.Tests
             return new SaleService(saleRepo, productRepo, customerService, paymentService, returnService, _tx, auth);
         }
 
+        private int PriceEditLogCount() =>
+            SafeConvert.ToInt(DatabaseManager.Instance.FetchScalar(
+                "SELECT COUNT(*) FROM activity_log WHERE action = 'تعديل السعر'"));
+
         // ---- Sales: cash 100, cost 60 ----
         [Fact]
         public void CashSale_FullyPaid_RecordsProfitAndZeroRemaining()
@@ -73,6 +77,74 @@ namespace AlJohary.ServiceHub.Tests
 
             var product = new ProductRepository().GetById(productId);
             Assert.Equal(4, product.Quantity); // stock reduced by 1
+        }
+
+        // ---- Price-edit audit logging: exactly one row per edited item per sale (N-1) ----
+        // ValidateItems runs twice for a cash sale (once in CreateCashSale to compute the total,
+        // once in CreateSaleInternal). Auditing must therefore happen once in the persistence path,
+        // not inside ValidateItems, or every edited item would be logged twice.
+        [Fact]
+        public void CashSale_DiscountedItem_LogsExactlyOnePriceEditRow()
+        {
+            int productId = SeedProduct(cost: 60, sell: 100, qty: 5, code: "P-PE1");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            // 90 = 10% discount off 100 (at the ceiling), above the 60 cost floor.
+            var items = new List<SaleItem> { new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 90 } };
+            var result = svc.CreateCashSale(items, paymentMethod: PaymentMethods.Cash);
+
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(1, PriceEditLogCount());
+        }
+
+        [Fact]
+        public void CashSale_MarkedUpItem_LogsExactlyOnePriceEditRow()
+        {
+            int productId = SeedProduct(cost: 60, sell: 100, qty: 5, code: "P-PE2");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            // 110 = 10% markup over 100, within the 20% ceiling.
+            var items = new List<SaleItem> { new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 110 } };
+            var result = svc.CreateCashSale(items, paymentMethod: PaymentMethods.Cash);
+
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(1, PriceEditLogCount());
+        }
+
+        [Fact]
+        public void CashSale_MultipleEditedItems_LogsOneRowPerEditedItem()
+        {
+            int p1 = SeedProduct(cost: 60, sell: 100, qty: 5, code: "P-PE3A");
+            int p2 = SeedProduct(cost: 30, sell: 80, qty: 5, code: "P-PE3B");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            var items = new List<SaleItem>
+            {
+                new SaleItem { ProductId = p1, Quantity = 1, UnitFinalPrice = 90 }, // 10% discount
+                new SaleItem { ProductId = p2, Quantity = 1, UnitFinalPrice = 88 }  // 10% markup
+            };
+            var result = svc.CreateCashSale(items, paymentMethod: PaymentMethods.Cash);
+
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(2, PriceEditLogCount()); // one per edited item, not two
+        }
+
+        [Fact]
+        public void CashSale_UneditedItem_LogsNoPriceEditRow()
+        {
+            int productId = SeedProduct(cost: 60, sell: 100, qty: 5, code: "P-PE4");
+            var auth = new FakeAuthService { Admin = false, BypassPriceLimits = false, MaxDiscount = 10, MaxMarkup = 20 };
+            var svc = BuildSaleService(auth);
+
+            // Final price equals the catalog price → no edit → no audit row.
+            var items = new List<SaleItem> { new SaleItem { ProductId = productId, Quantity = 1, UnitFinalPrice = 100 } };
+            var result = svc.CreateCashSale(items, paymentMethod: PaymentMethods.Cash);
+
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(0, PriceEditLogCount());
         }
 
         [Fact]

@@ -114,8 +114,11 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     _filterStartDate = value;
                     OnPropertyChanged();
                     ValidateDateRange();
+                    // Reload using the user-selected dates. Must NOT call LoadReport here:
+                    // LoadReport re-applies the report-type default dates and would discard
+                    // the value the user just picked.
                     if (!_isSettingDefaults && IsDateRangeValid && !string.IsNullOrEmpty(_currentReportType))
-                        LoadReport(_currentReportType);
+                        ReloadCurrentReport();
                 }
             }
         }
@@ -130,8 +133,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     _filterEndDate = value;
                     OnPropertyChanged();
                     ValidateDateRange();
+                    // Reload using the user-selected dates (see FilterStartDate note above).
                     if (!_isSettingDefaults && IsDateRangeValid && !string.IsNullOrEmpty(_currentReportType))
-                        LoadReport(_currentReportType);
+                        ReloadCurrentReport();
                 }
             }
         }
@@ -188,11 +192,67 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private List<ReportColumn> _currentColumns;
 
+        // Selecting/changing a report TYPE: apply that type's default date range, then load.
+        // The date defaults are applied under _isSettingDefaults so the date setters do not
+        // trigger an extra reload here; we load exactly once via ReloadCurrentReport().
         private void LoadReport(string type)
         {
             try
             {
                 _currentReportType = type;
+
+                _isSettingDefaults = true;
+                ApplyDefaultDateRange(type);
+                _isSettingDefaults = false;
+
+                ReloadCurrentReport();
+            }
+            catch (System.Exception ex)
+            {
+                _dialogService.ShowError("خطأ", ex.Message);
+            }
+        }
+
+        // Sets the default filter dates + date-filter visibility for a report type.
+        // Called only when the report type is (re)selected — never on a user date change,
+        // so a user-picked date is preserved.
+        private void ApplyDefaultDateRange(string type)
+        {
+            switch (type)
+            {
+                case "Daily":
+                case "DailyOperations":
+                    FilterStartDate = DateTime.Today;
+                    FilterEndDate = DateTime.Today;
+                    DateFilterVisibility = System.Windows.Visibility.Visible;
+                    break;
+                case "Monthly":
+                case "MonthlyOperations":
+                    FilterStartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                    FilterEndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
+                    DateFilterVisibility = System.Windows.Visibility.Visible;
+                    break;
+                case "Returns":
+                    FilterStartDate = DateTime.Today.AddDays(-30);
+                    FilterEndDate = DateTime.Today;
+                    DateFilterVisibility = System.Windows.Visibility.Visible;
+                    break;
+                case "Inventory":
+                case "Suppliers":
+                    DateFilterVisibility = System.Windows.Visibility.Collapsed;
+                    break;
+            }
+        }
+
+        // Loads the current report using the CURRENT filter values without resetting the dates.
+        // Used both on report-type selection (after defaults are applied) and whenever the user
+        // changes a date filter.
+        private void ReloadCurrentReport()
+        {
+            if (string.IsNullOrEmpty(_currentReportType)) return;
+
+            try
+            {
                 KpiCards.Clear();
                 ReportData.Clear();
 
@@ -201,51 +261,16 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 KpiVisibility = System.Windows.Visibility.Visible;
                 OperationsVisibility = System.Windows.Visibility.Visible;
 
-                _isSettingDefaults = true;
-
-                switch (type)
+                switch (_currentReportType)
                 {
-                    case "Daily":
-                        FilterStartDate = DateTime.Today;
-                        FilterEndDate = DateTime.Today;
-                        DateFilterVisibility = System.Windows.Visibility.Visible;
-                        LoadDailyReport();
-                        break;
-                    case "Monthly":
-                        FilterStartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                        FilterEndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
-                        DateFilterVisibility = System.Windows.Visibility.Visible;
-                        LoadMonthlyReport();
-                        break;
-                    case "DailyOperations":
-                        FilterStartDate = DateTime.Today;
-                        FilterEndDate = DateTime.Today;
-                        DateFilterVisibility = System.Windows.Visibility.Visible;
-                        LoadDailyOperations();
-                        break;
-                    case "MonthlyOperations":
-                        FilterStartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-                        FilterEndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
-                        DateFilterVisibility = System.Windows.Visibility.Visible;
-                        LoadMonthlyOperations();
-                        break;
-                    case "Inventory":
-                        DateFilterVisibility = System.Windows.Visibility.Collapsed;
-                        LoadInventoryReport();
-                        break;
-                    case "Returns":
-                        FilterStartDate = DateTime.Today.AddDays(-30);
-                        FilterEndDate = DateTime.Today;
-                        DateFilterVisibility = System.Windows.Visibility.Visible;
-                        LoadReturnsReport();
-                        break;
-                    case "Suppliers":
-                        DateFilterVisibility = System.Windows.Visibility.Collapsed;
-                        LoadSuppliersReport();
-                        break;
+                    case "Daily":             LoadDailyReport();       break;
+                    case "Monthly":           LoadMonthlyReport();     break;
+                    case "DailyOperations":   LoadDailyOperations();   break;
+                    case "MonthlyOperations": LoadMonthlyOperations(); break;
+                    case "Inventory":         LoadInventoryReport();   break;
+                    case "Returns":           LoadReturnsReport();     break;
+                    case "Suppliers":         LoadSuppliersReport();   break;
                 }
-
-                _isSettingDefaults = false;
             }
             catch (System.Exception ex)
             {
@@ -265,15 +290,33 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private void LoadMonthlyReport()
         {
-            int year = FilterStartDate.Year;
-            int month = FilterStartDate.Month;
+            ReportTitle = "التقرير الشهري";
+            ReportSubtitle = $"إحصائيات {MonthlyPeriodLabel()}";
+
+            // Use the selected start/end range so the end-date picker is not decorative.
+            // Defaults remain the current month (first day → last day), so the default
+            // figure is identical to the previous month-based summary.
+            var summary = _reportService.GetPeriodSummary(
+                FilterStartDate.ToString("yyyy-MM-dd"),
+                FilterEndDate.ToString("yyyy-MM-dd"));
+            BuildSummaryCards(summary, "صافي الربح الشهري");
+        }
+
+        // Human-readable label for the selected monthly period: a single-month label when the
+        // range covers exactly one calendar month, otherwise an explicit from→to range.
+        private string MonthlyPeriodLabel()
+        {
             string[] months = { "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
 
-            ReportTitle = "التقرير الشهري";
-            ReportSubtitle = $"إحصائيات شهر {months[month]} {year}";
+            bool isWholeSingleMonth =
+                FilterStartDate.Year == FilterEndDate.Year &&
+                FilterStartDate.Month == FilterEndDate.Month &&
+                FilterStartDate.Day == 1 &&
+                FilterEndDate.Day == DateTime.DaysInMonth(FilterEndDate.Year, FilterEndDate.Month);
 
-            var summary = _reportService.GetMonthlySummary(year, month);
-            BuildSummaryCards(summary, "صافي الربح الشهري");
+            return isWholeSingleMonth
+                ? $"شهر {months[FilterStartDate.Month]} {FilterStartDate.Year}"
+                : $"من {FilterStartDate:yyyy/MM/dd} إلى {FilterEndDate:yyyy/MM/dd}";
         }
 
         // Builds the required 17 KPI cards (grouped) shared by daily and monthly reports.
@@ -354,17 +397,14 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private void LoadMonthlyOperations()
         {
-            int year = FilterStartDate.Year;
-            int month = FilterStartDate.Month;
-            string[] months = { "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
-
             ReportTitle = "العمليات المالية الشهرية";
-            ReportSubtitle = $"كل الحركات المالية لشهر {months[month]} {year}";
+            ReportSubtitle = $"كل الحركات المالية {MonthlyPeriodLabel()}";
             DetailHeader = "سجل العمليات المالية الشهرية";
 
-            string startDate = $"{year}-{month:D2}-01";
-            string endDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).ToString("yyyy-MM-dd");
-            LoadOperations(startDate, endDate);
+            // Use the selected start/end range (defaults to the current month).
+            LoadOperations(
+                FilterStartDate.ToString("yyyy-MM-dd"),
+                FilterEndDate.ToString("yyyy-MM-dd"));
         }
 
         // Operations pages are grid-only: KPI cards are hidden, the audit log is shown.

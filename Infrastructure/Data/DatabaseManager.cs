@@ -360,7 +360,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                 { "max_markup_percent", ("20.0", "الحد الأقصى للزيادة (%)") },
                 { "low_stock_threshold", ("5", "حد التنبيه لانخفاض المخزون") },
                 { "invoice_prefix", ("INV", "بادئة رقم الفاتورة") },
-                { "force_password_change", ("true", "فرض تغيير كلمة المرور للمسؤول الافتراضي") },
+                // NOTE: force_password_change is seeded contextually in SeedForcePasswordChangeFlag()
+                // below — it must NOT be blindly seeded "true" here, or an existing install whose
+                // admin already uses a custom password would be wrongly re-prompted.
             };
 
             foreach (var setting in defaultSettings)
@@ -374,7 +376,39 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                     });
             }
 
+            SeedForcePasswordChangeFlag();
+
             MigrateBranding();
+        }
+
+        // Seeds force_password_change contextually so a force-change is only imposed when the
+        // default credential actually exists. Acts only when the setting is absent:
+        //   - fresh install / admin password still "admin123"  -> "true"  (force change)
+        //   - admin password already changed (custom password) -> "false" (no standing default)
+        //   - setting already present                          -> left untouched
+        // This keeps fresh and default-password installs protected while never re-prompting an
+        // existing install whose admin has already moved off the default credential.
+        private void SeedForcePasswordChangeFlag()
+        {
+            if (GetSetting("force_password_change") != null) return;
+
+            bool mustForce = AdminPasswordIsDefault();
+            Execute(@"INSERT OR IGNORE INTO settings (key, value, description) VALUES (@key, @value, @desc)",
+                new Dictionary<string, object>
+                {
+                    { "@key", "force_password_change" },
+                    { "@value", mustForce ? "true" : "false" },
+                    { "@desc", "فرض تغيير كلمة المرور للمسؤول الافتراضي" }
+                });
+        }
+
+        // True only when the seeded "admin" account still uses the default "admin123" password.
+        private bool AdminPasswordIsDefault()
+        {
+            var row = FetchOne("SELECT password_hash FROM users WHERE username = 'admin'");
+            if (row == null) return false;
+            string hash = row["password_hash"]?.ToString();
+            return !string.IsNullOrEmpty(hash) && Security.VerifyPassword("admin123", hash);
         }
 
         private void MigrateBranding()

@@ -59,7 +59,7 @@ The system initializes with a default administrator account:
 - **Username**: `admin`
 - **Initial Password**: `admin123`
 
-> **Security:** On the first login, the system **forces** you to change the default password before proceeding. After changing it, `admin123` will no longer work. This ensures no standing default credential exists in production.
+> **Security:** Whenever the admin account still uses the default `admin123` password, the system **forces** a password change on the next admin login before proceeding. This applies to fresh installs and to any existing install still on the default credential. After the password is changed, `admin123` no longer works and the force-change prompt does not reappear. An existing install whose admin has **already** moved to a custom password is never re-prompted. This ensures no standing default credential exists in production.
 
 ## Database & Local Files
 

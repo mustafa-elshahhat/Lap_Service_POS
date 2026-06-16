@@ -66,7 +66,7 @@ namespace AlJohary.ServiceHub.Application.Services
             string paymentMethod = null,
             List<Dictionary<string, object>> paymentMethodsList = null)
         {
-            var validatedItems = ValidateItems(items, userId);
+            var validatedItems = ValidateItems(items);
 
             decimal subtotal = 0;
             foreach (var item in validatedItems)
@@ -119,6 +119,12 @@ namespace AlJohary.ServiceHub.Application.Services
             // Supported sales are fully paid: persist remaining_amount = 0.
             paidAmount = totalAmount;
             decimal remainingAmount = 0;
+
+            // Audit per-item price edits exactly once, here in the single persistence path.
+            // ValidateItems may run more than once per sale (e.g. CreateCashSale validates to
+            // compute the total, then CreateSaleInternal re-validates), so logging must NOT live
+            // inside ValidateItems or it would write duplicate rows.
+            LogPriceEdits(validatedItems, userId);
 
             decimal totalProfit = DistributeFinancialsToItems(validatedItems, subtotal, totalAmount, paidAmount);
 
@@ -221,7 +227,7 @@ namespace AlJohary.ServiceHub.Application.Services
             _txManager.BeginTransaction();
             try
             {
-            var validatedItems = ValidateItems(items, _auth.GetUserId());
+                var validatedItems = ValidateItems(items);
                 decimal subtotal = validatedItems.Sum(i => i.Quantity * i.UnitFinalPrice);
                 decimal total = FinancialCalculator.CalculateTotalWithDiscountAndMarkup(subtotal, discountAmount, markupAmount);
 
@@ -245,7 +251,10 @@ namespace AlJohary.ServiceHub.Application.Services
             return _customerService.GetOrCreateCustomer(name, phone);
         }
 
-        private List<SaleItem> ValidateItems(List<SaleItem> items, int userId)
+        // Pure validation: validates stock and price limits and derives each item's
+        // discount/markup amounts. It does NOT write audit rows — price-edit auditing is done
+        // once in CreateSaleInternal (see LogPriceEdits) because this method can run twice per sale.
+        private List<SaleItem> ValidateItems(List<SaleItem> items)
         {
             if (items == null || items.Count == 0) throw new Exception("لا توجد أصناف في الفاتورة");
 
@@ -283,17 +292,11 @@ namespace AlJohary.ServiceHub.Application.Services
                 {
                     item.DiscountAmount = (original - item.UnitFinalPrice) * item.Quantity;
                     item.MarkupAmount = 0;
-                    if (item.DiscountAmount > 0)
-                        // record_id = 0 is intentional because the sale item has not been persisted yet.
-                        _saleRepo.LogActivity(userId, "تعديل السعر", "sale_items", 0, $"خصم على {product.Name} بقيمة {item.DiscountAmount:0.##}");
                 }
                 else if (item.UnitFinalPrice > original)
                 {
                     item.MarkupAmount = (item.UnitFinalPrice - original) * item.Quantity;
                     item.DiscountAmount = 0;
-                    if (item.MarkupAmount > 0)
-                        // record_id = 0 is intentional because the sale item has not been persisted yet.
-                        _saleRepo.LogActivity(userId, "تعديل السعر", "sale_items", 0, $"إضافة على {product.Name} بقيمة {item.MarkupAmount:0.##}");
                 }
                 else
                 {
@@ -302,6 +305,21 @@ namespace AlJohary.ServiceHub.Application.Services
                 }
             }
             return items;
+        }
+
+        // Writes exactly one price-edit audit row per item whose final price differs from the
+        // catalog price. Called once per sale from CreateSaleInternal (inside the sale transaction).
+        private void LogPriceEdits(List<SaleItem> items, int userId)
+        {
+            foreach (var item in items)
+            {
+                if (item.DiscountAmount > 0)
+                    // record_id = 0 is intentional because the sale item has not been persisted yet.
+                    _saleRepo.LogActivity(userId, "تعديل السعر", "sale_items", 0, $"خصم على {item.ProductName} بقيمة {item.DiscountAmount:0.##}");
+                else if (item.MarkupAmount > 0)
+                    // record_id = 0 is intentional because the sale item has not been persisted yet.
+                    _saleRepo.LogActivity(userId, "تعديل السعر", "sale_items", 0, $"إضافة على {item.ProductName} بقيمة {item.MarkupAmount:0.##}");
+            }
         }
 
         public Sale GetSaleById(int id) => _saleRepo.GetById(id);

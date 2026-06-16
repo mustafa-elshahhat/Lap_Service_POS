@@ -30,7 +30,7 @@ namespace AlJohary.ServiceHub.Application.Services
             return GetPeriodSummary(startDate, endDate);
         }
 
-        private Dictionary<string, object> GetPeriodSummary(string startDate, string endDate)
+        public Dictionary<string, object> GetPeriodSummary(string startDate, string endDate)
         {
             var data = _reportRepo.GetPeriodSummary(startDate, endDate);
 

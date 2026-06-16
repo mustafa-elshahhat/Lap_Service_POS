@@ -67,6 +67,178 @@ namespace AlJohary.ServiceHub.Tests
             Assert.True(vm.IsDateRangeValid);
             Assert.Null(vm.DateValidationMessage);
         }
+
+        // ---- B-1: user-selected dates must survive and drive the reload (not reset to defaults) ----
+
+        private static ReportsViewModel BuildVmWith(RecordingReportService fake)
+        {
+            ServiceContainer.Register<IReportService>(fake);
+            return new ReportsViewModel(new FakeDialogService());
+        }
+
+        [Fact]
+        public void Daily_ChangeFilterStartDate_NotResetToToday_AndUsedInLoad()
+        {
+            var fake = new RecordingReportService();
+            var vm = BuildVmWith(fake);
+
+            vm.LoadReportCommand.Execute("Daily");
+            Assert.Equal(DateTime.Today, vm.FilterStartDate);
+
+            fake.Reset();
+            var past = DateTime.Today.AddDays(-7);
+            vm.FilterStartDate = past;
+
+            Assert.Equal(past, vm.FilterStartDate);                          // not reset to today
+            Assert.Equal(past.ToString("yyyy-MM-dd"), fake.LastDailyDate);   // reload used the picked date
+        }
+
+        [Fact]
+        public void Daily_ChangeFilterEndDate_Preserved_AndReloads()
+        {
+            var fake = new RecordingReportService();
+            var vm = BuildVmWith(fake);
+
+            vm.LoadReportCommand.Execute("Daily");
+            fake.Reset();
+
+            var newEnd = DateTime.Today.AddDays(3);
+            vm.FilterEndDate = newEnd;
+
+            Assert.Equal(newEnd, vm.FilterEndDate);                          // preserved, not reset to today
+            Assert.True(fake.DailyCallCount >= 1);                           // reloaded using current filters
+            Assert.Equal(DateTime.Today.ToString("yyyy-MM-dd"), fake.LastDailyDate);
+        }
+
+        [Fact]
+        public void Monthly_ChangeStartAndEnd_BothPreserved_AndPeriodUsed()
+        {
+            var fake = new RecordingReportService();
+            var vm = BuildVmWith(fake);
+
+            vm.LoadReportCommand.Execute("Monthly");
+
+            var s = new DateTime(2025, 1, 1);
+            var e = new DateTime(2025, 3, 31);
+            vm.FilterStartDate = s;
+            vm.FilterEndDate = e;
+
+            Assert.Equal(s, vm.FilterStartDate);
+            Assert.Equal(e, vm.FilterEndDate);
+            // Monthly now uses GetPeriodSummary over the selected start/end (end no longer ignored).
+            Assert.Equal("2025-01-01", fake.LastPeriodStart);
+            Assert.Equal("2025-03-31", fake.LastPeriodEnd);
+        }
+
+        [Fact]
+        public void Returns_ChangeRange_NotResetToLast30Days()
+        {
+            var fake = new RecordingReportService();
+            var vm = BuildVmWith(fake);
+
+            vm.LoadReportCommand.Execute("Returns");
+            Assert.Equal(DateTime.Today.AddDays(-30), vm.FilterStartDate);
+
+            var s = DateTime.Today.AddDays(-90);
+            var e = DateTime.Today.AddDays(-60);
+            vm.FilterStartDate = s;
+            vm.FilterEndDate = e;
+
+            Assert.Equal(s, vm.FilterStartDate);   // not reset back to today-30
+            Assert.Equal(e, vm.FilterEndDate);
+        }
+
+        [Fact]
+        public void Daily_InvalidRange_DoesNotReload()
+        {
+            var fake = new RecordingReportService();
+            var vm = BuildVmWith(fake);
+
+            vm.LoadReportCommand.Execute("Daily");
+            fake.Reset();
+
+            vm.FilterStartDate = DateTime.Today.AddDays(5); // start > end(today) => invalid
+
+            Assert.False(vm.IsDateRangeValid);
+            Assert.NotNull(vm.DateValidationMessage);
+            Assert.Equal(0, fake.DailyCallCount);           // invalid range must not reload
+        }
+
+        [Fact]
+        public void DefaultDateRanges_OnReportTypeSelect_AreUnchanged()
+        {
+            var fake = new RecordingReportService();
+            var vm = BuildVmWith(fake);
+
+            vm.LoadReportCommand.Execute("Daily");
+            Assert.Equal(DateTime.Today, vm.FilterStartDate);
+            Assert.Equal(DateTime.Today, vm.FilterEndDate);
+
+            vm.LoadReportCommand.Execute("Monthly");
+            var first = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var last = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
+            Assert.Equal(first, vm.FilterStartDate);
+            Assert.Equal(last, vm.FilterEndDate);
+
+            vm.LoadReportCommand.Execute("Returns");
+            Assert.Equal(DateTime.Today.AddDays(-30), vm.FilterStartDate);
+            Assert.Equal(DateTime.Today, vm.FilterEndDate);
+        }
+    }
+
+    // Records the date arguments the ViewModel passes so tests can assert the selected
+    // dates actually drive the report load. Returns minimal valid summaries.
+    public class RecordingReportService : IReportService
+    {
+        public string LastDailyDate;
+        public string LastPeriodStart;
+        public string LastPeriodEnd;
+        public int DailyCallCount;
+        public int PeriodCallCount;
+
+        public void Reset()
+        {
+            LastDailyDate = null;
+            LastPeriodStart = null;
+            LastPeriodEnd = null;
+            DailyCallCount = 0;
+            PeriodCallCount = 0;
+        }
+
+        public Dictionary<string, object> GetDailySummary(string targetDate = null)
+        {
+            LastDailyDate = targetDate;
+            DailyCallCount++;
+            return EmptySummary();
+        }
+
+        public Dictionary<string, object> GetMonthlySummary(int year, int month)
+        {
+            string start = $"{year}-{month:D2}-01";
+            string end = new DateTime(year, month, DateTime.DaysInMonth(year, month)).ToString("yyyy-MM-dd");
+            return GetPeriodSummary(start, end);
+        }
+
+        public Dictionary<string, object> GetPeriodSummary(string startDate, string endDate)
+        {
+            LastPeriodStart = startDate;
+            LastPeriodEnd = endDate;
+            PeriodCallCount++;
+            return EmptySummary();
+        }
+
+        public List<Dictionary<string, object>> GetFinancialOperations(string startDate, string endDate)
+        {
+            LastPeriodStart = startDate;
+            LastPeriodEnd = endDate;
+            return new List<Dictionary<string, object>>();
+        }
+
+        private static Dictionary<string, object> EmptySummary() => new Dictionary<string, object>
+        {
+            { "payment_inflows", new Dictionary<string, decimal>() },
+            { "payment_outflows", new Dictionary<string, decimal>() }
+        };
     }
 
     public class FakeDialogService : IDialogService
