@@ -36,7 +36,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public List<Employee> GetAll(bool includeInactive = false)
         {
-            string sql = "SELECT * FROM employees";
+            string sql = "SELECT id, full_name, phone, job_title, base_salary, notes, is_active, created_at, updated_at FROM employees";
             if (!includeInactive) sql += " WHERE is_active = 1";
             sql += " ORDER BY full_name";
 
@@ -53,7 +53,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public Employee GetById(int id)
         {
-            var row = _db.FetchOne("SELECT * FROM employees WHERE id = @id",
+            var row = _db.FetchOne("SELECT id, full_name, phone, job_title, base_salary, notes, is_active, created_at, updated_at FROM employees WHERE id = @id",
                 new Dictionary<string, object> { { "@id", id } });
             return MapToEntity(row);
         }

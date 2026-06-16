@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AlJohary.ServiceHub.Infrastructure.Data;
 using AlJohary.ServiceHub.Infrastructure.Persistence;
 using AlJohary.ServiceHub.Shared.Helpers;
@@ -157,13 +158,15 @@ namespace AlJohary.ServiceHub.Tests
             string today = DateTime.Today.ToString("yyyy-MM-dd");
 
             var result = repo.GetPeriodSummary(today, today);
+            var inflows  = Assert.IsType<Dictionary<string, decimal>>(result["payment_inflows"]);
             var outflows = Assert.IsType<Dictionary<string, decimal>>(result["payment_outflows"]);
 
             Assert.Equal(1000m, SafeConvert.ToDecimal(result["total_salary_payments"]));
             Assert.Equal(200m, SafeConvert.ToDecimal(result["total_employee_deductions"]));
             Assert.Equal(800m, SafeConvert.ToDecimal(result["net_salary_expense"]));
             Assert.Equal(-800m, SafeConvert.ToDecimal(result["net_profit"]));
-            Assert.Equal(-1000m, SafeConvert.ToDecimal(result["net_cash_flow"]));
+            Assert.Equal(0m, inflows.Values.Sum());
+            Assert.Equal(1000m, outflows.Values.Sum());
             Assert.True(outflows.ContainsKey(PaymentMethods.Cash));
             Assert.Equal(1000m, outflows[PaymentMethods.Cash]);
         }

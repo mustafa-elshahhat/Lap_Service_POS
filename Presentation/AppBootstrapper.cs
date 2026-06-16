@@ -25,7 +25,7 @@ namespace AlJohary.ServiceHub.Presentation
             {
                 AlJohary.ServiceHub.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper Initialize");
                 MessageBox.Show($"خطأ أثناء تهيئة النظام: {ex.Message}", "خطأ في التشغيل", MessageBoxButton.OK, MessageBoxImage.Error);
-                System.Windows.Application.Current.Shutdown(1);
+                Environment.Exit(1);
             }
         }
 
@@ -115,13 +115,15 @@ namespace AlJohary.ServiceHub.Presentation
                 catch (Exception migrationEx)
                 {
                     AlJohary.ServiceHub.Shared.Helpers.Logger.LogException(migrationEx, "Migrations");
+                    MessageBox.Show($"فشل تحديث قاعدة البيانات:\n{migrationEx.Message}", "خطأ في الترحيل", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Environment.Exit(1);
                 }
             }
             catch (Exception ex)
             {
                 AlJohary.ServiceHub.Shared.Helpers.Logger.LogException(ex, "AppBootstrapper InitializeDatabase");
                 MessageBox.Show($"فشل تهيئة قاعدة البيانات:\n{ex.Message}", "خطأ في قاعدة البيانات", MessageBoxButton.OK, MessageBoxImage.Error);
-                System.Windows.Application.Current.Shutdown(1);
+                Environment.Exit(1);
             }
         }
 

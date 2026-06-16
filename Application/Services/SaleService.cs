@@ -66,13 +66,37 @@ namespace AlJohary.ServiceHub.Application.Services
             string paymentMethod = null,
             List<Dictionary<string, object>> paymentMethodsList = null)
         {
-            var validatedItems = ValidateItems(items);
+            var validatedItems = ValidateItems(items, userId);
 
             decimal subtotal = 0;
             foreach (var item in validatedItems)
                 subtotal += item.Quantity * item.UnitFinalPrice;
 
             decimal totalAmount = FinancialCalculator.CalculateTotalWithDiscountAndMarkup(subtotal, discountAmount, markupAmount);
+
+            // Invoice-level discount/markup guard: validate against below-cost floor and actor ceiling.
+            // effectiveDiscountPct and effectiveMarkupPct are measured against subtotal,
+            // which already reflects per-item price edits. The actor ceiling is applied
+            // to the post-item-discount base.
+            if (discountAmount > 0 || markupAmount > 0)
+            {
+                decimal totalCost = 0;
+                foreach (var item in validatedItems)
+                    totalCost += item.UnitPurchasePrice * item.Quantity;
+
+                if (totalAmount < totalCost)
+                    throw new Exception("لا يمكن أن يكون إجمالي الفاتورة بعد الخصم أقل من إجمالي التكلفة");
+
+                if (!_auth.CanBypassPriceLimits && subtotal > 0)
+                {
+                    double effectiveDiscountPct = (double)(discountAmount / subtotal) * 100;
+                    double effectiveMarkupPct = (double)(markupAmount / subtotal) * 100;
+                    if (discountAmount > 0 && effectiveDiscountPct > _auth.GetMaxDiscount())
+                        throw new Exception($"تجاوز حد الخصم المسموح به للفاتورة: الحد الأقصى {_auth.GetMaxDiscount():0.##}% - قيمة الخصم {effectiveDiscountPct:0.##}%");
+                    if (markupAmount > 0 && effectiveMarkupPct > _auth.GetMaxMarkup())
+                        throw new Exception($"تجاوز حد الإضافة المسموح به للفاتورة: الحد الأقصى {_auth.GetMaxMarkup():0.##}% - قيمة الإضافة {effectiveMarkupPct:0.##}%");
+                }
+            }
 
             // Cash-only invariant: credit sales and customer receivables are NOT supported.
             // Every supported sale must be paid in full at checkout — no invoice may leave the till
@@ -197,7 +221,7 @@ namespace AlJohary.ServiceHub.Application.Services
             _txManager.BeginTransaction();
             try
             {
-                var validatedItems = ValidateItems(items);
+            var validatedItems = ValidateItems(items, _auth.GetUserId());
                 decimal subtotal = validatedItems.Sum(i => i.Quantity * i.UnitFinalPrice);
                 decimal total = FinancialCalculator.CalculateTotalWithDiscountAndMarkup(subtotal, discountAmount, markupAmount);
 
@@ -239,7 +263,7 @@ namespace AlJohary.ServiceHub.Application.Services
                 new Customer { Name = name.Trim(), Phone = normalizedPhone });
         }
 
-        private List<SaleItem> ValidateItems(List<SaleItem> items)
+        private List<SaleItem> ValidateItems(List<SaleItem> items, int userId)
         {
             if (items == null || items.Count == 0) throw new Exception("لا توجد أصناف في الفاتورة");
 
@@ -277,11 +301,17 @@ namespace AlJohary.ServiceHub.Application.Services
                 {
                     item.DiscountAmount = (original - item.UnitFinalPrice) * item.Quantity;
                     item.MarkupAmount = 0;
+                    if (item.DiscountAmount > 0)
+                        // record_id = 0 is intentional because the sale item has not been persisted yet.
+                        _saleRepo.LogActivity(userId, "تعديل السعر", "sale_items", 0, $"خصم على {product.Name} بقيمة {item.DiscountAmount:0.##}");
                 }
                 else if (item.UnitFinalPrice > original)
                 {
                     item.MarkupAmount = (item.UnitFinalPrice - original) * item.Quantity;
                     item.DiscountAmount = 0;
+                    if (item.MarkupAmount > 0)
+                        // record_id = 0 is intentional because the sale item has not been persisted yet.
+                        _saleRepo.LogActivity(userId, "تعديل السعر", "sale_items", 0, $"إضافة على {product.Name} بقيمة {item.MarkupAmount:0.##}");
                 }
                 else
                 {

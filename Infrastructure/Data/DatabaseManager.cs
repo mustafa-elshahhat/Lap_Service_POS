@@ -13,6 +13,16 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
         private static readonly object _lock = new object();
         private SqliteConnection _connection;
         private readonly string _databasePath;
+
+        /// <summary>
+        /// Gets or sets the current active transaction for the entire process.
+        /// This is a SINGLE-THREADED, SINGLE-TRANSACTION model: only one logical
+        /// operation may hold a transaction at a time. All repositories share this
+        /// instance via <see cref="Instance"/> and auto-enlist in queries.
+        /// Nested/cross-operation transactions are NOT supported — they will throw.
+        /// This design is safe for single-operator desktop use. Before any
+        /// multi-user / networked deployment, replace with connection-per-unit-of-work.
+        /// </summary>
         public SqliteTransaction CurrentTransaction { get; set; }
 
         public static DatabaseManager Instance
@@ -74,6 +84,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
         {
             lock (_lock)
             {
+                if (!File.Exists(backupFilePath))
+                    throw new FileNotFoundException("ملف النسخة الاحتياطية غير موجود", backupFilePath);
+
+                ValidateDatabaseFile(backupFilePath);
+
+                string safetyPath = Backup(Path.GetDirectoryName(_databasePath));
+                Logger.LogInfo($"Pre-restore safety copy saved to {safetyPath}");
+
                 Close();
                 File.Copy(backupFilePath, _databasePath, true);
                 Initialize();
@@ -134,7 +152,10 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
         {
             if (CurrentTransaction != null)
             {
-                throw new InvalidOperationException("A transaction is already active. Nested transactions are not supported in this manager.");
+                throw new InvalidOperationException(
+                    "A transaction is already active. Nested/concurrent transactions are not supported. " +
+                    "This manager uses a single process-wide transaction model; overlapping operations " +
+                    "must not begin their own transaction while another is in flight.");
             }
             CurrentTransaction = GetConnection().BeginTransaction();
             return CurrentTransaction;
@@ -401,6 +422,36 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
             catch (Exception ex)
             {
                 Logger.LogException(ex, $"Error ensuring column {columnName} in {tableName}");
+                throw;
+            }
+        }
+
+        private void ValidateDatabaseFile(string filePath)
+        {
+            try
+            {
+                using (var testConn = new SqliteConnection($"Data Source={filePath};Mode=ReadOnly;"))
+                {
+                    testConn.Open();
+                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='settings'", testConn))
+                    {
+                        long count = (long)cmd.ExecuteScalar();
+                        if (count == 0)
+                            throw new InvalidDataException("ملف الاستعادة لا يحتوي على بنية قاعدة البيانات المطلوبة (settings)");
+                    }
+                    using (var cmd = new SqliteCommand("SELECT COUNT(*) FROM settings", testConn))
+                    {
+                        cmd.ExecuteScalar();
+                    }
+                }
+            }
+            catch (InvalidDataException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException($"ملف الاستعادة غير صالح أو تالف: {ex.Message}", ex);
             }
         }
 
@@ -472,6 +523,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
                 { "max_markup_percent", ("20.0", "الحد الأقصى للزيادة (%)") },
                 { "low_stock_threshold", ("5", "حد التنبيه لانخفاض المخزون") },
                 { "invoice_prefix", ("INV", "بادئة رقم الفاتورة") },
+                { "force_password_change", ("true", "فرض تغيير كلمة المرور للمسؤول الافتراضي") },
             };
 
             foreach (var setting in defaultSettings)

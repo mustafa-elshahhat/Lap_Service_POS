@@ -97,7 +97,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public RepairDevice GetDevice(long deviceId)
         {
-            var row = _db.FetchOne("SELECT * FROM repair_devices WHERE id = @id",
+            var row = _db.FetchOne("SELECT id, order_id, device_type, brand, model, serial_number, condition, reported_issue, accessories, estimated_cost, service_cost, labor_cost, device_status, diagnosis_notes, repair_notes, created_at FROM repair_devices WHERE id = @id",
                 new Dictionary<string, object> { { "@id", deviceId } });
             return row == null ? null : MapDevice(row);
         }
@@ -255,7 +255,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public List<RepairDevice> GetDevices(long orderId)
         {
             var rows = _db.FetchAll(@"
-                SELECT * FROM repair_devices WHERE order_id = @id ORDER BY id",
+                SELECT id, order_id, device_type, brand, model, serial_number, condition, reported_issue, accessories, estimated_cost, service_cost, labor_cost, device_status, diagnosis_notes, repair_notes, created_at FROM repair_devices WHERE order_id = @id ORDER BY id",
                 new Dictionary<string, object> { { "@id", orderId } });
 
             var list = new List<RepairDevice>();
@@ -266,7 +266,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public List<RepairPart> GetParts(long deviceId)
         {
             var rows = _db.FetchAll(@"
-                SELECT * FROM repair_parts WHERE device_id = @id ORDER BY id",
+                SELECT id, device_id, order_id, product_id, part_name, quantity, unit_cost, total_cost, purchase_cost, is_from_inventory, created_at FROM repair_parts WHERE device_id = @id ORDER BY id",
                 new Dictionary<string, object> { { "@id", deviceId } });
 
             var list = new List<RepairPart>();
@@ -277,7 +277,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public List<RepairPart> GetOrderParts(long orderId)
         {
             var rows = _db.FetchAll(@"
-                SELECT * FROM repair_parts WHERE order_id = @id ORDER BY device_id, id",
+                SELECT id, device_id, order_id, product_id, part_name, quantity, unit_cost, total_cost, purchase_cost, is_from_inventory, created_at FROM repair_parts WHERE order_id = @id ORDER BY device_id, id",
                 new Dictionary<string, object> { { "@id", orderId } });
 
             var list = new List<RepairPart>();
@@ -288,7 +288,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public List<RepairPayment> GetPayments(long orderId)
         {
             var rows = _db.FetchAll(@"
-                SELECT * FROM repair_payments WHERE order_id = @id ORDER BY payment_date DESC",
+                SELECT id, order_id, amount, payment_method, payment_date, notes, user_id, created_at FROM repair_payments WHERE order_id = @id ORDER BY payment_date DESC",
                 new Dictionary<string, object> { { "@id", orderId } });
 
             var list = new List<RepairPayment>();
@@ -298,7 +298,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public RepairPart GetPart(long partId)
         {
-            var row = _db.FetchOne("SELECT * FROM repair_parts WHERE id = @id",
+            var row = _db.FetchOne("SELECT id, device_id, order_id, product_id, part_name, quantity, unit_cost, total_cost, purchase_cost, is_from_inventory, created_at FROM repair_parts WHERE id = @id",
                 new Dictionary<string, object> { { "@id", partId } });
             return row == null ? null : MapPart(row);
         }

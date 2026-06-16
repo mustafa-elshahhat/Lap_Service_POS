@@ -305,9 +305,9 @@ namespace AlJohary.ServiceHub.Tests
                 svc.RegisterPayment(orderId, 50, PaymentMethods.Cash, 1, null));
         }
 
-        // ---- Raw SQL net cash flow reconciliation ----
+        // ---- Per-method breakdown reconciliation ----
         [Fact]
-        public void NetCashFlow_ReconcilesWithRawSql()
+        public void PerMethodBreakdowns_ReconcileWithRawSql()
         {
             var db = DatabaseManager.Instance;
             string ts = DateTime.Today.AddHours(12).ToString("yyyy-MM-dd HH:mm:ss");
@@ -322,14 +322,18 @@ namespace AlJohary.ServiceHub.Tests
 
             var summary = new ReportRepository().GetPeriodSummary(_today, _today);
 
-            decimal cashIn = Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM sale_payments"))
-                           + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM repair_payments"));
-            decimal cashOut = Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE COALESCE(is_deleted,0)=0"))
-                            + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM supplier_transactions WHERE transaction_type='payment'"))
-                            + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM employee_salary_transactions WHERE transaction_type='salary'"))
-                            + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(cash_refund),0) FROM returns"));
+            var inflows  = summary["payment_inflows"]  as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
+            var outflows = summary["payment_outflows"] as Dictionary<string, decimal> ?? new Dictionary<string, decimal>();
 
-            Assert.Equal(cashIn - cashOut, SafeConvert.ToDecimal(summary["net_cash_flow"]));
+            decimal rawCashIn  = Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM sale_payments"))
+                              + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM repair_payments"));
+            decimal rawCashOut = Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM expenses WHERE COALESCE(is_deleted,0)=0"))
+                               + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM supplier_transactions WHERE transaction_type='payment'"))
+                               + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(amount),0) FROM employee_salary_transactions WHERE transaction_type='salary'"))
+                               + Convert.ToDecimal(db.FetchScalar("SELECT COALESCE(SUM(cash_refund),0) FROM returns"));
+
+            Assert.Equal(rawCashIn,  inflows.Values.Sum());
+            Assert.Equal(rawCashOut, outflows.Values.Sum());
         }
     }
 }

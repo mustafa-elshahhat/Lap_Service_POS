@@ -133,14 +133,6 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                                       - SafeConvert.ToDecimal(summary["total_expenses"])
                                       - netSalaryExpense;
 
-            // Cash flow (computed once, with maintenance).
-            summary["net_cash_flow"] = totalCashReceived
-                                      + maintenanceCashReceived
-                                      - SafeConvert.ToDecimal(summary["cash_refunds"])
-                                      - SafeConvert.ToDecimal(summary["total_expenses"])
-                                      - SafeConvert.ToDecimal(summary["total_supplier_payments"])
-                                      - totalSalaryPayments;
-
             AddPaymentBreakdowns(summary, args);
 
             return summary;
@@ -434,13 +426,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         private void AddPaymentBreakdowns(Dictionary<string, object> summary, Dictionary<string, object> args)
         {
             var inflowRows = _db.FetchAll(@"
-                SELECT payment_method, SUM(amount) as total FROM (
+                SELECT CASE WHEN payment_method IS NULL OR payment_method = '' THEN 'غير محدد' ELSE payment_method END as payment_method,
+                       SUM(amount) as total FROM (
                     SELECT payment_method, amount FROM sale_payments
                     WHERE payment_date >= @start AND payment_date < @end
                     UNION ALL
                     SELECT payment_method, amount FROM repair_payments
                     WHERE payment_date >= @start AND payment_date < @end
-                ) GROUP BY payment_method", args);
+                ) GROUP BY CASE WHEN payment_method IS NULL OR payment_method = '' THEN 'غير محدد' ELSE payment_method END", args);
 
             var inflows = new Dictionary<string, decimal>();
             foreach (var r in inflowRows)
@@ -450,7 +443,8 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
             // payments + cash refunds. Refunds are money-out and MUST appear here so the per-method
             // outflow cards reconcile with net_cash_flow's outflow side.
             var outflowRows = _db.FetchAll(@"
-                SELECT payment_method, SUM(amount) as total FROM (
+                SELECT CASE WHEN payment_method IS NULL OR payment_method = '' THEN 'غير محدد' ELSE payment_method END as payment_method,
+                       SUM(amount) as total FROM (
                     SELECT payment_method, amount FROM expenses
                     WHERE expense_date >= @start AND expense_date < @end
                     AND COALESCE(is_deleted, 0) = 0
@@ -466,7 +460,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                     SELECT payment_method, cash_refund AS amount FROM returns
                     WHERE return_date >= @start AND return_date < @end
                     AND cash_refund > 0
-                ) GROUP BY payment_method", args);
+                ) GROUP BY CASE WHEN payment_method IS NULL OR payment_method = '' THEN 'غير محدد' ELSE payment_method END", args);
 
             var outflows = new Dictionary<string, decimal>();
             foreach (var r in outflowRows)

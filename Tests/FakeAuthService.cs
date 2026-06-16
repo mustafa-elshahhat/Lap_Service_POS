@@ -34,5 +34,7 @@ namespace AlJohary.ServiceHub.Tests
         public void DeleteUser(int userId) { }
         public List<Dictionary<string, object>> GetAllUsers(bool includeInactive = false) => new List<Dictionary<string, object>>();
         public Dictionary<string, object> GetUser(int userId) => null;
+        public bool IsForcePasswordChangeRequired() => false;
+        public void ClearForcePasswordChangeFlag() { }
     }
 }

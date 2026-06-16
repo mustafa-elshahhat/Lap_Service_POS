@@ -49,7 +49,6 @@ namespace AlJohary.ServiceHub.Application.Services
                 { "cash_refunds", SafeConvert.ToDecimal(data["cash_refunds"]) },
                 { "debt_cancelled", SafeConvert.ToDecimal(data["debt_cancelled"]) },
                 { "total_supplier_payments", SafeConvert.ToDecimal(data["total_supplier_payments"]) },
-                { "net_cash_flow", SafeConvert.ToDecimal(data["net_cash_flow"]) },
                 { "gross_profit", SafeConvert.ToDecimal(data["gross_profit"]) },
                 { "lost_profit", SafeConvert.ToDecimal(data["lost_profit"]) },
                 { "net_profit", SafeConvert.ToDecimal(data["net_profit"]) },

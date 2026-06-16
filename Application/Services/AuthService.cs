@@ -4,6 +4,7 @@ using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Domain.Interfaces;
 using AlJohary.ServiceHub.Shared.Helpers;
 using AlJohary.ServiceHub.Application.Interfaces;
+using AlJohary.ServiceHub.Infrastructure.Data;
 
 namespace AlJohary.ServiceHub.Application.Services
 {
@@ -181,5 +182,17 @@ namespace AlJohary.ServiceHub.Application.Services
         }
 
         #endregion
+
+        public bool IsForcePasswordChangeRequired()
+        {
+            if (!IsAdmin) return false;
+            string val = DatabaseManager.Instance.GetSetting("force_password_change");
+            return val == "true";
+        }
+
+        public void ClearForcePasswordChangeFlag()
+        {
+            DatabaseManager.Instance.SetSetting("force_password_change", "false");
+        }
     }
 }

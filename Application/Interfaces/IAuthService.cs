@@ -23,5 +23,7 @@ namespace AlJohary.ServiceHub.Application.Interfaces
         void DeleteUser(int userId);
         List<Dictionary<string, object>> GetAllUsers(bool includeInactive = false);
         Dictionary<string, object> GetUser(int userId);
+        bool IsForcePasswordChangeRequired();
+        void ClearForcePasswordChangeFlag();
     }
 }

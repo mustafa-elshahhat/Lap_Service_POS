@@ -74,7 +74,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public Customer GetById(int id)
         {
-            var row = _db.FetchOne("SELECT * FROM customers WHERE id = @id",
+            var row = _db.FetchOne("SELECT id, name, phone, address, notes, created_at, updated_at FROM customers WHERE id = @id",
                 new Dictionary<string, object> { { "@id", id } });
             return MapToEntity(row);
         }
@@ -82,7 +82,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public Customer GetByPhone(string phone)
         {
             if (string.IsNullOrEmpty(phone)) return null;
-            var row = _db.FetchOne("SELECT * FROM customers WHERE phone = @phone",
+            var row = _db.FetchOne("SELECT id, name, phone, address, notes, created_at, updated_at FROM customers WHERE phone = @phone",
                 new Dictionary<string, object> { { "@phone", phone } });
             return MapToEntity(row);
         }
@@ -91,7 +91,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         {
             string searchTerm = $"%{query}%";
             var rows = _db.FetchAll(@"
-                SELECT * FROM customers 
+                SELECT id, name, phone, address, notes, created_at, updated_at FROM customers 
                 WHERE name LIKE @search OR phone LIKE @search
                 ORDER BY name",
                 new Dictionary<string, object> { { "@search", searchTerm } });
@@ -103,7 +103,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public List<Customer> GetAll()
         {
-            var rows = _db.FetchAll("SELECT * FROM customers ORDER BY name");
+            var rows = _db.FetchAll("SELECT id, name, phone, address, notes, created_at, updated_at FROM customers ORDER BY name");
             var list = new List<Customer>();
             foreach (var row in rows) list.Add(MapToEntity(row));
             return list;

@@ -188,7 +188,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public List<Sale> GetAll(int limit = 100)
         {
-             var rows = _db.FetchAll($"SELECT * FROM sales ORDER BY sale_date DESC LIMIT {limit}");
+             var rows = _db.FetchAll($"SELECT id, invoice_number, sale_type, customer_id, user_id, subtotal, discount_amount, markup_amount, total_amount, paid_amount, remaining_amount, profit, notes, sale_date, payment_method FROM sales ORDER BY sale_date DESC LIMIT {limit}");
              var list = new List<Sale>();
              foreach(var row in rows) list.Add(MapToEntity(row));
              return list;
@@ -215,7 +215,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public List<Sale> GetByCustomerId(int customerId)
         {
             var rows = _db.FetchAll(@"
-                SELECT * FROM sales 
+                SELECT id, invoice_number, sale_type, customer_id, user_id, subtotal, discount_amount, markup_amount, total_amount, paid_amount, remaining_amount, profit, notes, sale_date, payment_method FROM sales 
                 WHERE customer_id = @customerId
                 ORDER BY sale_date DESC",
                 new Dictionary<string, object> { { "@customerId", customerId } });
@@ -300,7 +300,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public List<SaleItem> GetItems(long saleId)
         {
-            var rows = _db.FetchAll("SELECT * FROM sale_items WHERE sale_id = @saleId",
+            var rows = _db.FetchAll("SELECT id, sale_id, product_id, product_code, product_name, quantity, unit_purchase_price, unit_selling_price, unit_final_price, discount_amount, markup_amount, total_price, profit, paid_amount, remaining_amount FROM sale_items WHERE sale_id = @saleId",
                 new Dictionary<string, object> { { "@saleId", saleId } });
             
             var list = new List<SaleItem>();
@@ -333,7 +333,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public List<Dictionary<string, object>> GetSalePayments(long saleId)
         {
-            return _db.FetchAll("SELECT * FROM sale_payments WHERE sale_id = @saleId ORDER BY payment_date DESC",
+            return _db.FetchAll("SELECT id, sale_id, payment_method, amount, notes, payment_date FROM sale_payments WHERE sale_id = @saleId ORDER BY payment_date DESC",
                 new Dictionary<string, object> { { "@saleId", saleId } });
         }
 

@@ -40,14 +40,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public Product GetById(int id)
         {
-            var row = _db.FetchOne("SELECT * FROM products WHERE id = @id", 
+            var row = _db.FetchOne("SELECT id, code, name, purchase_price, selling_price, quantity, min_quantity, supplier_name, category, description, is_active, created_at, updated_at FROM products WHERE id = @id", 
                 new Dictionary<string, object> { { "@id", id } });
             return MapToEntity(row);
         }
 
         public Product GetByCode(string code)
         {
-             var row = _db.FetchOne("SELECT * FROM products WHERE code = @code AND is_active = 1", 
+             var row = _db.FetchOne("SELECT id, code, name, purchase_price, selling_price, quantity, min_quantity, supplier_name, category, description, is_active, created_at, updated_at FROM products WHERE code = @code AND is_active = 1", 
                 new Dictionary<string, object> { { "@code", code } });
             return MapToEntity(row);
         }
@@ -56,7 +56,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         {
             string search = $"%{query}%";
             var rows = _db.FetchAll(@"
-                SELECT * FROM products 
+                SELECT id, code, name, purchase_price, selling_price, quantity, min_quantity, supplier_name, category, description, is_active, created_at, updated_at FROM products 
                 WHERE is_active = 1 
                 AND (
                     name          LIKE @search OR
@@ -86,7 +86,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public List<Product> GetAll(bool includeInactive = false)
         {
-            string query = "SELECT * FROM products";
+            string query = "SELECT id, code, name, purchase_price, selling_price, quantity, min_quantity, supplier_name, category, description, is_active, created_at, updated_at FROM products";
             if (!includeInactive) query += " WHERE is_active = 1";
             query += " ORDER BY name";
             var rows = _db.FetchAll(query);
@@ -188,7 +188,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public List<Product> GetLowStock()
         {
              var rows = _db.FetchAll(@"
-                SELECT * FROM products 
+                SELECT id, code, name, purchase_price, selling_price, quantity, min_quantity, supplier_name, category, description, is_active, created_at, updated_at FROM products 
                 WHERE is_active = 1 AND quantity <= min_quantity
                 ORDER BY quantity ASC");
              
@@ -200,7 +200,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
         public List<Product> GetOutOfStock()
         {
             var rows = _db.FetchAll(@"
-                SELECT * FROM products 
+                SELECT id, code, name, purchase_price, selling_price, quantity, min_quantity, supplier_name, category, description, is_active, created_at, updated_at FROM products 
                 WHERE is_active = 1 AND quantity = 0
                 ORDER BY name");
             

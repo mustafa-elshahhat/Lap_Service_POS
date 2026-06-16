@@ -57,9 +57,9 @@ purchasing, and financial reporting in a single Windows-native application.
 
 The system initializes with a default administrator account:
 - **Username**: `admin`
-- **Password**: `admin123`
+- **Initial Password**: `admin123`
 
-*It is recommended to update the administrator password immediately after the first login.*
+> **Security:** On the first login, the system **forces** you to change the default password before proceeding. After changing it, `admin123` will no longer work. This ensures no standing default credential exists in production.
 
 ## Database & Local Files
 

@@ -205,6 +205,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             decimal instapayOut = GetMethodSum(outflows, PaymentMethods.InstaPay);
             decimal ewalletOut  = GetMethodSum(outflows, PaymentMethods.EWallet);
 
+            decimal otherIn  = inflows.Values.Sum() - (cashIn + instapayIn + ewalletIn);
+            decimal otherOut = outflows.Values.Sum() - (cashOut + instapayOut + ewalletOut);
+
             decimal SummaryVal(string key) => SafeConvert.ToDecimal(summary.ContainsKey(key) ? summary[key] : 0);
 
             const string gSales = "المبيعات والأرباح";
@@ -216,12 +219,13 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
             // 1-2: Sales / profit
             KpiCards.Add(new KpiCardViewModel { Group = gSales, Title = "إجمالي المبيعات", Value = Formatting.FormatCurrency(SummaryVal("gross_sales")), Icon = "💰", ColorKey = "Primary", ToolTip = "إجمالي قيمة فواتير البيع خلال الفترة (لا يشمل الصيانة أو الموردين أو المصروفات)." });
-            KpiCards.Add(new KpiCardViewModel { Group = gSales, Title = netProfitTitle, Value = Formatting.FormatCurrency(SummaryVal("net_profit")), Icon = "✅", ColorKey = "Success", ToolTip = "ربح المبيعات + ربح الصيانة - ربح مفقود من المرتجعات - المصروفات - صافي الرواتب." });
+            KpiCards.Add(new KpiCardViewModel { Group = gSales, Title = netProfitTitle, Value = Formatting.FormatCurrency(SummaryVal("net_profit")), Icon = "✅", ColorKey = "Success", ToolTip = "ربح المبيعات + ربح الصيانة - ربح مفقود من المرتجعات - المصروفات - صافي الرواتب. ملاحظة: يتم احتساب الربح عند البيع ويتم عكسه عند الإرجاع حسب تاريخ الإرجاع (نظام الاستحقاق). قد يختلف ربح اليوم الواحد إذا كان الإرجاع في فترة لاحقة." });
 
             // 3-5: Per-method net balances
             KpiCards.Add(new KpiCardViewModel { Group = gNet, Title = "صافي النقدية",   Value = Formatting.FormatCurrency(cashIn - cashOut),         Icon = "💱", ColorKey = "Success", ToolTip = "نقدي وارد - نقدي صادر." });
             KpiCards.Add(new KpiCardViewModel { Group = gNet, Title = "صافي إنستا باي", Value = Formatting.FormatCurrency(instapayIn - instapayOut), Icon = "💱", ColorKey = "Success", ToolTip = "إنستا باي وارد - إنستا باي صادر." });
             KpiCards.Add(new KpiCardViewModel { Group = gNet, Title = "صافي محفظة",     Value = Formatting.FormatCurrency(ewalletIn - ewalletOut),   Icon = "💱", ColorKey = "Success", ToolTip = "محفظة وارد - محفظة صادر." });
+            KpiCards.Add(new KpiCardViewModel { Group = gNet, Title = "صافي آخرى",      Value = Formatting.FormatCurrency(otherIn - otherOut),       Icon = "💱", ColorKey = "Secondary", ToolTip = "مدفوعات بطرق دفع أخرى / غير محددة وارد - صادر." });
 
             // 6-11: Inflows / outflows by method
             KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "نقدي وارد",      Value = Formatting.FormatCurrency(cashIn),      Icon = "💵", ColorKey = "Info" });
@@ -230,6 +234,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "إنستا باي صادر", Value = Formatting.FormatCurrency(instapayOut), Icon = "🏧", ColorKey = "Danger" });
             KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "محفظة وارد",     Value = Formatting.FormatCurrency(ewalletIn),   Icon = "📱", ColorKey = "Info" });
             KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "محفظة صادر",     Value = Formatting.FormatCurrency(ewalletOut),  Icon = "📲", ColorKey = "Danger" });
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "آخرى وارد",      Value = Formatting.FormatCurrency(otherIn),     Icon = "🗃️", ColorKey = "Info" });
+            KpiCards.Add(new KpiCardViewModel { Group = gFlow, Title = "آخرى صادر",      Value = Formatting.FormatCurrency(otherOut),    Icon = "🗃️", ColorKey = "Danger" });
 
             // 12-13: Salaries (net salary cost, plus deductions separately)
             KpiCards.Add(new KpiCardViewModel { Group = gSalary, Title = "إجمالي الرواتب",   Value = Formatting.FormatCurrency(SummaryVal("net_salary_expense")),       Icon = "👨‍💼", ColorKey = "Danger",  ToolTip = "صافي تكلفة الرواتب = الرواتب المدفوعة - خصومات الموظفين." });

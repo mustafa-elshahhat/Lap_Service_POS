@@ -59,6 +59,13 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 var user = _auth.Login(Username, password);
                 if (user != null)
                 {
+                    if (_auth.IsForcePasswordChangeRequired())
+                    {
+                        if (!ForcePasswordChange())
+                        {
+                            return;
+                        }
+                    }
                     _dialogService.ShowMainWindow();
                 }
                 else
@@ -69,6 +76,53 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             catch (System.Exception ex)
             {
                 _dialogService.ShowError("خطأ في النظام", $"حدث خطأ أثناء تسجيل الدخول:\n{ex.Message}");
+            }
+        }
+        private bool ForcePasswordChange()
+        {
+            while (true)
+            {
+                // TODO: mask password input when a masked dialog is available.
+                if (_dialogService.ShowInputDialog("تغيير كلمة المرور الإجبارية",
+                    "يجب تغيير كلمة المرور الافتراضية. أدخل كلمة المرور الجديدة:", "", out string newPassword) != true)
+                {
+                    _auth.Logout();
+                    ErrorMessage = "يجب تغيير كلمة المرور الافتراضية قبل المتابعة";
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 4)
+                {
+                    _dialogService.ShowWarning("تنبيه", "كلمة المرور يجب أن تكون على الأقل 4 أحرف");
+                    continue;
+                }
+
+                if (_dialogService.ShowInputDialog("تأكيد كلمة المرور",
+                    "أعد إدخال كلمة المرور الجديدة:", "", out string confirmPassword) != true)
+                {
+                    _auth.Logout();
+                    ErrorMessage = "يجب تأكيد كلمة المرور الجديدة";
+                    return false;
+                }
+
+                if (newPassword != confirmPassword)
+                {
+                    _dialogService.ShowWarning("تنبيه", "كلمة المرور غير متطابقة");
+                    continue;
+                }
+
+                try
+                {
+                    _auth.ChangeUserPassword(_auth.GetUserId(), newPassword);
+                    _auth.ClearForcePasswordChangeFlag();
+                    _dialogService.ShowSuccess("نجاح", "تم تغيير كلمة المرور بنجاح");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowError("خطأ", ex.Message);
+                    return false;
+                }
             }
         }
     }

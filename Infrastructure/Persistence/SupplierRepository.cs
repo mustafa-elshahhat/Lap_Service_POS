@@ -34,7 +34,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public List<Supplier> GetAllSuppliers()
         {
-            var rows = _db.FetchAll("SELECT * FROM suppliers WHERE is_active = 1 ORDER BY name");
+            var rows = _db.FetchAll("SELECT id, name, phone, address, total_debt, created_at, updated_at FROM suppliers WHERE is_active = 1 ORDER BY name");
             var list = new List<Supplier>();
             foreach (var row in rows) list.Add(MapToEntity(row));
             return list;
@@ -46,7 +46,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
                 return GetAllSuppliers();
 
             var rows = _db.FetchAll(@"
-                SELECT * FROM suppliers 
+                SELECT id, name, phone, address, total_debt, created_at, updated_at FROM suppliers 
                 WHERE is_active = 1 AND (name LIKE @search OR phone LIKE @search)
                 ORDER BY name",
                 new Dictionary<string, object> { { "@search", $"%{query}%" } });
@@ -58,7 +58,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Persistence
 
         public Supplier GetById(int id)
         {
-             var row = _db.FetchOne("SELECT * FROM suppliers WHERE id = @id",
+             var row = _db.FetchOne("SELECT id, name, phone, address, total_debt, created_at, updated_at FROM suppliers WHERE id = @id",
                 new Dictionary<string, object> { { "@id", id } });
              return MapToEntity(row);
         }
