@@ -1,6 +1,7 @@
 <Window x:Class="AlJohary.ServiceHub.Presentation.Views.CashSaleDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Title="بيع نقدي"
         SizeToContent="WidthAndHeight"
         MinWidth="450"
@@ -12,19 +13,10 @@
         Background="Transparent"
         FlowDirection="RightToLeft"
         UseLayoutRounding="True"
+        helpers:DialogChrome.DimOwner="True"
         SnapsToDevicePixels="True">
     
     <Border x:Name="DialogBorder" Style="{DynamicResource StandardWindowContentBorder}">
-        <Border.OpacityMask>
-            <VisualBrush>
-                <VisualBrush.Visual>
-                    <Border Background="Black" 
-                            Width="{Binding ActualWidth, ElementName=DialogBorder}"
-                            Height="{Binding ActualHeight, ElementName=DialogBorder}"
-                            CornerRadius="12"/>
-                </VisualBrush.Visual>
-            </VisualBrush>
-        </Border.OpacityMask>
 
         <Grid Margin="24">
             <Grid.RowDefinitions>

@@ -84,6 +84,13 @@
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="ClipToBounds" Value="True"/>
+        <Setter Property="Margin" Value="16"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="#000000" BlurRadius="24" ShadowDepth="3"
+                                  Direction="270" Opacity="0.30" RenderingBias="Quality"/>
+            </Setter.Value>
+        </Setter>
     </Style>
 
 </ResourceDictionary>

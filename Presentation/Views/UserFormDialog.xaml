@@ -3,31 +3,23 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Shared.Helpers"
         xmlns:converters="clr-namespace:AlJohary.ServiceHub.Presentation.Converters"
+        xmlns:chrome="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Title="مستخدم جديد" 
-        MaxHeight="700" Width="480"
+        MaxHeight="700" Width="512"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
-        FlowDirection="RightToLeft">
+        FlowDirection="RightToLeft"
+        chrome:DialogChrome.DimOwner="True">
         
     <Window.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
     </Window.Resources>
 
     <Border x:Name="DialogBorder" Style="{DynamicResource StandardWindowContentBorder}">
-        <Border.OpacityMask>
-            <VisualBrush>
-                <VisualBrush.Visual>
-                    <Border Background="Black" 
-                            Width="{Binding ActualWidth, ElementName=DialogBorder}"
-                            Height="{Binding ActualHeight, ElementName=DialogBorder}"
-                            CornerRadius="12"/>
-                </VisualBrush.Visual>
-            </VisualBrush>
-        </Border.OpacityMask>
 
         <Grid Margin="24">
             <Grid.RowDefinitions>

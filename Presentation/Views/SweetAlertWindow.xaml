@@ -1,6 +1,7 @@
 <Window x:Class="AlJohary.ServiceHub.Presentation.Views.SweetAlertWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Title="تنبيه"
         SizeToContent="WidthAndHeight"
         MinWidth="400"
@@ -11,7 +12,8 @@
         Background="Transparent"
         Topmost="True"
         ShowInTaskbar="False"
-        FlowDirection="RightToLeft">
+        FlowDirection="RightToLeft"
+        helpers:DialogChrome.DimOwner="True">
 
     <Window.Resources>
         
@@ -37,16 +39,6 @@
     <Border x:Name="MainBorder" 
             Style="{DynamicResource StandardWindowContentBorder}"
             RenderTransformOrigin="0.5,0.5">
-        <Border.OpacityMask>
-            <VisualBrush>
-                <VisualBrush.Visual>
-                    <Border Background="Black" 
-                            Width="{Binding ActualWidth, ElementName=MainBorder}"
-                            Height="{Binding ActualHeight, ElementName=MainBorder}"
-                            CornerRadius="12"/>
-                </VisualBrush.Visual>
-            </VisualBrush>
-        </Border.OpacityMask>
         <Border.RenderTransform>
             <ScaleTransform ScaleX="1" ScaleY="1"/>
         </Border.RenderTransform>
