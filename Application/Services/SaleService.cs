@@ -242,25 +242,7 @@ namespace AlJohary.ServiceHub.Application.Services
 
         private int? HandleCustomer(string name, string phone)
         {
-            if (string.IsNullOrWhiteSpace(name)) return null;
-
-            var normalizedPhone = phone?.Trim();
-            var existing = !string.IsNullOrEmpty(normalizedPhone)
-                ? _customerService.GetByPhone(normalizedPhone)
-                : null;
-
-            if (existing != null)
-            {
-                if (existing.Name != name.Trim())
-                {
-                    existing.Name = name.Trim();
-                    _customerService.UpdateCustomer(existing);
-                }
-                return existing.Id;
-            }
-
-            return (int)_customerService.CreateCustomer(
-                new Customer { Name = name.Trim(), Phone = normalizedPhone });
+            return _customerService.GetOrCreateCustomer(name, phone);
         }
 
         private List<SaleItem> ValidateItems(List<SaleItem> items, int userId)

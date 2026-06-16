@@ -173,8 +173,8 @@
                           Grid.Row="1"
                           Style="{DynamicResource DialogDataGrid}"
                           Margin="12,8"
-                          ItemsSource="{Binding CartItems}"
-                          SelectedItem="{Binding SelectedCartItem}"
+                          ItemsSource="{Binding Cart.Items}"
+                          SelectedItem="{Binding Cart.SelectedItem}"
                           IsReadOnly="True"
                           ScrollViewer.VerticalScrollBarVisibility="Auto">
 
@@ -223,7 +223,7 @@
 
                         <TextBlock Grid.Row="1" 
                                    x:Name="TotalLabel" 
-                                   Text="{Binding CartTotal, Converter={StaticResource FlexibleCurrencyConverter}}" 
+                                   Text="{Binding Cart.Total, Converter={StaticResource FlexibleCurrencyConverter}}" 
                                    NumberSubstitution.Substitution="European"
                                    FontFamily="{DynamicResource MainFont}"
                                    Foreground="{DynamicResource SecondaryDarkBrush}" 

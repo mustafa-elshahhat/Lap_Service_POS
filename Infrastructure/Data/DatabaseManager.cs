@@ -11,8 +11,18 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
     {
         private static DatabaseManager _instance;
         private static readonly object _lock = new object();
+
+        /// <summary>
+        /// Exposed for use by extracted helper classes (SqlExecutor, etc.) that share
+        /// the singleton's lock to serialize all database access.
+        /// </summary>
+        public static object InstanceLock => _lock;
         private SqliteConnection _connection;
         private readonly string _databasePath;
+
+        private readonly SqlExecutor _sql;
+        private readonly SettingsManager _settings;
+        private readonly NumberGenerator _numberGen;
 
         /// <summary>
         /// Gets or sets the current active transaction for the entire process.
@@ -43,6 +53,9 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
 
         private DatabaseManager()
         {
+            _sql = new SqlExecutor(this);
+            _settings = new SettingsManager(_sql);
+            _numberGen = new NumberGenerator(_sql, _settings);
             try
             {
                 string appPath = AppContext.BaseDirectory;
@@ -190,207 +203,31 @@ namespace AlJohary.ServiceHub.Infrastructure.Data
         }
 
         public int Execute(string query, Dictionary<string, object> parameters = null, SqliteTransaction transaction = null)
-        {
-            lock (_lock)
-            {
-                using (var cmd = new SqliteCommand(query, GetConnection()))
-                {
-                    cmd.Transaction = transaction ?? CurrentTransaction;
-                    if (parameters != null)
-                    {
-                        foreach (var param in parameters)
-                        {
-                            cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
-                        }
-                    }
-                    return cmd.ExecuteNonQuery();
-                }
-            }
-        }
+            => _sql.Execute(query, parameters, transaction);
 
         public long ExecuteAndGetId(string query, Dictionary<string, object> parameters = null, SqliteTransaction transaction = null)
-        {
-            lock (_lock)
-            {
-                using (var cmd = new SqliteCommand(query, GetConnection()))
-                {
-                    cmd.Transaction = transaction ?? CurrentTransaction;
-                    if (parameters != null)
-                    {
-                        foreach (var param in parameters)
-                        {
-                            cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
-                        }
-                    }
-                    cmd.ExecuteNonQuery();
-                    
-                    // Microsoft.Data.Sqlite doesn't have LastInsertRowId on connection, use scalar query
-                    using (var idCmd = new SqliteCommand("SELECT last_insert_rowid()", GetConnection()))
-                    {
-                        idCmd.Transaction = transaction ?? CurrentTransaction;
-                        return (long)idCmd.ExecuteScalar();
-                    }
-                }
-            }
-        }
+            => _sql.ExecuteAndGetId(query, parameters, transaction);
 
         public Dictionary<string, object> FetchOne(string query, Dictionary<string, object> parameters = null)
-        {
-            lock (_lock)
-            {
-                using (var cmd = new SqliteCommand(query, GetConnection()))
-                {
-                    if (CurrentTransaction != null) cmd.Transaction = CurrentTransaction;
-                    if (parameters != null)
-                    {
-                        foreach (var param in parameters)
-                        {
-                            cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
-                        }
-                    }
-
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            var row = new Dictionary<string, object>();
-                            for (int i = 0; i < reader.FieldCount; i++)
-                            {
-                                row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
-                            }
-                            return row;
-                        }
-                    }
-                }
-                return null;
-            }
-        }
+            => _sql.FetchOne(query, parameters);
 
         public List<Dictionary<string, object>> FetchAll(string query, Dictionary<string, object> parameters = null)
-        {
-            lock (_lock)
-            {
-                var results = new List<Dictionary<string, object>>();
-                using (var cmd = new SqliteCommand(query, GetConnection()))
-                {
-                    if (CurrentTransaction != null) cmd.Transaction = CurrentTransaction;
-                    if (parameters != null)
-                    {
-                        foreach (var param in parameters)
-                        {
-                            cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
-                        }
-                    }
-
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var row = new Dictionary<string, object>();
-                            for (int i = 0; i < reader.FieldCount; i++)
-                            {
-                                row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
-                            }
-                            results.Add(row);
-                        }
-                    }
-                }
-                return results;
-            }
-        }
+            => _sql.FetchAll(query, parameters);
 
         public object FetchScalar(string query, Dictionary<string, object> parameters = null)
-        {
-            lock (_lock)
-            {
-                using (var cmd = new SqliteCommand(query, GetConnection()))
-                {
-                    if (CurrentTransaction != null) cmd.Transaction = CurrentTransaction;
-                    if (parameters != null)
-                    {
-                        foreach (var param in parameters)
-                        {
-                            cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
-                        }
-                    }
-                    return cmd.ExecuteScalar();
-                }
-            }
-        }
+            => _sql.FetchScalar(query, parameters);
 
         public string GetSetting(string key, string defaultValue = null)
-        {
-            var result = FetchOne("SELECT value FROM settings WHERE key = @key",
-                new Dictionary<string, object> { { "@key", key } });
-            return result != null ? result["value"]?.ToString() : defaultValue;
-        }
+            => _settings.GetSetting(key, defaultValue);
 
         public void SetSetting(string key, string value)
-        {
-            Execute(@"INSERT OR REPLACE INTO settings (key, value, updated_at) 
-                      VALUES (@key, @value, datetime('now'))",
-                new Dictionary<string, object> 
-                { 
-                    { "@key", key }, 
-                    { "@value", value } 
-                });
-        }
+            => _settings.SetSetting(key, value);
 
         public string GenerateInvoiceNumber()
-        {
-            string prefix = GetSetting("invoice_prefix", "INV");
-            string datePart = DateTime.Now.ToString("yyyyMMdd");
-
-            var result = FetchOne(
-                @"SELECT invoice_number FROM sales 
-                  WHERE invoice_number LIKE @pattern
-                  ORDER BY id DESC LIMIT 1",
-                new Dictionary<string, object> { { "@pattern", $"{prefix}-{datePart}-%" } });
-
-            int seq = 1;
-            if (result != null)
-            {
-                string lastNumber = result["invoice_number"]?.ToString();
-                if (!string.IsNullOrEmpty(lastNumber))
-                {
-                    string[] parts = lastNumber.Split('-');
-                    if (parts.Length >= 3 && int.TryParse(parts[parts.Length - 1], out int lastSeq))
-                    {
-                        seq = lastSeq + 1;
-                    }
-                }
-            }
-
-            return $"{prefix}-{datePart}-{seq:D4}";
-        }
+            => _numberGen.GenerateInvoiceNumber();
 
         public string GenerateReturnNumber()
-        {
-            string prefix = GetSetting("return_prefix", "RET");
-            string datePart = DateTime.Now.ToString("yyyyMMdd");
-
-            var result = FetchOne(
-                @"SELECT return_number FROM returns 
-                  WHERE return_number LIKE @pattern
-                  ORDER BY id DESC LIMIT 1",
-                new Dictionary<string, object> { { "@pattern", $"{prefix}-{datePart}-%" } });
-
-            int seq = 1;
-            if (result != null)
-            {
-                string lastNumber = result["return_number"]?.ToString();
-                if (!string.IsNullOrEmpty(lastNumber))
-                {
-                    string[] parts = lastNumber.Split('-');
-                    if (parts.Length >= 3 && int.TryParse(parts[parts.Length - 1], out int lastSeq))
-                    {
-                        seq = lastSeq + 1;
-                    }
-                }
-            }
-
-            return $"{prefix}-{datePart}-{seq:D4}";
-        }
+            => _numberGen.GenerateReturnNumber();
 
         public void EnsureSchemaExtended()
         {

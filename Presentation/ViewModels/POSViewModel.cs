@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -8,6 +7,7 @@ using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Presentation.Interfaces;
 using AlJohary.ServiceHub.Application.Services;
 using AlJohary.ServiceHub.Domain.Entities;
+using AlJohary.ServiceHub.Presentation.Models;
 using AlJohary.ServiceHub.Presentation.Views;
 using AlJohary.ServiceHub.Shared.Helpers;
 
@@ -21,13 +21,12 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         private readonly IAuthService _auth;
 
         private string _searchText;
-        private ObservableCollection<CartItem> _cartItems;
+        private CartModel _cart;
         private List<Product> _searchResults;
         private Product _selectedProduct;
-        private CartItem _selectedCartItem;
-        private decimal _cartTotal;
 
         private readonly IDialogService _dialogService;
+        private readonly PriceEditPolicy _priceEditPolicy;
 
         public POSViewModel(IDialogService dialogService = null, ISaleService saleService = null, IProductService productService = null)
         {
@@ -36,9 +35,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             _productService = productService ?? ServiceContainer.GetService<IProductService>();
             _printService = ServiceContainer.GetService<IPrintService>();
             _auth = ServiceContainer.GetService<IAuthService>();
-            
-            CartItems = new ObservableCollection<CartItem>();
-            CartItems.CollectionChanged += (s, e) => RecalculateTotal();
+
+            Cart = new CartModel();
+            _priceEditPolicy = new PriceEditPolicy(_auth);
         }
 
         #region Properties
@@ -55,10 +54,10 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             }
         }
 
-        public ObservableCollection<CartItem> CartItems
+        public CartModel Cart
         {
-            get => _cartItems;
-            set => SetProperty(ref _cartItems, value);
+            get => _cart;
+            set => SetProperty(ref _cart, value);
         }
 
         public List<Product> SearchResults
@@ -71,18 +70,6 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             get => _selectedProduct;
             set => SetProperty(ref _selectedProduct, value);
-        }
-
-        public CartItem SelectedCartItem
-        {
-            get => _selectedCartItem;
-            set => SetProperty(ref _selectedCartItem, value);
-        }
-
-        public decimal CartTotal
-        {
-            get => _cartTotal;
-            set => SetProperty(ref _cartTotal, value);
         }
 
         #endregion
@@ -159,10 +146,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             if (product == null) return;
 
-            int productId = product.Id;
             int currentStock = product.Quantity;
 
-            var (available, _) = _productService.CheckStock(productId, quantity);
+            var (available, _) = _productService.CheckStock(product.Id, quantity);
             if (!available)
             {
                 _dialogService.ShowWarning("تحذير", $"الكمية المتاحة: {currentStock}");
@@ -170,7 +156,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 return;
             }
 
-            var existing = CartItems.FirstOrDefault(c => c.ProductId == productId);
+            var existing = Cart.Items.FirstOrDefault(c => c.ProductId == product.Id);
             if (existing != null)
             {
                 int newQty = existing.Quantity + quantity;
@@ -180,40 +166,22 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     RaiseRequestSearchFocus();
                     return;
                 }
-                existing.Quantity = newQty;
-                existing.Total = existing.Quantity * existing.UnitPrice;
-
-                int idx = CartItems.IndexOf(existing);
-                CartItems[idx] = existing; 
+                Cart.UpdateQuantity(existing, newQty);
             }
             else
             {
-                var cartItem = new CartItem
-                {
-                    Index = CartItems.Count + 1,
-                    ProductId = productId,
-                    ProductName = product.Name,
-                    Quantity = quantity,
-                    UnitPrice = product.SellingPrice,
-                    OriginalPrice = product.SellingPrice,
-                    PurchasePrice = product.PurchasePrice,
-                    ProductCode = product.Code
-                };
-                cartItem.Total = cartItem.Quantity * cartItem.UnitPrice;
-                CartItems.Add(cartItem);
+                Cart.AddItem(product.Id, product.Name, product.Code, quantity,
+                    product.SellingPrice, product.SellingPrice, product.PurchasePrice);
             }
 
-            RecalculateTotal();
             RaiseRequestSearchFocus();
         }
 
         private void RemoveFromCart()
         {
-            if (SelectedCartItem != null)
+            if (Cart.SelectedItem != null)
             {
-                CartItems.Remove(SelectedCartItem);
-                RecalculateIndices();
-                RecalculateTotal();
+                Cart.RemoveItem(Cart.SelectedItem);
                 RaiseRequestSearchFocus();
             }
             else
@@ -224,12 +192,11 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private void ClearCart()
         {
-            if (CartItems.Count > 0)
+            if (!Cart.IsEmpty)
             {
                 if (_dialogService.Confirm("تأكيد", "هل تريد تفريغ السلة؟"))
                 {
-                    CartItems.Clear();
-                    RecalculateTotal();
+                    Cart.Clear();
                 }
             }
             RaiseRequestSearchFocus();
@@ -239,7 +206,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             try
             {
-                var item = SelectedCartItem;
+                var item = Cart.SelectedItem;
                 if (item == null)
                 {
                     _dialogService.ShowWarning("تحذير", "اختر عنصراً من السلة");
@@ -256,9 +223,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                             _dialogService.ShowWarning("تحذير", $"الكمية المتاحة: {current}");
                             return;
                         }
-                        item.Quantity = newQty;
-                        item.Total = item.Quantity * item.UnitPrice;
-                        RefreshCartItem(item);
+                        Cart.UpdateQuantity(item, newQty);
                     }
                 }
             }
@@ -272,7 +237,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             try
             {
-                var item = SelectedCartItem;
+                var item = Cart.SelectedItem;
                 if (item == null)
                 {
                     _dialogService.ShowWarning("تحذير", "اختر عنصراً من السلة");
@@ -280,59 +245,29 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 }
 
                 string currentPrice = item.UnitPrice.ToString();
+                string dialogMessage;
 
-                if (_auth.CanBypassPriceLimits)
+                if (_priceEditPolicy.CanBypassLimits)
                 {
-                    if (_dialogService.ShowInputDialog("تعديل السعر", "السعر الجديد:", currentPrice, out string adminPriceStr) == true)
-                    {
-                        if (decimal.TryParse(adminPriceStr, out decimal adminPrice) && adminPrice > 0)
-                        {
-                            // The below-cost floor is universal and applies to admins too — the admin
-                            // bypass covers only the discount/markup percentage ceilings.
-                            if (adminPrice < item.PurchasePrice)
-                            {
-                                _dialogService.ShowWarning("تحذير", $"غير مسموح بالبيع بأقل من سعر الشراء: {Formatting.FormatCurrency(item.PurchasePrice)}");
-                                return;
-                            }
-                            item.UnitPrice = adminPrice;
-                            item.Total = item.Quantity * item.UnitPrice;
-                            RefreshCartItem(item);
-                        }
-                    }
-                    return;
+                    dialogMessage = "السعر الجديد:";
+                }
+                else
+                {
+                    var (minPrice, maxPrice) = _priceEditPolicy.GetPriceBounds(item);
+                    dialogMessage = $"السعر الجديد:\n(الحد الأدنى: {Formatting.FormatCurrency(minPrice)} | الحد الأقصى: {Formatting.FormatCurrency(maxPrice)})";
                 }
 
-                double maxDiscount = _auth.GetMaxDiscount();
-                double maxMarkup = _auth.GetMaxMarkup();
-                decimal discountLimit = item.OriginalPrice * (1 - (decimal)(maxDiscount / 100));
-                decimal minPrice = Math.Max(discountLimit, item.PurchasePrice);
-                decimal maxPrice = item.OriginalPrice * (1 + (decimal)(maxMarkup / 100));
-
-                if (_dialogService.ShowInputDialog("تعديل السعر",
-                        $"السعر الجديد:\n(الحد الأدنى: {Formatting.FormatCurrency(minPrice)} | الحد الأقصى: {Formatting.FormatCurrency(maxPrice)})",
-                        currentPrice, out string newPriceStr) == true)
+                if (_dialogService.ShowInputDialog("تعديل السعر", dialogMessage, currentPrice, out string newPriceStr) == true)
                 {
                     if (decimal.TryParse(newPriceStr, out decimal newPrice) && newPrice > 0)
                     {
-                        if (newPrice < item.PurchasePrice)
+                        string error = _priceEditPolicy.Validate(item, newPrice);
+                        if (error != null)
                         {
-                             _dialogService.ShowWarning("تحذير", $"غير مسموح بالبيع بأقل من سعر الشراء: {Formatting.FormatCurrency(item.PurchasePrice)}");
-                             return;
-                        }
-
-                        if (newPrice < minPrice)
-                        {
-                            _dialogService.ShowWarning("تحذير", $"السعر أقل من الحد المسموح (نسبة الخصم): {Formatting.FormatCurrency(minPrice)}");
+                            _dialogService.ShowWarning("تحذير", error);
                             return;
                         }
-                        if (newPrice > maxPrice)
-                        {
-                            _dialogService.ShowWarning("تحذير", $"السعر أعلى من الحد المسموح: {Formatting.FormatCurrency(maxPrice)}");
-                            return;
-                        }
-                        item.UnitPrice = newPrice;
-                        item.Total = item.Quantity * item.UnitPrice;
-                        RefreshCartItem(item);
+                        Cart.UpdatePrice(item, newPrice);
                     }
                 }
             }
@@ -344,18 +279,18 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         private void CheckoutCash()
         {
-            if (CartItems.Count == 0)
+            if (Cart.IsEmpty)
             {
                 _dialogService.ShowInfo("تنبيه", "السلة فارغة");
                 RaiseRequestSearchFocus();
                 return;
             }
 
-            if (_dialogService.ShowCashSaleDialog(CartTotal, out string customerName, out string customerPhone, out string paymentMethod) == true)
+            if (_dialogService.ShowCashSaleDialog(Cart.Total, out string customerName, out string customerPhone, out string paymentMethod) == true)
             {
                 try
                 {
-                    var items = ConvertCartToSaleItems();
+                    var items = Cart.ConvertToSaleItems();
                     var result = _saleService.CreateCashSale(
                         items,
                         string.IsNullOrWhiteSpace(customerName) ? null : customerName,
@@ -373,8 +308,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                          _printService.PrintSaleReceipt(sale, sItems);
                     }
 
-                    CartItems.Clear();
-                    RecalculateTotal();
+                    Cart.Clear();
                     TypedMessenger.Send("RefreshReports");
                 }
                 catch (Exception ex)
@@ -411,121 +345,11 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         #region Helpers
 
-        private void RecalculateTotal()
-        {
-            decimal total = 0;
-            foreach (var item in CartItems)
-            {
-                total += item.Total;
-            }
-            CartTotal = total;
-        }
-
-        private void RecalculateIndices()
-        {
-            int idx = 1;
-            foreach (var item in CartItems)
-            {
-                item.Index = idx++;
-            }
-        }
-
-        private void RefreshCartItem(CartItem item)
-        {
-            int idx = CartItems.IndexOf(item);
-            if (idx >= 0)
-            {
-                CartItems[idx] = item;
-                RecalculateTotal();
-            }
-        }
-
-        private List<SaleItem> ConvertCartToSaleItems()
-        {
-            return CartItems.Select(c => new SaleItem
-            {
-                ProductId = c.ProductId,
-                ProductCode = c.ProductCode,
-                ProductName = c.ProductName,
-                Quantity = c.Quantity,
-                UnitPurchasePrice = c.PurchasePrice,
-                UnitSellingPrice = c.OriginalPrice,
-                UnitFinalPrice = c.UnitPrice
-            }).ToList();
-        }
-
         private void RaiseRequestSearchFocus()
         {
              OnRequestSearchFocus();
         }
 
         #endregion
-    }
-
-    public class CartItem : BaseViewModel
-    {
-        private int _index;
-        private int _productId;
-        private string _productName;
-        private string _productCode;
-        private int _quantity;
-        private decimal _unitPrice;
-        private decimal _originalPrice;
-        private decimal _purchasePrice;
-        private decimal _total;
-
-        public int Index
-        {
-            get => _index;
-            set => SetProperty(ref _index, value);
-        }
-
-        public int ProductId
-        {
-            get => _productId;
-            set => SetProperty(ref _productId, value);
-        }
-
-        public string ProductName
-        {
-            get => _productName;
-            set => SetProperty(ref _productName, value);
-        }
-
-        public string ProductCode
-        {
-            get => _productCode;
-            set => SetProperty(ref _productCode, value);
-        }
-
-        public int Quantity
-        {
-            get => _quantity;
-            set => SetProperty(ref _quantity, value);
-        }
-
-        public decimal UnitPrice
-        {
-            get => _unitPrice;
-            set => SetProperty(ref _unitPrice, value);
-        }
-
-        public decimal OriginalPrice
-        {
-            get => _originalPrice;
-            set => SetProperty(ref _originalPrice, value);
-        }
-
-        public decimal PurchasePrice
-        {
-            get => _purchasePrice;
-            set => SetProperty(ref _purchasePrice, value);
-        }
-
-        public decimal Total
-        {
-            get => _total;
-            set => SetProperty(ref _total, value);
-        }
     }
 }

@@ -44,7 +44,8 @@ namespace AlJohary.ServiceHub.Tests
             var productRepo = new ProductRepository();
             var customerService = new CustomerService(new CustomerRepository());
             var paymentService = new PaymentService(new PaymentRepository());
-            var returnService = new ReturnService(saleRepo, productRepo, _tx);
+            var returnRepo = new ReturnRepository();
+            var returnService = new ReturnService(saleRepo, returnRepo, productRepo, _tx);
             return new SaleService(saleRepo, productRepo, customerService, paymentService, returnService, _tx, auth);
         }
 
@@ -295,7 +296,7 @@ namespace AlJohary.ServiceHub.Tests
         public void Maintenance_PaymentOnCancelledOrder_Rejected()
         {
             var repairRepo = new RepairRepository();
-            var svc = new MaintenanceService(repairRepo, new ProductRepository(), new CustomerRepository(), _tx, _activityLog);
+            var svc = new MaintenanceService(repairRepo, new ProductRepository(), new CustomerService(new CustomerRepository()), _tx, _activityLog);
 
             long orderId = DatabaseManager.Instance.ExecuteAndGetId(@"
                 INSERT INTO repair_orders (order_number, user_id, order_status, total_amount, paid_amount, remaining_amount, intake_date, created_at, updated_at)

@@ -10,15 +10,18 @@ namespace AlJohary.ServiceHub.Application.Services
     public class ReturnService : IReturnService
     {
         private readonly ISaleRepository _saleRepo;
+        private readonly IReturnRepository _returnRepo;
         private readonly IProductRepository _productRepo;
         private readonly IDbTransactionManager _txManager;
 
         public ReturnService(
             ISaleRepository saleRepo,
+            IReturnRepository returnRepo,
             IProductRepository productRepo,
             IDbTransactionManager txManager)
         {
             _saleRepo = saleRepo;
+            _returnRepo = returnRepo;
             _productRepo = productRepo;
             _txManager = txManager;
         }
@@ -50,7 +53,7 @@ namespace AlJohary.ServiceHub.Application.Services
                 if (sale == null) throw new Exception("عملية البيع غير موجودة");
 
                 var originalItems = _saleRepo.GetItems(saleId);
-                var previousReturns = _saleRepo.GetReturnedQuantities(saleId);
+                var previousReturns = _returnRepo.GetReturnedQuantities(saleId);
 
                 foreach (var it in items)
                 {
@@ -113,8 +116,8 @@ namespace AlJohary.ServiceHub.Application.Services
                 // The branch and the returns.debt_deduction column are kept only for historical data.
                 decimal debtDeduction = Math.Min(sale.RemainingAmount, totalDebtDeduction);
 
-                string returnNumber = _saleRepo.GenerateReturnNumber();
-                long returnId = _saleRepo.CreateReturn(returnNumber, (int)sale.Id, sale.CustomerId, userId, totalItemsValue, cashRefund, debtDeduction, reason, refundMethod);
+                string returnNumber = _returnRepo.GenerateReturnNumber();
+                long returnId = _returnRepo.CreateReturn(returnNumber, (int)sale.Id, sale.CustomerId, userId, totalItemsValue, cashRefund, debtDeduction, reason, refundMethod);
 
                 decimal newPaid = Math.Max(0, sale.PaidAmount - cashRefund);
                 decimal newRemaining = Math.Max(0, sale.RemainingAmount - debtDeduction);
@@ -126,7 +129,7 @@ namespace AlJohary.ServiceHub.Application.Services
                     var it = items[i];
                     var saleItem = originalItems.Find(x => x.Id == it.SaleItemId);
 
-                    _saleRepo.AddReturnItem(returnId, it.SaleItemId, saleItem.ProductId, saleItem.ProductCode, saleItem.ProductName, it.Quantity, saleItem.UnitFinalPrice, itemReturnedValues[i]);
+                    _returnRepo.AddReturnItem(returnId, it.SaleItemId, saleItem.ProductId, saleItem.ProductCode, saleItem.ProductName, it.Quantity, saleItem.UnitFinalPrice, itemReturnedValues[i]);
                     _productRepo.UpdateQuantity(saleItem.ProductId, it.Quantity);
 
                     decimal newItemPaid = Math.Max(0, saleItem.PaidAmount - itemReturnedPaidParts[i]);
@@ -147,11 +150,11 @@ namespace AlJohary.ServiceHub.Application.Services
             }
         }
 
-        public Dictionary<string, object> GetReturnById(int returnId) => _saleRepo.GetReturnById(returnId);
+        public Dictionary<string, object> GetReturnById(int returnId) => _returnRepo.GetReturnById(returnId);
 
-        public List<Dictionary<string, object>> GetReturnItems(int returnId) => _saleRepo.GetReturnItems(returnId);
-        public Dictionary<int, int> GetReturnedQuantities(int saleId) => _saleRepo.GetReturnedQuantities(saleId);
-        public List<Return> GetReturns(string query = null) => _saleRepo.GetReturns(query);
-        public List<Return> GetReturnsReport(string startDate, string endDate) => _saleRepo.GetReturnsReport(startDate, endDate);
+        public List<Dictionary<string, object>> GetReturnItems(int returnId) => _returnRepo.GetReturnItems(returnId);
+        public Dictionary<int, int> GetReturnedQuantities(int saleId) => _returnRepo.GetReturnedQuantities(saleId);
+        public List<Return> GetReturns(string query = null) => _returnRepo.GetReturns(query);
+        public List<Return> GetReturnsReport(string startDate, string endDate) => _returnRepo.GetReturnsReport(startDate, endDate);
     }
 }

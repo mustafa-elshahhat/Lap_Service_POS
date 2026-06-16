@@ -31,22 +31,20 @@ namespace AlJohary.ServiceHub.Domain.Interfaces
         void AddSalePayment(long saleId, string method, decimal amount, string notes);
         List<Dictionary<string, object>> GetSalePayments(long saleId);
 
+        // SUPERSEDED by IReportRepository.GetDailySummary / GetPeriodSummary which include
+        // maintenance profit, expenses, returns, supplier payments, and salary data. This method
+        // only reads the sales table and gives an incomplete financial picture.
+        [Obsolete("Use IReportRepository.GetDailySummary / GetPeriodSummary for the full financial summary.")]
         Dictionary<string, object> GetDailySummary(DateTime date);
+        // SUPERSEDED by IReportRepository.GetPeriodSummary which includes maintenance profit,
+        // expenses, returns, supplier payments, and salary data.
+        [Obsolete("Use IReportRepository.GetPeriodSummary for the full period financial summary.")]
         Dictionary<string, object> GetMonthlySummary(DateTime startDate, DateTime endDate);
         List<Sale> GetTodaySales();
-
-        long CreateReturn(string returnNumber, int saleId, int? customerId, int userId, decimal total, decimal cashRefund, decimal debtDeduction, string reason, string method);
-        void AddReturnItem(long returnId, int saleItemId, int productId, string code, string name, int quantity, decimal unitPrice, decimal total);
-        List<Return> GetReturns(string query);
-        Dictionary<string, object> GetReturnById(int id);
-        List<Dictionary<string, object>> GetReturnItems(int returnId);
-        Dictionary<int, int> GetReturnedQuantities(int saleId);
-        List<Return> GetReturnsReport(string startDate, string endDate);
 
         void UpdateSaleFinancials(long saleId, decimal total, decimal paid, decimal remaining, decimal profit);
 
         string GenerateInvoiceNumber();
-        string GenerateReturnNumber();
         void LogActivity(int userId, string action, string table, int recordId, string details);
     }
 }

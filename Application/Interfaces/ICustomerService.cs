@@ -12,5 +12,6 @@ namespace AlJohary.ServiceHub.Application.Interfaces
         long CreateCustomer(Customer customer);
         void UpdateCustomer(Customer customer);
         void DeleteCustomer(int id);
+        int? GetOrCreateCustomer(string name, string phone);
     }
 }

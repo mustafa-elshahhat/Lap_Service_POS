@@ -56,6 +56,7 @@ namespace AlJohary.ServiceHub.Presentation
             var supplierRepo = new SupplierRepository();
             var reportRepo = new ReportRepository();
             var repairRepo = new RepairRepository();
+            var returnRepo = new ReturnRepository();
             var employeeRepo = new EmployeeRepository();
 
             var authService = new AuthService(userRepo, txManager);
@@ -64,12 +65,12 @@ namespace AlJohary.ServiceHub.Presentation
             var productService  = new ProductService(productRepo);
             var customerService = new CustomerService(customerRepo);
             var paymentService  = new PaymentService(paymentRepo);
-            var returnService   = new ReturnService(saleRepo, productRepo, txManager);
+            var returnService   = new ReturnService(saleRepo, returnRepo, productRepo, txManager);
             var saleService     = new SaleService(saleRepo, productRepo, customerService, paymentService, returnService, txManager, authService);
             var expenseService  = new ExpenseService(expenseRepo, authService, txManager, activityLog);
             var supplierService = new SupplierService(supplierRepo, authService, txManager, activityLog);
             var reportService   = new ReportService(reportRepo);
-            var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerRepo, txManager, activityLog);
+            var maintenanceService = new MaintenanceService(repairRepo, productRepo, customerService, txManager, activityLog);
             var employeeService = new EmployeeService(employeeRepo, authService, txManager, activityLog);
 
             var dialogService = new DialogService();
@@ -89,6 +90,7 @@ namespace AlJohary.ServiceHub.Presentation
             ServiceContainer.Register<IDbTransactionManager>(txManager);
             ServiceContainer.Register<IActivityLog>(activityLog);
             ServiceContainer.Register<IPurchaseImportService>(new CsvPurchaseImportService());
+            ServiceContainer.Register<IReturnRepository>(returnRepo);
             ServiceContainer.Register<IEmployeeRepository>(employeeRepo);
             ServiceContainer.Register<IEmployeeService>(employeeService);
             ServiceContainer.Register<IPrintService>(new AlJohary.ServiceHub.Infrastructure.Printing.PrintService());

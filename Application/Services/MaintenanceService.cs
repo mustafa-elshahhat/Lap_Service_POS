@@ -12,48 +12,27 @@ namespace AlJohary.ServiceHub.Application.Services
     {
         private readonly IRepairRepository    _repo;
         private readonly IProductRepository   _productRepo;
-        private readonly ICustomerRepository  _customerRepo;
+        private readonly ICustomerService     _customerService;
         private readonly IDbTransactionManager _txManager;
         private readonly IActivityLog         _activityLog;
 
         public MaintenanceService(
             IRepairRepository    repo,
             IProductRepository   productRepo,
-            ICustomerRepository  customerRepo,
+            ICustomerService     customerService,
             IDbTransactionManager txManager,
             IActivityLog         activityLog = null)
         {
-            _repo         = repo;
-            _productRepo  = productRepo;
-            _customerRepo = customerRepo;
-            _txManager    = txManager;
-            _activityLog  = activityLog;
+            _repo            = repo;
+            _productRepo     = productRepo;
+            _customerService = customerService;
+            _txManager       = txManager;
+            _activityLog     = activityLog;
         }
 
         private int? ResolveCustomer(string name, string phone)
         {
-            if (string.IsNullOrWhiteSpace(name)) return null;
-
-            var normalizedPhone = phone?.Trim();
-            var existing = !string.IsNullOrWhiteSpace(normalizedPhone)
-                ? _customerRepo.GetByPhone(normalizedPhone)
-                : null;
-
-            if (existing != null)
-            {
-                if (existing.Name != name.Trim())
-                {
-                    existing.Name = name.Trim();
-                    _customerRepo.Update(existing);
-                }
-                return existing.Id;
-            }
-
-            return (int)_customerRepo.Create(new Customer
-            {
-                Name  = name.Trim(),
-                Phone = normalizedPhone
-            });
+            return _customerService.GetOrCreateCustomer(name, phone);
         }
 
         public RepairOrder CreateOrder(RepairOrderInput input, int userId)

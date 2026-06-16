@@ -44,5 +44,31 @@ namespace AlJohary.ServiceHub.Application.Services
             _customerRepo.Update(customer);
         }
         public void DeleteCustomer(int id) => _customerRepo.Delete(id);
+
+        // Sales and Maintenance now share this method (P4-T08 consolidation).
+        // Maintenance-created customers are phone-normalized (spaces/dashes stripped)
+        // and de-duplicated by phone. This is intended behavior, not a regression.
+        public int? GetOrCreateCustomer(string name, string phone)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return null;
+
+            var normalizedPhone = phone?.Trim();
+            var existing = !string.IsNullOrWhiteSpace(normalizedPhone)
+                ? GetByPhone(normalizedPhone)
+                : null;
+
+            if (existing != null)
+            {
+                if (existing.Name != name.Trim())
+                {
+                    existing.Name = name.Trim();
+                    UpdateCustomer(existing);
+                }
+                return existing.Id;
+            }
+
+            return (int)CreateCustomer(
+                new Customer { Name = name.Trim(), Phone = normalizedPhone });
+        }
     }
 }

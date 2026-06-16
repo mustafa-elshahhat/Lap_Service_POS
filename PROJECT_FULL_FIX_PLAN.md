@@ -668,7 +668,7 @@ The audit's "Exact next action" is H-2 + M-2; both are in Phase 1.
 - **Current evidence from audit:** "`GetDailySummary`/`GetMonthlySummary` on `SaleRepository` (`:358,372`) overlap the canonical `ReportRepository` summary and appear unused by the reports UI — candidates to remove (verify)."
 - **Problem summary:** Duplicate summary methods that appear unused.
 - **Desired behavior:** Verified decision: if no caller (incl. tests/XAML/reflection), schedule removal in Phase 6; otherwise consolidate to the `ReportRepository` summary.
-- **Implementation notes:** This is a **verify-before-removal** task; do not delete here. Hand the removal to Phase 6 (P6) if confirmed unused.
+- **Implementation notes:** This is a **verify-before-removal** task; do not delete here. Hand the removal to Phase 6 (P6) if confirmed unused. During Phase 4, `[Obsolete]` attributes and deprecation comments were added to `ISaleRepository.GetDailySummary`, `ISaleRepository.GetMonthlySummary`, `SaleRepository.GetDailySummary`, and `SaleRepository.GetMonthlySummary`. The methods remain in place; no callers were changed. Actual removal is routed to Phase 6 cleanup. **Do NOT remove the Obsolete markers.**
 - **Step-by-step work plan:** 1) Grep all callers across tree. 2) If none, mark for Phase 6 removal. 3) If some, plan consolidation.
 - **Edge cases to handle:** Reflection/XAML binding usage; test-only usage.
 - **Tests to add/update:** none here (removal handled in Phase 6 with verification).
@@ -678,6 +678,17 @@ The audit's "Exact next action" is H-2 + M-2; both are in Phase 1.
 - **Risk level:** Low.
 - **Dependencies:** Build/test green (Phases 1–3).
 - **Rollback notes:** N/A (no change here).
+
+---
+
+#### Phase 4 completion note — P4-T06 explicitly deferred
+
+P4-T06 (transaction-helper refactor / `WithTransaction` helper) was **intentionally deferred** from this pass. Rationale:
+- It touches multiple money mutation paths and transaction semantics.
+- It must be handled separately with explicit approval and full regression tests before implementation.
+- See P4-T06 description above for scope.
+
+Do NOT implement P4-T06 until separately approved.
 
 ---
 

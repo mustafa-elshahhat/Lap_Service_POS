@@ -19,18 +19,6 @@ namespace AlJohary.ServiceHub.Core.Accounting
         public static decimal CalculateTotalWithDiscountAndMarkup(decimal subtotal, decimal discountAmount, decimal markupAmount)
             => subtotal - discountAmount + markupAmount;
 
-        public static decimal CalculateDiscountPercent(decimal originalPrice, decimal finalPrice)
-        {
-            if (originalPrice == 0) return 0;
-            return ((originalPrice - finalPrice) / originalPrice) * 100;
-        }
-
-        public static decimal CalculateMarkupPercent(decimal originalPrice, decimal finalPrice)
-        {
-            if (originalPrice == 0) return 0;
-            return ((finalPrice - originalPrice) / originalPrice) * 100;
-        }
-
         public static decimal CalculateTotalProfit(decimal[] itemProfits)
         {
             decimal total = 0;
