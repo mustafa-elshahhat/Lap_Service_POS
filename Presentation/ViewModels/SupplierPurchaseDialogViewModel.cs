@@ -125,7 +125,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
         public ICommand AddLineCommand => new RelayCommand(AddLine);
         public ICommand RemoveLineCommand => new RelayCommand(RemoveLine, () => SelectedLine != null);
-        public ICommand ImportExcelCommand => new RelayCommand(ImportCsv);
+        public ICommand ImportExcelCommand => new RelayCommand(ImportPurchaseFile);
         public ICommand CopyAiPromptCommand => new RelayCommand(CopyAiPrompt);
         public ICommand SaveCommand => new RelayCommand(Save);
         public ICommand CancelCommand => new RelayCommand(() => CloseAction?.Invoke(false));
@@ -180,11 +180,11 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             SelectedLine = null;
         }
 
-        private void ImportCsv()
+        private void ImportPurchaseFile()
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "CSV Files|*.csv|All Files|*.*",
+                Filter = "CSV و XLSX|*.csv;*.xlsx|CSV Files|*.csv|Excel Files|*.xlsx",
                 Title = "استيراد مشتريات المورد"
             };
 
@@ -193,6 +193,12 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             try
             {
                 var import = _importService.Import(dialog.FileName);
+                if (import.Errors.Count > 0)
+                {
+                    _dialogService.ShowWarning("فشل الاستيراد", string.Join("\n", import.Errors.Take(10)));
+                    return;
+                }
+
                 foreach (var row in import.Rows)
                 {
                     var line = new SupplierPurchaseLineRow
@@ -205,11 +211,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     Lines.Add(line);
                 }
 
-                string summary = $"تم استيراد {import.Rows.Count} سطر، {import.Warnings.Count} تحذير، {import.Errors.Count} خطأ";
-                if (import.Errors.Count > 0)
-                    _dialogService.ShowWarning("نتيجة الاستيراد", summary + "\n" + string.Join("\n", import.Errors.Take(8)));
-                else
-                    _dialogService.ShowSuccess("نتيجة الاستيراد", summary);
+                _dialogService.ShowSuccess("نجح الاستيراد", $"تم استيراد {import.Rows.Count} صف");
             }
             catch (Exception ex)
             {

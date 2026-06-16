@@ -6,11 +6,14 @@ using System.Linq;
 using System.Text;
 using AlJohary.ServiceHub.Application.DTOs;
 using AlJohary.ServiceHub.Application.Interfaces;
+using ClosedXML.Excel;
 
 namespace AlJohary.ServiceHub.Infrastructure.Services
 {
     public class CsvPurchaseImportService : IPurchaseImportService
     {
+        private static readonly string[] RequiredColumns = SupplierPurchaseImportColumns.Canonical;
+
         private static readonly Dictionary<string, string> HeaderAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "productname", "ProductName" },
@@ -30,70 +33,152 @@ namespace AlJohary.ServiceHub.Infrastructure.Services
                 return result;
             }
 
-            if (!string.Equals(Path.GetExtension(filePath), ".csv", StringComparison.OrdinalIgnoreCase))
+            string extension = Path.GetExtension(filePath);
+            if (string.Equals(extension, ".csv", StringComparison.OrdinalIgnoreCase))
             {
-                result.Errors.Add("الاستيراد الحالي يدعم ملفات CSV فقط");
-                return result;
+                ImportCsv(filePath, result);
+            }
+            else if (string.Equals(extension, ".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                ImportXlsx(filePath, result);
+            }
+            else
+            {
+                result.Errors.Add("يدعم الاستيراد ملفات CSV و XLSX فقط");
             }
 
+            return result;
+        }
+
+        private static void ImportCsv(string filePath, ExcelImportResult result)
+        {
             var lines = File.ReadAllLines(filePath, Encoding.UTF8).ToList();
             if (lines.Count == 0)
             {
                 result.Errors.Add("الملف فارغ");
-                return result;
+                return;
             }
 
-            var headers = ParseCsvLine(lines[0]);
+            char delimiter = DetectDelimiter(lines[0]);
+            var headers = ParseCsvLine(lines[0], delimiter);
             var map = BuildHeaderMap(headers);
-            var missing = new[] { "ProductName", "Quantity", "UnitPurchasePrice" }
-                .Where(h => !map.ContainsKey(h))
-                .ToList();
-            if (missing.Count > 0)
+            if (!ValidateRequiredHeaders(map, result))
             {
-                result.Errors.Add("أعمدة مطلوبة غير موجودة: " + string.Join(", ", missing));
-                return result;
+                return;
             }
 
             for (int i = 1; i < lines.Count; i++)
             {
-                var cells = ParseCsvLine(lines[i]);
-                if (cells.All(string.IsNullOrWhiteSpace)) continue;
+                var cells = ParseCsvLine(lines[i], delimiter);
+                if (IsEmptyRow(cells)) continue;
 
-                int rowNumber = i + 1;
-                string name = GetCell(cells, map, "ProductName");
-                string qtyText = GetCell(cells, map, "Quantity");
-                string priceText = GetCell(cells, map, "UnitPurchasePrice");
-
-                bool valid = true;
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    result.Errors.Add($"السطر {rowNumber}: اسم المنتج مطلوب");
-                    valid = false;
-                }
-
-                if (!TryParseInt(qtyText, out int quantity) || quantity <= 0)
-                {
-                    result.Errors.Add($"السطر {rowNumber}: الكمية يجب أن تكون رقماً صحيحاً أكبر من صفر");
-                    valid = false;
-                }
-
-                if (!TryParseDecimal(priceText, out decimal unitPurchasePrice) || unitPurchasePrice < 0)
-                {
-                    result.Errors.Add($"السطر {rowNumber}: سعر الشراء يجب أن يكون رقماً غير سالب");
-                    valid = false;
-                }
-
-                if (!valid) continue;
-
-                result.Rows.Add(new SupplierPurchaseLineInput
-                {
-                    ProductName = name.Trim(),
-                    Quantity = quantity,
-                    UnitPurchasePrice = unitPurchasePrice
-                });
+                AddValidatedRow(result, i + 1,
+                    GetCell(cells, map, "ProductName"),
+                    GetCell(cells, map, "Quantity"),
+                    GetCell(cells, map, "UnitPurchasePrice"));
             }
 
-            return result;
+            FinalizeImportResult(result);
+        }
+
+        private static void ImportXlsx(string filePath, ExcelImportResult result)
+        {
+            using (var workbook = new XLWorkbook(filePath))
+            {
+                var worksheet = workbook.Worksheets.FirstOrDefault();
+                if (worksheet == null || worksheet.FirstRowUsed() == null)
+                {
+                    result.Errors.Add("الملف فارغ");
+                    return;
+                }
+
+                const int headerRowNumber = 1;
+                int lastColumn = worksheet.LastColumnUsed()?.ColumnNumber() ?? 0;
+                if (lastColumn == 0)
+                {
+                    result.Errors.Add("الملف فارغ");
+                    return;
+                }
+
+                var headers = Enumerable.Range(1, lastColumn)
+                    .Select(column => GetCellText(worksheet.Cell(headerRowNumber, column)))
+                    .ToList();
+                var map = BuildHeaderMap(headers);
+                if (!ValidateRequiredHeaders(map, result))
+                {
+                    return;
+                }
+
+                int lastRow = worksheet.LastRowUsed()?.RowNumber() ?? headerRowNumber;
+                for (int rowNumber = headerRowNumber + 1; rowNumber <= lastRow; rowNumber++)
+                {
+                    var cells = Enumerable.Range(1, lastColumn)
+                        .Select(column => GetCellText(worksheet.Cell(rowNumber, column)))
+                        .ToList();
+                    if (IsEmptyRow(cells)) continue;
+
+                    AddValidatedRow(result, rowNumber,
+                        GetCell(cells, map, "ProductName"),
+                        GetCell(cells, map, "Quantity"),
+                        GetCell(cells, map, "UnitPurchasePrice"));
+                }
+            }
+
+            FinalizeImportResult(result);
+        }
+
+        private static bool ValidateRequiredHeaders(Dictionary<string, int> map, ExcelImportResult result)
+        {
+            var missing = RequiredColumns.Where(h => !map.ContainsKey(h)).ToList();
+            if (missing.Count == 0) return true;
+
+            result.Errors.Add("Header غير صحيح. الأعمدة المطلوبة هي: " + string.Join(", ", RequiredColumns) + ". الأعمدة الناقصة: " + string.Join(", ", missing));
+            return false;
+        }
+
+        private static void AddValidatedRow(ExcelImportResult result, int rowNumber, string name, string qtyText, string priceText)
+        {
+            bool valid = true;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                result.Errors.Add($"السطر {rowNumber}: ProductName مطلوب ولا يمكن أن يكون فارغاً");
+                valid = false;
+            }
+
+            if (!TryParseInt(qtyText, out int quantity) || quantity <= 0)
+            {
+                result.Errors.Add($"السطر {rowNumber}: Quantity يجب أن يكون رقماً صحيحاً أكبر من صفر بدون رموز عملة");
+                valid = false;
+            }
+
+            if (!TryParseDecimal(priceText, out decimal unitPurchasePrice) || unitPurchasePrice < 0)
+            {
+                result.Errors.Add($"السطر {rowNumber}: UnitPurchasePrice يجب أن يكون رقماً أكبر من أو يساوي صفر بدون رموز عملة");
+                valid = false;
+            }
+
+            if (!valid) return;
+
+            result.Rows.Add(new SupplierPurchaseLineInput
+            {
+                ProductName = name.Trim(),
+                Quantity = quantity,
+                UnitPurchasePrice = unitPurchasePrice
+            });
+        }
+
+        private static void FinalizeImportResult(ExcelImportResult result)
+        {
+            if (result.Errors.Count > 0)
+            {
+                result.Rows.Clear();
+                return;
+            }
+
+            if (result.Rows.Count == 0)
+            {
+                result.Errors.Add("لم يتم العثور على صفوف صالحة للاستيراد");
+            }
         }
 
         private static Dictionary<string, int> BuildHeaderMap(List<string> headers)
@@ -112,7 +197,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Services
 
         private static string NormalizeHeader(string header)
         {
-            return string.Join(" ", (header ?? "").Trim().Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)).ToLowerInvariant();
+            return string.Join(" ", (header ?? "").Trim().TrimStart('\uFEFF').Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)).ToLowerInvariant();
         }
 
         private static string GetCell(List<string> cells, Dictionary<string, int> map, string column)
@@ -121,7 +206,19 @@ namespace AlJohary.ServiceHub.Infrastructure.Services
             return cells[index];
         }
 
-        private static List<string> ParseCsvLine(string line)
+        private static bool IsEmptyRow(List<string> cells)
+        {
+            return cells.All(string.IsNullOrWhiteSpace);
+        }
+
+        private static char DetectDelimiter(string headerLine)
+        {
+            var commaCells = ParseCsvLine(headerLine, ',');
+            var semicolonCells = ParseCsvLine(headerLine, ';');
+            return semicolonCells.Count > commaCells.Count ? ';' : ',';
+        }
+
+        private static List<string> ParseCsvLine(string line, char delimiter)
         {
             var cells = new List<string>();
             var current = new StringBuilder();
@@ -142,7 +239,7 @@ namespace AlJohary.ServiceHub.Infrastructure.Services
                         inQuotes = !inQuotes;
                     }
                 }
-                else if (c == ',' && !inQuotes)
+                else if (c == delimiter && !inQuotes)
                 {
                     cells.Add(current.ToString());
                     current.Clear();
@@ -168,7 +265,13 @@ namespace AlJohary.ServiceHub.Infrastructure.Services
         private static bool TryParseDecimal(string text, out decimal value)
         {
             string normalized = NormalizeNumber(text);
-            return decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
+            if (string.IsNullOrWhiteSpace(normalized))
+            {
+                value = 0;
+                return false;
+            }
+
+            return decimal.TryParse(normalized, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out value);
         }
 
         private static string NormalizeNumber(string text)
@@ -184,9 +287,14 @@ namespace AlJohary.ServiceHub.Infrastructure.Services
             }
 
             string s = sb.ToString();
-            if (s.Contains(',') && !s.Contains('.')) s = s.Replace(',', '.');
-            else s = s.Replace(",", "");
+            if (s.Count(c => c == '.') + s.Count(c => c == ',') > 1) return string.Empty;
+            s = s.Replace(',', '.');
             return s;
+        }
+
+        private static string GetCellText(IXLCell cell)
+        {
+            return cell?.Value.ToString() ?? string.Empty;
         }
     }
 }
