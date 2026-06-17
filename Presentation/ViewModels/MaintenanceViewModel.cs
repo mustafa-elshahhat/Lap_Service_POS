@@ -5,6 +5,7 @@ using System.Windows.Input;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Presentation.Services;
 using AlJohary.ServiceHub.Shared.Helpers;
 
 namespace AlJohary.ServiceHub.Presentation.ViewModels
@@ -132,7 +133,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             var vm  = new RepairOrderFormViewModel();
             var dlg = new Views.RepairOrderDialog(vm);
-            dlg.Owner = System.Windows.Application.Current.MainWindow;
+            DialogService.ConfigureOwnedWindow(dlg);
             dlg.ShowDialog();
             LoadOrders();
         }
@@ -145,7 +146,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
             var vm  = new RepairOrderFormViewModel(order);
             var dlg = new Views.RepairOrderDialog(vm);
-            dlg.Owner = System.Windows.Application.Current.MainWindow;
+            DialogService.ConfigureOwnedWindow(dlg);
             dlg.ShowDialog();
             LoadOrders();
         }

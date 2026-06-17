@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Presentation.Services;
 using AlJohary.ServiceHub.Application.Services;
 using AlJohary.ServiceHub.Presentation.Views;
 using AlJohary.ServiceHub.Shared.Helpers;
@@ -133,9 +134,9 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 var vm = new CustomerFormViewModel(_dialogService);
                 var view = new CustomerFormDialog
                 {
-                    DataContext = vm,
-                    Owner = System.Windows.Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
+                    DataContext = vm
                 };
+                DialogService.ConfigureOwnedWindow(view);
 
                 vm.CloseAction = (result) =>
                 {

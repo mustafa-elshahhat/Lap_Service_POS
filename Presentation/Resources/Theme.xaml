@@ -7,6 +7,7 @@
         <ResourceDictionary Source="Layout.xaml"/>
         <ResourceDictionary Source="Buttons.xaml"/>
         <ResourceDictionary Source="TextBoxes.xaml"/>
+        <ResourceDictionary Source="DatePickers.xaml"/>
         <ResourceDictionary Source="DataGrid.xaml"/>
         <ResourceDictionary Source="Dialogs.xaml"/>
         <ResourceDictionary Source="RTL.xaml"/>

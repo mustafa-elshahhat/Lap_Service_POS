@@ -19,14 +19,24 @@
                 </Grid.RowDefinitions>
                 
                 
-                <Grid Grid.Row="0" Margin="24,32,24,24">
+                <Grid Grid.Row="0" Margin="24,32,24,24" FlowDirection="LeftToRight">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <StackPanel Grid.Column="0">
+                    <Button Grid.Column="0" 
+                            Content="➕ إضافة مستخدم جديد"
+                            Style="{DynamicResource PrimaryButton}"
+                            MinWidth="200"
+                            Height="48"
+                            FontFamily="{DynamicResource MainFontSemibold}"
+                            HorizontalAlignment="Left"
+                            FlowDirection="RightToLeft"
+                            Command="{Binding AddUserCommand}"/>
+
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" FlowDirection="RightToLeft">
                         <TextBlock Text="👤 إدارة المستخدمين" 
                                    FontFamily="{DynamicResource MainFontSemibold}"
                                    FontSize="26"
@@ -37,14 +47,6 @@
                                    Foreground="{DynamicResource TextMutedBrush}" 
                                    Margin="0,4,0,0"/>
                     </StackPanel>
-
-                    <Button Grid.Column="2" 
-                            Content="➕ إضافة مستخدم جديد"
-                            Style="{DynamicResource PrimaryButton}"
-                            MinWidth="200"
-                            Height="48"
-                            FontFamily="{DynamicResource MainFontSemibold}"
-                            Command="{Binding AddUserCommand}"/>
                 </Grid>
                 
                 <DataGrid Grid.Row="1"

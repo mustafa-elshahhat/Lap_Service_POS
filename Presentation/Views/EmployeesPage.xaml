@@ -19,26 +19,14 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="24">
+                <Grid Grid.Row="0" Margin="24" FlowDirection="LeftToRight">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="👨‍💼 إدارة الموظفين"
-                                   FontFamily="{DynamicResource MainFontSemibold}"
-                                   FontSize="24"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="إدارة بيانات الموظفين والرواتب والخصومات"
-                                   FontSize="13"
-                                   Foreground="{DynamicResource TextMutedBrush}"
-                                   Margin="0,4,0,0"/>
-                    </StackPanel>
-
-                    <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <WrapPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" FlowDirection="RightToLeft">
                         <Button Content="➕ إضافة موظف"
                                 Style="{DynamicResource PrimaryButton}"
                                 MinWidth="130"
@@ -65,6 +53,18 @@
                                 Margin="4,0"
                                 Command="{Binding LoadAllCommand}"/>
                     </WrapPanel>
+
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" FlowDirection="RightToLeft">
+                        <TextBlock Text="👨‍💼 إدارة الموظفين"
+                                   FontFamily="{DynamicResource MainFontSemibold}"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="إدارة بيانات الموظفين والرواتب والخصومات"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
                 </Grid>
 
                 <Grid Grid.Row="1" Margin="24,0,24,16">

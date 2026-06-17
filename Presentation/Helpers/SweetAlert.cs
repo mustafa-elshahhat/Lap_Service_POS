@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using AlJohary.ServiceHub.Presentation.Services;
 using AlJohary.ServiceHub.Presentation.Views;
 
 namespace AlJohary.ServiceHub.Presentation.Helpers
@@ -14,11 +15,7 @@ namespace AlJohary.ServiceHub.Presentation.Helpers
                 {
                     var window = new SweetAlertWindow(title, message, type, false, "موافق", "إلغاء", autoCloseSeconds);
 
-                    var activeWindow = GetActiveWindow();
-                    if (activeWindow != null && activeWindow != window)
-                    {
-                        window.Owner = activeWindow;
-                    }
+                    DialogService.ConfigureOwnedWindow(window);
 
                     window.ShowDialog();
                 }
@@ -62,52 +59,12 @@ namespace AlJohary.ServiceHub.Presentation.Helpers
             {
                 var window = new SweetAlertWindow(title, message, SweetAlertWindow.AlertType.Question, true, confirmText, cancelText, 0);
 
-                var activeWindow = GetActiveWindow();
-                if (activeWindow != null && activeWindow != window)
-                {
-                    window.Owner = activeWindow;
-                }
+                DialogService.ConfigureOwnedWindow(window);
 
                 var dialogResult = window.ShowDialog();
                 result = dialogResult.HasValue && dialogResult.Value;
             });
             return result;
-        }
-
-        private static Window GetActiveWindow()
-        {
-            Window activeWindow = null;
-            foreach (Window window in System.Windows.Application.Current.Windows)
-            {
-                if (window.IsActive && window.IsVisible)
-                {
-                    activeWindow = window;
-                    break;
-                }
-            }
-
-            if (activeWindow == null)
-            {
-                var main = System.Windows.Application.Current.MainWindow;
-                if (main != null && main.IsVisible)
-                {
-                    activeWindow = main;
-                }
-            }
-
-            if (activeWindow == null)
-            {
-                 foreach (Window window in System.Windows.Application.Current.Windows)
-                 {
-                     if (window.IsVisible && window.IsLoaded)
-                     {
-                         activeWindow = window;
-                         break;
-                     }
-                 }
-            }
-
-            return activeWindow;
         }
     }
 }

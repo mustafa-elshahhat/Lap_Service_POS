@@ -1,7 +1,8 @@
 <Page x:Class="AlJohary.ServiceHub.Presentation.Views.ReportsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:services="clr-namespace:AlJohary.ServiceHub.Application.Services"
+       xmlns:services="clr-namespace:AlJohary.ServiceHub.Application.Services"
+       xmlns:behaviors="clr-namespace:AlJohary.ServiceHub.Presentation.Behaviors"
       Title="التقارير"
       Background="{DynamicResource BgMainBrush}"
       FlowDirection="RightToLeft"
@@ -117,7 +118,7 @@
                             </StackPanel>
                         </Border>
                         
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden" Margin="0,0,0,20">
+                        <ScrollViewer VerticalScrollBarVisibility="Disabled" Margin="0,0,0,20">
                             <StackPanel Margin="0,12">
                                 <RadioButton Content="📅 التقرير اليومي" Style="{DynamicResource TabRadioButton}" IsChecked="True" Command="{Binding LoadReportCommand}" CommandParameter="Daily"/>
                                 <RadioButton Content="📆 التقرير الشهري" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="Monthly"/>
@@ -149,21 +150,21 @@
                         </Grid.RowDefinitions>
 
                         <!-- Header: report title/subtitle + export/print actions -->
-                        <Grid Grid.Row="0" Margin="0,0,0,18">
+                        <Grid Grid.Row="0" Margin="0,0,0,18" FlowDirection="LeftToRight">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding ReportTitle}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="{Binding ReportSubtitle}" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" Margin="0,4,0,0"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" FlowDirection="RightToLeft">
                                 <Button Content="📥 تصدير CSV" Style="{DynamicResource PrimaryButton}" MinWidth="130" Command="{Binding ExportCommand}" Margin="0,0,12,0"/>
                                 <Button x:Name="PrintButton" Content="🖨️ طباعة التقرير" Style="{DynamicResource PrimaryButton}" MinWidth="160" Command="{Binding PrintReportCommand}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                                <TextBlock Text="{Binding ReportTitle}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding ReportSubtitle}" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Grid>
 
@@ -180,9 +181,9 @@
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="🗓️ الفترة:" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                                 <TextBlock Text="من" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <DatePicker SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                                <DatePicker SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,20,0"/>
                                 <TextBlock Text="إلى" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <DatePicker SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" FontSize="13" VerticalAlignment="Center"/>
+                                <DatePicker SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding DateValidationMessage}" FontSize="12" Foreground="Red" VerticalAlignment="Center" Margin="16,0,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -269,14 +270,15 @@
                                                    Margin="0,0,0,16"
                                                    FontFamily="{DynamicResource MainFontSemibold}"/>
 
-                                        <DataGrid x:Name="ReportDataGrid"
-                                                  Grid.Row="1"
-                                                  Style="{DynamicResource MainDataGrid}"
-                                                  ItemsSource="{Binding ReportData}"
-                                                  IsReadOnly="True"
-                                                  BorderThickness="0"
-                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                         <DataGrid x:Name="ReportDataGrid"
+                                                   Grid.Row="1"
+                                                   Style="{DynamicResource MainDataGrid}"
+                                                   ItemsSource="{Binding ReportData}"
+                                                   IsReadOnly="True"
+                                                   BorderThickness="0"
+                                                   behaviors:DataGridScrollBehavior.ForwardMouseWheelToParent="True"
+                                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
                                         </DataGrid>
                                     </Grid>
                                 </Border>

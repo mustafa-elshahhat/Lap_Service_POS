@@ -20,22 +20,14 @@
                 </Grid.RowDefinitions>
                 
                 
-                <Grid Grid.Row="0" Margin="24">
+                <Grid Grid.Row="0" Margin="24" FlowDirection="LeftToRight">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <TextBlock Grid.Column="0" 
-                               Text="👥 إدارة العملاء" 
-                               FontFamily="{DynamicResource MainFontSemibold}"
-                               FontSize="24"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
-                               VerticalAlignment="Center"/>
-                    
-                    <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <WrapPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" FlowDirection="RightToLeft">
 
                         <Button Content="➕ عميل جديد"
                                 Style="{DynamicResource PrimaryButton}"
@@ -49,6 +41,16 @@
                                 Margin="4,0"
                                 Command="{Binding ShowAllCommand}"/>
                     </WrapPanel>
+
+                    <TextBlock Grid.Column="2" 
+                               Text="👥 إدارة العملاء" 
+                               FontFamily="{DynamicResource MainFontSemibold}"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               HorizontalAlignment="Right"
+                               FlowDirection="RightToLeft"
+                               VerticalAlignment="Center"/>
                 </Grid>
                 
                 

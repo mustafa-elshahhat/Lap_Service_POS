@@ -16,7 +16,7 @@ namespace AlJohary.ServiceHub.Presentation.Views
         public POSPage()
         {
             InitializeComponent();
-            _viewModel = new POSViewModel();
+            _viewModel = ServiceContainer.GetService<POSViewModel>();
             DataContext = _viewModel;
             AlJohary.ServiceHub.Presentation.Helpers.FocusHelper.SetupSearchFocus(this, SearchTextBox);
         }

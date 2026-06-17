@@ -5,12 +5,11 @@
         Title="سداد مديونية"
         SizeToContent="WidthAndHeight"
         MinWidth="450"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         ResizeMode="NoResize"
         AllowsTransparency="True"
         Background="Transparent"
-        Topmost="True"
         ShowInTaskbar="False"
         FlowDirection="RightToLeft"
         helpers:DialogChrome.DimOwner="True">

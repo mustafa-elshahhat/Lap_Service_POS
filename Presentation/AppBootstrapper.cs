@@ -8,6 +8,7 @@ using AlJohary.ServiceHub.Application.Services;
 using AlJohary.ServiceHub.Infrastructure.Persistence;
 using AlJohary.ServiceHub.Infrastructure.Services;
 using AlJohary.ServiceHub.Domain.Interfaces;
+using AlJohary.ServiceHub.Presentation.ViewModels;
 
 namespace AlJohary.ServiceHub.Presentation
 {
@@ -94,6 +95,7 @@ namespace AlJohary.ServiceHub.Presentation
             ServiceContainer.Register<IEmployeeRepository>(employeeRepo);
             ServiceContainer.Register<IEmployeeService>(employeeService);
             ServiceContainer.Register<IPrintService>(new AlJohary.ServiceHub.Infrastructure.Printing.PrintService());
+            ServiceContainer.Register<POSViewModel>(new POSViewModel());
         }
 
         private static void InitializeDatabase()

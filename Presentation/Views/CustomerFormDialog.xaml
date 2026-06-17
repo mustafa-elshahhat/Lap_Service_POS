@@ -6,7 +6,7 @@
         helpers:DialogChrome.DimOwner="True"
         Width="482"
         SizeToContent="Height"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"

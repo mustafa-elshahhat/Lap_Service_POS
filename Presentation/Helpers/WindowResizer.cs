@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace AlJohary.ServiceHub.Presentation.Helpers
 {
@@ -125,6 +126,13 @@ namespace AlJohary.ServiceHub.Presentation.Helpers
 
                 mmi.ptMaxTrackSize.x = mmi.ptMaxSize.x;
                 mmi.ptMaxTrackSize.y = mmi.ptMaxSize.y;
+            }
+
+            if (!_isFullScreen)
+            {
+                var dpiScale = VisualTreeHelper.GetDpi(_window);
+                mmi.ptMinTrackSize.x = (int)(_window.MinWidth * dpiScale.DpiScaleX);
+                mmi.ptMinTrackSize.y = (int)(_window.MinHeight * dpiScale.DpiScaleY);
             }
 
             Marshal.StructureToPtr(mmi, lParam, true);

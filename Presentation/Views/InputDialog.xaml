@@ -6,12 +6,11 @@
         helpers:DialogChrome.DimOwner="True"
         SizeToContent="WidthAndHeight"
         MinWidth="420"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         ResizeMode="NoResize"
         AllowsTransparency="True"
         Background="Transparent"
-        Topmost="True"
         ShowInTaskbar="False"
         FlowDirection="RightToLeft">
 

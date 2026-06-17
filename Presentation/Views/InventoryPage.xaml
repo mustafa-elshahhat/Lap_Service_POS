@@ -21,23 +21,14 @@
                 </Grid.RowDefinitions>
                 
                 
-                <Grid Grid.Row="0" Margin="24,24,24,20">
+                <Grid Grid.Row="0" Margin="24,24,24,20" FlowDirection="LeftToRight">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <TextBlock Text="📦 إدارة المخزون" 
-                                   FontFamily="{DynamicResource MainFontSemibold}"
-                                   FontSize="24"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
-                    <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <WrapPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" FlowDirection="RightToLeft">
                         <Button Content="➕ إضافة منتج"
                                 Style="{DynamicResource PrimaryButton}"
                                 MinWidth="140"
@@ -59,6 +50,15 @@
                                 Margin="4,0"
                                 Command="{Binding RefreshCommand}"/>
                     </WrapPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" FlowDirection="RightToLeft">
+                        <TextBlock Text="📦 إدارة المخزون" 
+                                   FontFamily="{DynamicResource MainFontSemibold}"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
                 </Grid>
                 
                 

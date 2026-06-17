@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Presentation.Services;
 using AlJohary.ServiceHub.Application.Services;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Presentation.Views;
@@ -123,8 +124,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 if (autoPrint)
                 {
                     var dialog = new InvoiceViewDialog(invoiceNum);
-                    var owner = System.Windows.Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
-                    if (owner != null) dialog.Owner = owner;
+                    DialogService.ConfigureOwnedWindow(dialog);
                     dialog.PrintInvoice();
                 }
                 else

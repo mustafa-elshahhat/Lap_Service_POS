@@ -20,12 +20,21 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="24">
+                <Grid Grid.Row="0" Margin="24" FlowDirection="LeftToRight">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
+                    <Button Grid.Column="0"
+                            Content="رجوع"
+                            Style="{DynamicResource DarkButton}"
+                            MinWidth="110"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            FlowDirection="RightToLeft"
+                            Click="BackButton_Click"/>
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" FlowDirection="RightToLeft">
                         <TextBlock Text="📦 تفاصيل حركة المورد"
                                    FontFamily="{DynamicResource MainFontSemibold}"
                                    FontSize="24"
@@ -33,12 +42,6 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock x:Name="SupplierNameText" FontSize="14" Foreground="{DynamicResource TextMutedBrush}" Margin="0,6,0,0"/>
                     </StackPanel>
-                    <Button Grid.Column="1"
-                            Content="رجوع"
-                            Style="{DynamicResource DarkButton}"
-                            MinWidth="110"
-                            VerticalAlignment="Center"
-                            Click="BackButton_Click"/>
                 </Grid>
 
                 <Border Grid.Row="1" Background="{DynamicResource LightBrush}" CornerRadius="10" Padding="16" Margin="24,0,24,18">

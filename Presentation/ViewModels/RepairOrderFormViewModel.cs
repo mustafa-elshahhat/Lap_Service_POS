@@ -5,6 +5,7 @@ using AlJohary.ServiceHub.Application.DTOs;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Domain.Entities;
 using AlJohary.ServiceHub.Presentation.Interfaces;
+using AlJohary.ServiceHub.Presentation.Services;
 using AlJohary.ServiceHub.Shared.Helpers;
 
 namespace AlJohary.ServiceHub.Presentation.ViewModels
@@ -258,7 +259,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             var title = SelectedDevice.DisplayName;
             var vm    = new RepairPartsViewModel(SelectedDevice.Id, _orderId, title);
             var dlg   = new Views.RepairPartsDialog(vm);
-            dlg.Owner = System.Windows.Application.Current.MainWindow;
+            DialogService.ConfigureOwnedWindow(dlg);
             dlg.ShowDialog();
             LoadDevices();
             RefreshTotals();
@@ -268,7 +269,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             var vm = new RepairDeviceFormViewModel(_orderId);
             var dlg = new Views.RepairDeviceDialog(vm);
-            dlg.Owner = System.Windows.Application.Current.MainWindow;
+            DialogService.ConfigureOwnedWindow(dlg);
             dlg.ShowDialog();
             if (vm.Saved) { LoadDevices(); RefreshTotals(); }
         }
@@ -282,7 +283,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
 
             var vm = new RepairDeviceFormViewModel(_orderId, device);
             var dlg = new Views.RepairDeviceDialog(vm);
-            dlg.Owner = System.Windows.Application.Current.MainWindow;
+            DialogService.ConfigureOwnedWindow(dlg);
             dlg.ShowDialog();
             if (vm.Saved) { LoadDevices(); RefreshTotals(); }
         }

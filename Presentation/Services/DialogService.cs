@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using AlJohary.ServiceHub.Application.Interfaces;
 using AlJohary.ServiceHub.Domain.Entities;
@@ -29,7 +30,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
             var vm = new CashSaleViewModel(total, this);
             var dialog = new CashSaleDialog();
             dialog.DataContext = vm;
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
 
             vm.CloseAction = (result) =>
             {
@@ -51,7 +52,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
         {
             result = null;
             var dialog = new InputDialog(title, message, defaultValue);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
 
             if (dialog.ShowDialog() == true)
             {
@@ -64,42 +65,42 @@ namespace AlJohary.ServiceHub.Presentation.Services
         public void ShowInvoiceViewDialog(string invoiceNumber)
         {
              var dialog = new InvoiceViewDialog(invoiceNumber);
-             dialog.Owner = System.Windows.Application.Current.MainWindow;
+             ConfigureOwnedWindow(dialog);
              dialog.ShowDialog();
         }
 
         public bool? ShowUserFormDialog(UserFormViewModel viewModel)
         {
             var dialog = new UserFormDialog(viewModel);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
             return dialog.ShowDialog();
         }
 
         public bool? ShowProductFormDialog(ProductFormViewModel viewModel)
         {
             var dialog = new ProductFormDialog(viewModel);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
             return dialog.ShowDialog();
         }
 
         public void ShowCustomerInvoicesDialog(int customerId, string customerName)
         {
             var dialog = new CustomerInvoicesDialog(customerId, customerName);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
             dialog.ShowDialog();
         }
 
         public bool? ShowExpenseDialog(ExpenseFormViewModel viewModel)
         {
             var dialog = new ExpenseDialog(viewModel);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
             return dialog.ShowDialog();
         }
 
         public bool? ShowEmployeeFormDialog(EmployeeFormViewModel viewModel)
         {
             var dialog = new EmployeeFormDialog(viewModel);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
             return dialog.ShowDialog();
         }
 
@@ -111,7 +112,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
             notes = null;
 
             var dialog = new EmployeeSalaryTransactionDialog(employee, transactionType);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
 
             if (dialog.ShowDialog() == true)
             {
@@ -127,7 +128,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
         public bool? ShowSupplierFormDialog(SupplierFormViewModel viewModel)
         {
             var dialog = new SupplierFormDialog(viewModel);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
             return dialog.ShowDialog();
         }
 
@@ -135,7 +136,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
         {
             result = null;
             var dialog = new SupplierPurchaseDialog(supplierName, currentDebt);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
 
             if (dialog.ShowDialog() == true)
             {
@@ -150,7 +151,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
             paymentAmount = 0;
             paymentMethod = "كاش";
             var dialog = new SupplierPaymentDialog(supplierName, currentDebt);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
 
             if (dialog.ShowDialog() == true)
             {
@@ -164,7 +165,7 @@ namespace AlJohary.ServiceHub.Presentation.Services
         public void ShowReturnDetailsDialog(int returnId)
         {
             var dialog = new ReturnDetailsDialog(returnId);
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            ConfigureOwnedWindow(dialog);
             dialog.ShowDialog();
         }
 
@@ -184,6 +185,23 @@ namespace AlJohary.ServiceHub.Presentation.Services
             System.Windows.Application.Current.MainWindow = win;
             win.Show();
             prev?.Close();
+        }
+
+        internal static void ConfigureOwnedWindow(Window window)
+        {
+            var owner = System.Windows.Application.Current.Windows
+                .OfType<Window>()
+                .FirstOrDefault(w => w.IsActive && w != window);
+
+            if (owner == null)
+                owner = System.Windows.Application.Current.MainWindow;
+
+            if (owner != null && owner != window && owner.IsLoaded && owner.IsVisible)
+                window.Owner = owner;
+
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            window.ShowInTaskbar = false;
+            window.Topmost = false;
         }
     }
 }

@@ -5,7 +5,7 @@
         Title="عرض الفاتورة" 
         Width="982" Height="732"
         MinWidth="832" MinHeight="632"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None"
         AllowsTransparency="True"

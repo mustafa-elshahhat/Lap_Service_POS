@@ -144,6 +144,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
         {
             if (_dialogService.Confirm("تسجيل الخروج", "هل تريد تسجيل الخروج؟"))
             {
+                ServiceContainer.GetService<POSViewModel>().Cart.Clear();
                 _auth.Logout();
                 _dialogService.ShowLoginWindow();
                 CloseAction?.Invoke();

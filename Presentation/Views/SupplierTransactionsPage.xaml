@@ -20,26 +20,14 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="24">
+                <Grid Grid.Row="0" Margin="24" FlowDirection="LeftToRight">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="📜 حركات المورد"
-                                   FontFamily="{DynamicResource MainFontSemibold}"
-                                   FontSize="24"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock x:Name="SupplierNameText"
-                                   FontSize="14"
-                                   Foreground="{DynamicResource TextMutedBrush}"
-                                   Margin="0,6,0,0"/>
-                    </StackPanel>
-
-                    <WrapPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <WrapPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" FlowDirection="RightToLeft">
                         <Button Content="🖨️ طباعة كشف حساب"
                                 Style="{DynamicResource PrimaryButton}"
                                 MinWidth="170"
@@ -51,6 +39,18 @@
                                 Margin="4,0"
                                 Click="BackButton_Click"/>
                     </WrapPanel>
+
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" FlowDirection="RightToLeft">
+                        <TextBlock Text="📜 حركات المورد"
+                                   FontFamily="{DynamicResource MainFontSemibold}"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock x:Name="SupplierNameText"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
                 </Grid>
 
                 <Border Grid.Row="1"

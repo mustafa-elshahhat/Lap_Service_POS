@@ -4,12 +4,11 @@
         xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Title="تسجيل مشتريات"
         Width="1012" Height="812"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         ResizeMode="NoResize"
         AllowsTransparency="True"
         Background="Transparent"
-        Topmost="True"
         ShowInTaskbar="False"
         FlowDirection="RightToLeft"
         helpers:DialogChrome.DimOwner="True">

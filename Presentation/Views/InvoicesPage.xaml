@@ -19,28 +19,32 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="24,24,24,20">
+                <Grid Grid.Row="0" Margin="24,24,24,20" FlowDirection="LeftToRight">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
+                     
+                    <Button Grid.Column="0"
+                            Content="🔄 عرض الكل"
+                            Style="{DynamicResource DarkButton}"
+                            MinWidth="140"
+                            HorizontalAlignment="Left"
+                            FlowDirection="RightToLeft"
+                            Command="{Binding LoadAllCommand}"/>
+
                     
-                    <TextBlock Grid.Column="0" 
+                    <TextBlock Grid.Column="2" 
                                Text="🧾 قائمة الفواتير" 
                                FontFamily="{DynamicResource MainFontSemibold}" 
                                FontSize="24" 
                                FontWeight="Bold" 
                                Foreground="{DynamicResource TextPrimaryBrush}"
+                               HorizontalAlignment="Right"
+                               FlowDirection="RightToLeft"
                                VerticalAlignment="Center"/>
-
-                    
-                    <Button Grid.Column="2"
-                            Content="🔄 عرض الكل"
-                            Style="{DynamicResource DarkButton}"
-                            MinWidth="140"
-                            Command="{Binding LoadAllCommand}"/>
                 </Grid>
 
                 
