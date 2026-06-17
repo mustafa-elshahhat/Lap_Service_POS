@@ -132,6 +132,7 @@ namespace AlJohary.ServiceHub.Application.Services
             {
                 long deviceId = _repo.AddDevice(device);
                 _repo.RecalculateOrderTotals(orderId);
+                RecalculateOrderStatus(orderId);
                 _txManager.CommitTransaction();
                 return deviceId;
             }
@@ -176,6 +177,7 @@ namespace AlJohary.ServiceHub.Application.Services
             {
                 _repo.UpdateDevice(device);
                 _repo.RecalculateOrderTotals(orderId);
+                RecalculateOrderStatus(orderId);
                 _txManager.CommitTransaction();
             }
             catch
@@ -194,7 +196,67 @@ namespace AlJohary.ServiceHub.Application.Services
                 throw new InvalidOperationException(
                     $"لا يمكن الانتقال من حالة '{RepairStatus.ToArabic(device.DeviceStatus)}' إلى '{RepairStatus.ToArabic(newStatus)}'.");
 
-            _repo.UpdateDeviceStatus(deviceId, newStatus, notes);
+            _txManager.BeginTransaction();
+            try
+            {
+                _repo.UpdateDeviceStatus(deviceId, newStatus, notes);
+                RecalculateOrderStatus(device.OrderId);
+                _txManager.CommitTransaction();
+            }
+            catch
+            {
+                _txManager.RollbackTransaction();
+                throw;
+            }
+        }
+
+        // Rolls the order's status up from its devices so the order progresses through the
+        // workflow (received → … → completed) as device statuses change. Without this the order
+        // is created as 'received' and never advances, so the Deliver action — which requires a
+        // 'completed' order — can never be enabled. The order only becomes 'completed' once every
+        // active (non-cancelled) device is done; otherwise it reflects the least-advanced device.
+        // Delivered/cancelled orders are final and are never auto-changed here.
+        private void RecalculateOrderStatus(long orderId)
+        {
+            var order = _repo.GetOrder(orderId);
+            if (order == null || RepairStatus.IsFinal(order.OrderStatus))
+                return;
+
+            var devices = _repo.GetDevices(orderId);
+
+            int minIdx = -1;
+            bool hasActiveDevice = false;
+            bool allDone = true;
+            int completedIdx = Array.IndexOf(RepairStatus.ForwardFlow, RepairStatus.Completed);
+
+            foreach (var d in devices)
+            {
+                if (d.DeviceStatus == RepairStatus.Cancelled) continue;
+                hasActiveDevice = true;
+
+                bool deviceDone = d.DeviceStatus == RepairStatus.Completed
+                               || d.DeviceStatus == RepairStatus.Delivered;
+                if (!deviceDone) allDone = false;
+
+                int idx = Array.IndexOf(RepairStatus.ForwardFlow, d.DeviceStatus);
+                if (idx < 0) idx = 0;                       // unknown -> treat as 'received'
+                if (idx > completedIdx) idx = completedIdx; // a delivered device counts as 'completed' stage
+                if (minIdx < 0 || idx < minIdx) minIdx = idx;
+            }
+
+            string newStatus;
+            if (!hasActiveDevice)
+                newStatus = RepairStatus.Received;
+            else if (allDone)
+                newStatus = RepairStatus.Completed;
+            else
+                newStatus = RepairStatus.ForwardFlow[minIdx < 0 ? 0 : minIdx];
+
+            if (newStatus != order.OrderStatus)
+            {
+                order.OrderStatus = newStatus;
+                _repo.UpdateOrder(order);
+            }
         }
 
         public void AddInventoryPart(long deviceId, long orderId, int productId, int qty, decimal unitCost)
@@ -446,6 +508,7 @@ namespace AlJohary.ServiceHub.Application.Services
 
                 _repo.RemoveDevice(deviceId);
                 _repo.RecalculateOrderTotals(orderId);
+                RecalculateOrderStatus(orderId);
                 _txManager.CommitTransaction();
                 Logger.LogInfo($"MaintenanceService: Device {deviceId} removed from order {orderId}.");
             }

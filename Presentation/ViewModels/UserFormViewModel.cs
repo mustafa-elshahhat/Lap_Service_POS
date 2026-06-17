@@ -12,6 +12,11 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
     {
         public int Id { get; set; }
         public string DisplayName { get; set; }
+
+        // Safety net: if any control ever displays this object without a
+        // DisplayMemberPath/ItemTemplate, fall back to the readable name
+        // instead of the fully-qualified type name.
+        public override string ToString() => DisplayName ?? string.Empty;
     }
 
     public class UserFormViewModel : BaseViewModel
