@@ -68,7 +68,7 @@
 
                 <Grid Grid.Row="2" Margin="24,0,24,24">
                 <DataGrid x:Name="TransactionsGrid"
-                          Style="{DynamicResource MainDataGrid}"
+                          Style="{DynamicResource CompactDataGrid}"
                           IsReadOnly="True"
                           AutoGenerateColumns="False"
                           MouseDoubleClick="TransactionsGrid_MouseDoubleClick"

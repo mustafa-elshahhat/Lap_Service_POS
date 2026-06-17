@@ -77,10 +77,11 @@
 
                 <Grid Grid.Row="2" Margin="24,0,24,24">
                 <DataGrid x:Name="InvoicesGrid"
-                          Style="{DynamicResource MainDataGrid}" 
-                          ItemsSource="{Binding Invoices}" 
+                          Style="{DynamicResource MainDataGrid}"
+                          ItemsSource="{Binding Invoices}"
                           SelectedItem="{Binding SelectedInvoice}"
-                          IsReadOnly="True">
+                          IsReadOnly="True"
+                          HorizontalScrollBarVisibility="Auto">
                     <DataGrid.InputBindings>
                         <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding ViewInvoiceCommand}"/>
                     </DataGrid.InputBindings>
