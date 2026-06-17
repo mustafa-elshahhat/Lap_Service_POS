@@ -123,7 +123,6 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="التاريخ" Binding="{Binding ReturnDate, StringFormat='yyyy-MM-dd hh:mm tt'}" Width="180" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTemplateColumn Header="رقم الفاتورة" Width="150">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -156,8 +155,8 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="التاريخ" Binding="{Binding ReturnDate, StringFormat='yyyy-MM-dd hh:mm tt'}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="العميل" Binding="{Binding CustomerName}" Width="*"/>
-                        <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="120">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
@@ -166,6 +165,7 @@
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
+                        <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.ContextMenu>

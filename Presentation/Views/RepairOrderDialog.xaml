@@ -299,9 +299,9 @@
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True" CanUserAddRows="False">
                             <DataGrid.Columns>
+                                <DataGridTextColumn Header="التاريخ"      Binding="{Binding PaymentDate}"              Width="140"/>
                                 <DataGridTextColumn Header="مبلغ التحصيل" Binding="{Binding Amount, Converter={StaticResource FlexibleNumberConverter}}"  Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                                 <DataGridTextColumn Header="طريقة الدفع"  Binding="{Binding PaymentMethod}"            Width="120"/>
-                                <DataGridTextColumn Header="التاريخ"      Binding="{Binding PaymentDate}"              Width="140"/>
                                 <DataGridTextColumn Header="ملاحظات"      Binding="{Binding Notes}"                   Width="*"/>
                             </DataGrid.Columns>
                         </DataGrid>

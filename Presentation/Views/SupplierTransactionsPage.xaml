@@ -79,9 +79,15 @@
                         <DataGridTextColumn Header="النوع" Binding="{Binding [transaction_type_ar]}" Width="120"/>
                         <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                         <DataGridTextColumn Header="المدفوع" Binding="{Binding [paid_amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
-                        <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding [balance_after], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding [balance_after], Converter={StaticResource FlexibleNumberConverter}}" Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                         <DataGridTextColumn Header="بواسطة" Binding="{Binding [created_by]}" Width="*"/>
-                        <DataGridTemplateColumn Header="التفاصيل" Width="100">
+                        <DataGridTemplateColumn Header="التفاصيل" Width="Auto">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Content="عرض"

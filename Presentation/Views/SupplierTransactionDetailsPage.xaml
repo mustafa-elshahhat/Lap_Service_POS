@@ -78,9 +78,9 @@
                           FlowDirection="RightToLeft">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="اسم المنتج" Binding="{Binding ProductName}" Width="*"/>
-                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
-                        <DataGridTextColumn Header="سعر الشراء" Binding="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Width="160" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Width="160" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="80" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="سعر الشراء" Binding="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 

@@ -89,9 +89,9 @@
                     </DataGrid.InputBindings>
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="اسم العميل" Binding="{Binding Name}" Width="*"/>
-                        <DataGridTemplateColumn Header="الهاتف" Width="Auto">
+                        <DataGridTemplateColumn Header="الهاتف" Width="150">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Background="Transparent">

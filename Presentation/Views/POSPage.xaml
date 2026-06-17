@@ -180,8 +180,8 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="المنتج" Binding="{Binding ProductName}" Width="*"/>
-                        <DataGridTextColumn Header="العدد" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
-                        <DataGridTextColumn Header="إجمالي" Binding="{Binding Total, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextNumeric}" FontWeight="Bold"/>
+                        <DataGridTextColumn Header="العدد" Binding="{Binding Quantity}" Width="50" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="إجمالي" Binding="{Binding Total, Converter={StaticResource FlexibleNumberConverter}}" Width="90" ElementStyle="{DynamicResource DataGridTextNumeric}" FontWeight="Bold"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.InputBindings>

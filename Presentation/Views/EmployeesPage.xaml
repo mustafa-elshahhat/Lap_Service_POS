@@ -103,8 +103,8 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="الاسم الكامل" Binding="{Binding FullName}" Width="2*"/>
-                        <DataGridTextColumn Header="الهاتف" Binding="{Binding Phone}" Width="140" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="المسمى الوظيفي" Binding="{Binding JobTitle}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الهاتف" Binding="{Binding Phone}" Width="140" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="الراتب الأساسي" Binding="{Binding BaseSalary, Converter={StaticResource FlexibleNumberConverter}}" Width="130" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                         <DataGridTemplateColumn Header="الحالة" Width="100">
                             <DataGridTemplateColumn.CellTemplate>

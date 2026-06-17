@@ -99,7 +99,6 @@
                         <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="اسم المورد" Binding="{Binding Name}" Width="2*"/>
                         <DataGridTextColumn Header="الهاتف" Binding="{Binding Phone}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="العنوان" Binding="{Binding Address}" Width="*"/>
                         <DataGridTextColumn Header="المديونية" Binding="{Binding TotalDebt, Converter={StaticResource FlexibleNumberConverter}}" Width="150">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
@@ -108,6 +107,7 @@
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
+                        <DataGridTextColumn Header="العنوان" Binding="{Binding Address}" Width="*"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.ContextMenu>

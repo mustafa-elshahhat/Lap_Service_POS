@@ -171,7 +171,7 @@
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         
-                        <DataGridTemplateColumn Header="الحالة" Width="*">
+                        <DataGridTemplateColumn Header="الحالة" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border CornerRadius="6" 

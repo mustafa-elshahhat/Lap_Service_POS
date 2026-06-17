@@ -84,6 +84,7 @@
                           IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="م" Binding="{Binding [id]}" Width="60" MinWidth="50" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="التاريخ" Binding="{Binding [expense_date]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="الوصف" Binding="{Binding [description]}" Width="2*"/>
                         <DataGridTextColumn Header="الفئة" Binding="{Binding [category]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="90">
@@ -95,7 +96,6 @@
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="طريقة الدفع" Binding="{Binding [payment_method]}" Width="100" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="التاريخ" Binding="{Binding [expense_date]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="المستخدم" Binding="{Binding [user_name]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                     </DataGrid.Columns>
                     <DataGrid.ContextMenu>
