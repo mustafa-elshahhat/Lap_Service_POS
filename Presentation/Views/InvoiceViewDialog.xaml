@@ -145,14 +145,14 @@
                       ItemsSource="{Binding ReturnLines}"
                       AutoGenerateColumns="False" IsReadOnly="False" 
                       CanUserAddRows="False" Style="{DynamicResource DialogDataGrid}"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                      FlowDirection="LeftToRight">
+                      ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="50" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
@@ -176,6 +176,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
@@ -185,6 +186,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
@@ -195,6 +197,7 @@
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>

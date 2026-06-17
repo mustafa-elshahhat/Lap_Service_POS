@@ -66,23 +66,22 @@
                     </StackPanel>
                 </Border>
 
+                <Grid Grid.Row="2" Margin="24,0,24,24">
                 <DataGrid x:Name="TransactionsGrid"
-                          Grid.Row="2"
                           Style="{DynamicResource MainDataGrid}"
-                          Margin="24,0,24,24"
                           IsReadOnly="True"
                           AutoGenerateColumns="False"
                           MouseDoubleClick="TransactionsGrid_MouseDoubleClick"
                           FlowDirection="RightToLeft">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="#" Binding="{Binding [id]}" Width="70" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="التاريخ" Binding="{Binding [transaction_date]}" Width="170" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="النوع" Binding="{Binding [transaction_type_ar]}" Width="140"/>
-                        <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="140" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding [paid_amount], Converter={StaticResource FlexibleNumberConverter}}" Width="140" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding [balance_after], Converter={StaticResource FlexibleNumberConverter}}" Width="140" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="#" Binding="{Binding [id]}" Width="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="التاريخ" Binding="{Binding [transaction_date]}" Width="140" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="النوع" Binding="{Binding [transaction_type_ar]}" Width="120"/>
+                        <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding [paid_amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding [balance_after], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="بواسطة" Binding="{Binding [created_by]}" Width="*"/>
-                        <DataGridTemplateColumn Header="التفاصيل" Width="110">
+                        <DataGridTemplateColumn Header="التفاصيل" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Content="عرض"
@@ -94,6 +93,10 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}"
+                           Text="لا توجد حركات للعرض"
+                           Visibility="{Binding HasItems, ElementName=TransactionsGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </Grid>
 
                 <TextBlock Grid.Row="3"
                            Text="انقر مرتين على أي حركة لعرض تفاصيلها"

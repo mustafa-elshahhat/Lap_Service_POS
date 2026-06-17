@@ -147,7 +147,7 @@
                         <!-- Add button -->
                         <Button Grid.Column="10" Content="➕ إضافة"
                                 Style="{DynamicResource PrimaryButton}"
-                                VerticalAlignment="Bottom" Height="36" MinWidth="90"
+                                VerticalAlignment="Bottom" MinWidth="90"
                                 Command="{Binding AddPartCommand}"/>
                     </Grid>
                 </StackPanel>

@@ -65,7 +65,7 @@
                 </Grid>
 
                 
-                <DataGrid x:Name="ItemsGrid" Grid.Row="1" Style="{DynamicResource DialogDataGrid}" IsReadOnly="True" FlowDirection="LeftToRight">
+                <DataGrid x:Name="ItemsGrid" Grid.Row="1" Style="{DynamicResource DialogDataGrid}" IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="المنتج" Binding="{Binding [product_name]}" Width="*"/>
                         <DataGridTextColumn Header="الكمية" Binding="{Binding [quantity]}" Width="80">
@@ -73,6 +73,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
@@ -81,6 +82,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
@@ -90,6 +92,7 @@
                                     <Setter Property="HorizontalAlignment" Value="Center"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>

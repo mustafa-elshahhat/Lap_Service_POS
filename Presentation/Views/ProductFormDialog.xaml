@@ -6,7 +6,7 @@
         helpers:DialogChrome.DimOwner="True"
         SizeToContent="WidthAndHeight"
         MinWidth="480"
-        MaxWidth="560"
+        MaxWidth="560" MaxHeight="700"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None"
@@ -20,7 +20,7 @@
         <Grid Margin="28,24,28,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
@@ -42,50 +42,52 @@
                 </StackPanel>
             </Grid>
 
-            <StackPanel Grid.Row="1" Margin="0,0,0,8">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,0,8">
 
-                <Label Content="اسم المنتج *"/>
-                <TextBox x:Name="NameTextBox"
-                         Margin="0,0,0,16"
-                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="اسم المنتج *"/>
+                    <TextBox x:Name="NameTextBox"
+                             Margin="0,0,0,16"
+                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <Label Content="سعر البيع *"/>
-                        <TextBox Text="{Binding SellingPrice, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <Label Content="سعر الشراء *"/>
-                        <TextBox Text="{Binding PurchasePrice, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                </Grid>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <Label Content="سعر البيع *"/>
+                            <TextBox Text="{Binding SellingPrice, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <Label Content="سعر الشراء *"/>
+                            <TextBox Text="{Binding PurchasePrice, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
 
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <Label Content="الكمية"/>
-                        <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <Label Content="الحد الأدنى"/>
-                        <TextBox Text="{Binding MinQuantity, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                </Grid>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <Label Content="الكمية"/>
+                            <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <Label Content="الحد الأدنى"/>
+                            <TextBox Text="{Binding MinQuantity, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
 
-                <Label Content="الفئة"/>
-                <TextBox Margin="0,0,0,4"
-                         Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="الفئة"/>
+                    <TextBox Margin="0,0,0,4"
+                             Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"/>
 
-            </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
                 <Button Content="حفظ"

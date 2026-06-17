@@ -108,7 +108,6 @@
                 <Button Content="✓ تنفيذ وإصدار الفاتورة"
                         Style="{DynamicResource SecondaryButton}"
                         MinWidth="220"
-                        Height="54"
                         FontSize="16"
                         Margin="8,0"
                         IsDefault="True"
@@ -116,7 +115,6 @@
                 <Button Content="إلغاء"
                         Style="{DynamicResource DarkButton}"
                         MinWidth="120"
-                        Height="54"
                         Margin="8,0"
                         IsCancel="True"
                         Command="{Binding CancelCommand}"/>

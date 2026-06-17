@@ -4,7 +4,7 @@
         xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Title="تنبيه"
         SizeToContent="WidthAndHeight"
-        MinWidth="400"
+        MinWidth="400" MaxWidth="600" MaxHeight="500"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         ResizeMode="NoResize"

@@ -5,7 +5,7 @@
         Title="بيانات المورد"
         helpers:DialogChrome.DimOwner="True" 
         SizeToContent="WidthAndHeight"
-        MinWidth="420"
+        MinWidth="420" MaxHeight="700"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None"
@@ -17,7 +17,7 @@
         <Grid Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
@@ -37,16 +37,18 @@
                             VerticalAlignment="Center"/>
             </Grid>
 
-            <StackPanel Grid.Row="1">
-                <Label Content="اسم المورد *"/>
-                <TextBox x:Name="NameTextBox" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Label Content="اسم المورد *"/>
+                    <TextBox x:Name="NameTextBox" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
 
-                <Label Content="رقم الهاتف"/>
-                <TextBox x:Name="PhoneTextBox" Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" PreviewTextInput="PhoneTextBox_PreviewTextInput"/>
+                    <Label Content="رقم الهاتف"/>
+                    <TextBox x:Name="PhoneTextBox" Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" PreviewTextInput="PhoneTextBox_PreviewTextInput"/>
 
-                <Label Content="العنوان"/>
-                <TextBox x:Name="AddressTextBox" Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" Height="80" TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="12,10"/>
-            </StackPanel>
+                    <Label Content="العنوان"/>
+                    <TextBox x:Name="AddressTextBox" Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" Height="80" TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="12,10"/>
+                </StackPanel>
+            </ScrollViewer>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
                 <Button x:Name="SaveButton" Content="{Binding SaveButtonContent}" Style="{DynamicResource PrimaryButton}" MinWidth="120" Margin="8,0" IsDefault="True" Click="SaveButton_Click"/>

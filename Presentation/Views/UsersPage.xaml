@@ -30,7 +30,6 @@
                             Content="➕ إضافة مستخدم جديد"
                             Style="{DynamicResource PrimaryButton}"
                             MinWidth="200"
-                            Height="48"
                             FontFamily="{DynamicResource MainFontSemibold}"
                             HorizontalAlignment="Left"
                             FlowDirection="RightToLeft"

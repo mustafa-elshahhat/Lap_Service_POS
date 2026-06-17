@@ -4,7 +4,7 @@
         xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Title="بيانات العميل"
         helpers:DialogChrome.DimOwner="True"
-        Width="482"
+        Width="482" MaxHeight="700"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
@@ -19,7 +19,7 @@
         <Grid Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
@@ -41,30 +41,32 @@
             </Grid>
 
             
-            <StackPanel Grid.Row="1">
-                <Label Content="اسم العميل *" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBox Style="{DynamicResource MainTextBox}"
-                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,16"/>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Label Content="اسم العميل *" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBox Style="{DynamicResource MainTextBox}"
+                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,16"/>
 
-                <Label Content="رقم الهاتف" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBox Style="{DynamicResource MainTextBox}"
-                         Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,16"/>
+                    <Label Content="رقم الهاتف" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBox Style="{DynamicResource MainTextBox}"
+                             Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,16"/>
 
-                <Label Content="العنوان" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBox Style="{DynamicResource MainTextBox}"
-                         Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,16"/>
-                         
-                <Label Content="ملاحظات" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBox Style="{DynamicResource MainTextBox}"
-                         Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
-                         Height="60"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         Margin="0,0,0,16"/>
-            </StackPanel>
+                    <Label Content="العنوان" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBox Style="{DynamicResource MainTextBox}"
+                             Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,0,16"/>
+                             
+                    <Label Content="ملاحظات" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBox Style="{DynamicResource MainTextBox}"
+                             Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                             Height="60"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Margin="0,0,0,16"/>
+                </StackPanel>
+            </ScrollViewer>
 
             
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">

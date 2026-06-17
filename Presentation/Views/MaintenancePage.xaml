@@ -107,75 +107,78 @@
                 </Grid>
 
                 <!-- DataGrid -->
-                <DataGrid Grid.Row="2"
-                          Style="{DynamicResource MainDataGrid}"
-                          Margin="24,0,24,0"
-                          ItemsSource="{Binding Orders}"
-                          SelectedItem="{Binding SelectedOrder}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          CanUserAddRows="False">
-                    <DataGrid.InputBindings>
-                        <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenOrderCommand}"/>
-                    </DataGrid.InputBindings>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="رقم الطلب"      Binding="{Binding OrderNumber}"            Width="130" MinWidth="110" ElementStyle="{DynamicResource DataGridCodeStyle}"/>
-                        <DataGridTextColumn Header="العميل"          Binding="{Binding CustomerName}"           Width="*" MinWidth="130">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextRight}">
-                                    <Setter Property="ToolTip" Value="{Binding CustomerName}"/>
-                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="الهاتف"          Binding="{Binding CustomerPhone}"          Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridCodeStyle}"/>
-                        <DataGridTextColumn Header="الفني"           Binding="{Binding TechnicianName}"         Width="110" MinWidth="90">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
-                                    <Setter Property="ToolTip" Value="{Binding TechnicianName}"/>
-                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="الأجهزة"         Binding="{Binding DeviceCount}"            Width="70" MinWidth="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الإجمالي"        Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}"    Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المدفوع"         Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}"     Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المتبقي"         Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTemplateColumn Header="الحالة"      Width="110" MinWidth="100">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Border CornerRadius="4" Padding="6,2"
-                                            HorizontalAlignment="Center">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding OrderStatusColor}" Value="Success">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding OrderStatusColor}" Value="Danger">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding OrderStatusColor}" Value="Warning">
-                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding OrderStatusColor}" Value="Primary">
-                                                        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock Text="{Binding OrderStatusAr}"
-                                                   Foreground="White" FontSize="11"
-                                                   FontWeight="SemiBold"/>
-                                    </Border>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="تاريخ الاستلام"  Binding="{Binding IntakeDate}"             Width="110" MinWidth="95" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="التسليم المتوقع" Binding="{Binding ExpectedDelivery}"       Width="110" MinWidth="95" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+                <Grid Grid.Row="2" Margin="24,0,24,0">
+                    <DataGrid x:Name="MaintenanceGrid"
+                              Style="{DynamicResource MainDataGrid}"
+                              ItemsSource="{Binding Orders}"
+                              SelectedItem="{Binding SelectedOrder}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserAddRows="False">
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenOrderCommand}"/>
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="رقم الطلب" Binding="{Binding OrderNumber}" Width="100" MinWidth="80" ElementStyle="{DynamicResource DataGridCodeStyle}"/>
+                            <DataGridTextColumn Header="العميل" Binding="{Binding CustomerName}" Width="*" MinWidth="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextRight}">
+                                        <Setter Property="ToolTip" Value="{Binding CustomerPhone, StringFormat='الهاتف: {0}'}"/>
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="الفني" Binding="{Binding TechnicianName}" Width="100" MinWidth="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
+                                        <Setter Property="ToolTip" Value="{Binding TechnicianName}"/>
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="الأجهزة" Binding="{Binding DeviceCount}" Width="60" MinWidth="50" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTemplateColumn Header="الحالة" Width="100" MinWidth="90">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="4" Padding="6,2"
+                                                HorizontalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding OrderStatusColor}" Value="Success">
+                                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding OrderStatusColor}" Value="Danger">
+                                                            <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding OrderStatusColor}" Value="Warning">
+                                                            <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding OrderStatusColor}" Value="Primary">
+                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding OrderStatusAr}"
+                                                       Foreground="White" FontSize="11"
+                                                       FontWeight="SemiBold"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="تاريخ الاستلام" Binding="{Binding IntakeDate}" Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="التسليم المتوقع" Binding="{Binding ExpectedDelivery}" Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Style="{DynamicResource DataGridEmptyState}"
+                               Text="لا توجد طلبات صيانة للعرض"
+                               Visibility="{Binding HasItems, ElementName=MaintenanceGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </Grid>
 
                 <!-- Status bar -->
                 <Grid Grid.Row="3" Margin="24,8,24,16">

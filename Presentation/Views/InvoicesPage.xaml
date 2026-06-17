@@ -75,8 +75,8 @@
                      </StackPanel>
                 </Grid>
 
-                <DataGrid Grid.Row="2" 
-                          Margin="24,0,24,24" 
+                <Grid Grid.Row="2" Margin="24,0,24,24">
+                <DataGrid x:Name="InvoicesGrid"
                           Style="{DynamicResource MainDataGrid}" 
                           ItemsSource="{Binding Invoices}" 
                           SelectedItem="{Binding SelectedInvoice}"
@@ -148,6 +148,10 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}"
+                           Text="لا توجد فواتير للعرض"
+                           Visibility="{Binding HasItems, ElementName=InvoicesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

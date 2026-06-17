@@ -138,7 +138,14 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="ملاحظات" Binding="{Binding Notes}" Width="2*"/>
+                        <DataGridTextColumn Header="ملاحظات" Binding="{Binding Notes}" Width="*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextRight}">
+                                    <Setter Property="ToolTip" Value="{Binding Notes}"/>
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                     </DataGrid.Columns>
 
                     <DataGrid.ContextMenu>

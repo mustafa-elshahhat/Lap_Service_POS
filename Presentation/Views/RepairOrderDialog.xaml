@@ -4,6 +4,7 @@
         xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Width="892" Height="732"
         MinWidth="832" MinHeight="632"
+        MaxHeight="{x:Static SystemParameters.MaximizedPrimaryScreenHeight}"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
         WindowStyle="None"
@@ -281,7 +282,7 @@
                                 </StackPanel>
                                 <Button Grid.Column="6" Content="تسجيل التحصيل"
                                         Style="{DynamicResource PrimaryButton}"
-                                        VerticalAlignment="Bottom" Height="36"
+                                        VerticalAlignment="Bottom"
                                         Command="{Binding RegisterPaymentCommand}"/>
                                 </Grid>
                             </Border>
