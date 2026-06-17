@@ -65,7 +65,7 @@
                         <DataGridTextColumn Header="الاسم الكامل" Binding="{Binding [full_name]}" Width="2*"/>
                         <DataGridTextColumn Header="الموظف" Binding="{Binding [employee_name]}" Width="180" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="الصلاحية" Binding="{Binding [role]}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="حد الخصم (%)" Binding="{Binding [max_discount_percent]}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="حد الخصم (%)" Binding="{Binding [max_discount_percent]}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.ContextMenu>

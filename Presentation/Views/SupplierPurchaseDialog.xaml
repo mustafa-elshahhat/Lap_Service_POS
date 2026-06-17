@@ -109,28 +109,28 @@
                     <DataGridTemplateColumn Header="اسم المنتج" Width="2*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding ProductName}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding ProductName}" Style="{DynamicResource DataGridTextRight}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="الكمية" Width="90">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Quantity}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding Quantity}" Style="{DynamicResource DataGridTextNumeric}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="سعر الشراء" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextNumeric}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="الإجمالي" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextNumeric}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

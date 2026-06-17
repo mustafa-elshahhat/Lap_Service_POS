@@ -77,9 +77,9 @@
                         <DataGridTextColumn Header="#" Binding="{Binding [id]}" Width="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="التاريخ" Binding="{Binding [transaction_date]}" Width="140" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="النوع" Binding="{Binding [transaction_type_ar]}" Width="120"/>
-                        <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding [paid_amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding [balance_after], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding [paid_amount], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="الرصيد بعد" Binding="{Binding [balance_after], Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                         <DataGridTextColumn Header="بواسطة" Binding="{Binding [created_by]}" Width="*"/>
                         <DataGridTemplateColumn Header="التفاصيل" Width="100">
                             <DataGridTemplateColumn.CellTemplate>

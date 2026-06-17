@@ -71,7 +71,8 @@
                         <DataGridTextColumn Header="الكمية" Binding="{Binding [quantity]}" Width="80">
                              <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="TextAlignment" Value="Right"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
@@ -80,7 +81,8 @@
                         <DataGridTextColumn Header="السعر" Binding="{Binding [unit_price], Converter={StaticResource FlexibleNumberConverter}}" Width="100">
                              <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="TextAlignment" Value="Right"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="FlowDirection" Value="LeftToRight"/>
                                 </Style>
@@ -89,7 +91,8 @@
                         <DataGridTextColumn Header="الإجمالي" Binding="{Binding [total_price], Converter={StaticResource FlexibleNumberConverter}}" Width="100">
                              <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter Property="TextAlignment" Value="Right"/>
                                     <Setter Property="VerticalAlignment" Value="Center"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                     <Setter Property="FlowDirection" Value="LeftToRight"/>

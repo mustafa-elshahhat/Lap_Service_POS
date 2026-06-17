@@ -160,7 +160,7 @@
                         <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="120">
                             <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                     <Setter Property="FontWeight" Value="SemiBold"/>
                                 </Style>

@@ -102,8 +102,8 @@
                         <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="60" MinWidth="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*" MinWidth="160"/>
                         <DataGridTextColumn Header="الفئة" Binding="{Binding Category}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="90" MinWidth="80" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="سعر البيع" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="90" MinWidth="80" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="سعر البيع" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.ContextMenu>

@@ -129,11 +129,11 @@
                         <DataGridTextColumn Header="التاريخ" Binding="{Binding SaleDate, StringFormat='yyyy-MM-dd hh:mm tt'}" Width="160" MinWidth="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="العميل" Binding="{Binding CustomerName}" Width="*" MinWidth="160"/>
                         <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                         <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90">
                              <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
                                     <Setter Property="Foreground" Value="{DynamicResource WarningDarkBrush}"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </Style>

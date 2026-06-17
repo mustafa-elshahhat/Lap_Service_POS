@@ -137,9 +137,9 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="الأجهزة" Binding="{Binding DeviceCount}" Width="60" MinWidth="50" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                            <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                            <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                            <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                            <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                            <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90" MinWidth="75" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                             <DataGridTemplateColumn Header="الحالة" Width="100" MinWidth="90">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

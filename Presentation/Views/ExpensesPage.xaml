@@ -88,7 +88,7 @@
                         <DataGridTextColumn Header="الفئة" Binding="{Binding [category]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="90">
                             <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
                                     <Setter Property="Foreground" Value="{DynamicResource WarningDarkBrush}"/>
                                     <Setter Property="FontWeight" Value="SemiBold"/>
                                 </Style>
