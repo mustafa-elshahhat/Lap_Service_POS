@@ -146,6 +146,41 @@
         <Setter Property="Padding" Value="10,0"/>
     </Style>
 
+    <!-- Canonical right-aligned numeric cell style for money/quantity/total/balance/salary
+         columns (UI-tables H1/H2). Right alignment lets figures line up vertically for
+         column scanning. Western digits come from the grid's NumberSubstitution=European.
+         Opt in PER money column (ElementStyle); derive with BasedOn to keep colour/weight. -->
+    <Style x:Key="DataGridTextNumeric" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Right"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+    </Style>
+
+    <!-- Right-aligned long-text style with ellipsis truncation (UI-tables M5). Each
+         consuming column adds its own ToolTip setter bound to the same field, mirroring
+         the existing Maintenance/Employees pattern. -->
+    <Style x:Key="DataGridTextTruncate" TargetType="TextBlock" BasedOn="{StaticResource DataGridTextRight}">
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+    </Style>
+
+    <!-- Reusable loading overlay for tables (UI-tables §4.5). Place a sibling Border with
+         this style in the same parent Grid as the DataGrid; bind its Visibility to an
+         existing IsLoading flag via BooleanToVisibilityConverter. Wired only where modelled
+         (Maintenance). The Border hosts its own centred TextBlock per consumer. -->
+    <Style x:Key="DataGridLoadingState" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource BgCardBrush}"/>
+        <Setter Property="Opacity" Value="0.85"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="DataGridLoadingText" TargetType="TextBlock" BasedOn="{StaticResource DataGridEmptyState}">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+
     <Style x:Key="MainDataGrid" TargetType="DataGrid">
         <Setter Property="NumberSubstitution.Substitution" Value="European"/>
         <Setter Property="Background" Value="{DynamicResource BgCardBrush}"/>
@@ -256,6 +291,14 @@
 
     <Style x:Key="DialogDataGrid" TargetType="DataGrid" BasedOn="{StaticResource MainDataGrid}">
         <Setter Property="MinColumnWidth" Value="80"/>
+    </Style>
+
+    <!-- Compact density variant (UI-tables §4.7 / L4): smaller row+header height to show
+         more rows on short laptops. Opt-in ONLY for dense tables (Maintenance, Supplier
+         ledger, Reports operations). NOT global. -->
+    <Style x:Key="CompactDataGrid" TargetType="DataGrid" BasedOn="{StaticResource MainDataGrid}">
+        <Setter Property="RowHeight" Value="38"/>
+        <Setter Property="ColumnHeaderHeight" Value="40"/>
     </Style>
 
 </ResourceDictionary>
