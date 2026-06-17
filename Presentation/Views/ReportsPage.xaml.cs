@@ -125,7 +125,9 @@ namespace AlJohary.ServiceHub.Presentation.Views
                                  col.Header.Contains("وارد") || col.Header.Contains("صادر") ||
                                  col.Header.Contains("خصم");
 
-                if (isNumeric) horizontalAlign = HorizontalAlignment.Center;
+                // UI-tables H1: numeric report columns are right-aligned (not centered)
+                // so figures line up vertically for column comparison.
+                if (isNumeric) horizontalAlign = HorizontalAlignment.Right;
 
                 elementStyle.Setters.Add(new Setter(TextBlock.HorizontalAlignmentProperty, horizontalAlign));
                 elementStyle.Setters.Add(new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center));
@@ -166,6 +168,19 @@ namespace AlJohary.ServiceHub.Presentation.Views
                     elementStyle.Triggers.Add(triggerMaintenance);
                     elementStyle.Triggers.Add(triggerSalary);
                     elementStyle.Triggers.Add(triggerDeduction);
+                }
+
+                // UI-tables §6: flag a negative net-effect figure in red (display-only;
+                // value/sign unchanged) via a converter-backed DataTrigger.
+                if (col.Header.Contains("التأثير الصافي"))
+                {
+                    var negTrigger = new DataTrigger
+                    {
+                        Binding = new Binding(bindingPath) { Converter = new IsNegativeNumberConverter() },
+                        Value = true
+                    };
+                    negTrigger.Setters.Add(new Setter(TextBlock.ForegroundProperty, System.Windows.Application.Current.Resources["DangerBrush"]));
+                    elementStyle.Triggers.Add(negTrigger);
                 }
 
                 column.ElementStyle = elementStyle;
