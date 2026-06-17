@@ -211,6 +211,7 @@
                         </StackPanel>
 
                         <DataGrid Grid.Row="1"
+                                  x:Name="DevicesGrid"
                                   Style="{DynamicResource MainDataGrid}"
                                   ItemsSource="{Binding Devices}"
                                   SelectedItem="{Binding SelectedDevice}"
@@ -219,11 +220,20 @@
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="النوع"      Binding="{Binding DeviceType}"    Width="80"/>
                                 <DataGridTextColumn Header="الجهاز"     Binding="{Binding DisplayName}"   Width="*"/>
-                                <DataGridTextColumn Header="المشكلة"    Binding="{Binding ReportedIssue}" Width="*"/>
+                                <DataGridTextColumn Header="المشكلة"    Binding="{Binding ReportedIssue}" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextTruncate}">
+                                            <Setter Property="ToolTip" Value="{Binding ReportedIssue}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
                                 <DataGridTextColumn Header="الحالة"     Binding="{Binding DeviceStatusAr}" Width="100"/>
-                                <DataGridTextColumn Header="أجر العمل"  Binding="{Binding LaborCost, Converter={StaticResource FlexibleNumberConverter}}" Width="90"/>
+                                <DataGridTextColumn Header="أجر العمل"  Binding="{Binding LaborCost, Converter={StaticResource FlexibleNumberConverter}}" Width="90" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                                   Text="لا توجد أجهزة مضافة"
+                                   Visibility="{Binding HasItems, ElementName=DevicesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
                         <TextBlock Grid.Row="2" Text="💡 احفظ بيانات الطلب أولاً ثم أضف الأجهزة"
                                    Foreground="{DynamicResource TextMutedBrush}" FontSize="12"
@@ -294,17 +304,27 @@
                         </StackPanel>
 
                         <DataGrid Grid.Row="1"
+                                  x:Name="PaymentsGrid"
                                   Style="{DynamicResource MainDataGrid}"
                                   ItemsSource="{Binding Payments}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True" CanUserAddRows="False">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="مبلغ التحصيل" Binding="{Binding Amount, Converter={StaticResource FlexibleNumberConverter}}"  Width="120"/>
-                                <DataGridTextColumn Header="طريقة الدفع"  Binding="{Binding PaymentMethod}"            Width="120"/>
                                 <DataGridTextColumn Header="التاريخ"      Binding="{Binding PaymentDate}"              Width="140"/>
-                                <DataGridTextColumn Header="ملاحظات"      Binding="{Binding Notes}"                   Width="*"/>
+                                <DataGridTextColumn Header="مبلغ التحصيل" Binding="{Binding Amount, Converter={StaticResource FlexibleNumberConverter}}"  Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                                <DataGridTextColumn Header="طريقة الدفع"  Binding="{Binding PaymentMethod}"            Width="120"/>
+                                <DataGridTextColumn Header="ملاحظات"      Binding="{Binding Notes}"                   Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextTruncate}">
+                                            <Setter Property="ToolTip" Value="{Binding Notes}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                                   Text="لا توجد مدفوعات مسجلة"
+                                   Visibility="{Binding HasItems, ElementName=PaymentsGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
                         <!-- Totals -->
                         <Border Grid.Row="2"

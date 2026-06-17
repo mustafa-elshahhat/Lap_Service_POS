@@ -146,13 +146,32 @@
                         
                         <DataGridTextColumn Header="النوع" Binding="{Binding SaleType, Converter={StaticResource SaleTypeConverter}}" Width="100"/>
 
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" FontWeight="Bold"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
 
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" Foreground="{DynamicResource SecondaryBrush}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
+                                    <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
 
-                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" Foreground="{DynamicResource WarningDarkBrush}" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
+                                    <Setter Property="Foreground" Value="{DynamicResource WarningDarkBrush}"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                         
-                        <DataGridTemplateColumn Header="الحالة" Width="*">
+                        <DataGridTemplateColumn Header="الحالة" Width="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border CornerRadius="6" 

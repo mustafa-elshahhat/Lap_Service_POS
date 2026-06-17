@@ -78,19 +78,16 @@
                           FlowDirection="RightToLeft">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="اسم المنتج" Binding="{Binding ProductName}" Width="*"/>
-                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="120" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="سعر الشراء" Binding="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Width="160" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Width="160" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="80" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="سعر الشراء" Binding="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Width="120" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
                 <TextBlock x:Name="EmptyItemsText"
-                           Grid.Row="3"
+                           Grid.Row="2"
+                           Style="{DynamicResource DataGridEmptyState}"
                            Text="لا توجد تفاصيل أصناف لهذه الحركة"
-                           Foreground="{DynamicResource TextMutedBrush}"
-                           FontSize="13"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,20"
                            Visibility="Collapsed"/>
             </Grid>
         </Border>

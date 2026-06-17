@@ -273,7 +273,7 @@
 
                                      <DataGrid x:Name="ReportDataGrid"
                                                Grid.Row="1"
-                                               Style="{DynamicResource MainDataGrid}"
+                                               Style="{DynamicResource CompactDataGrid}"
                                                ItemsSource="{Binding ReportData}"
                                                IsReadOnly="True"
                                                BorderThickness="0"
@@ -281,6 +281,9 @@
                                                ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                ScrollViewer.HorizontalScrollBarVisibility="Auto">
                                     </DataGrid>
+                                    <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                                               Text="لا توجد بيانات للعرض"
+                                               Visibility="{Binding HasItems, ElementName=ReportDataGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
                                 </Grid>
                             </Border>
                         </Grid>

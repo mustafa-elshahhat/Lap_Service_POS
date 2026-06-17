@@ -16,6 +16,7 @@
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
             <converters:FlexibleNumberConverter x:Key="FlexibleNumberConverter"/>
             <converters:FlexibleCurrencyConverter x:Key="FlexibleCurrencyConverter"/>
+            <converters:SearchEmptyStateConverter x:Key="SearchEmptyStateConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

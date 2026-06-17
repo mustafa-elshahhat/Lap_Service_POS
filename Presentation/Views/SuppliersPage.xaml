@@ -99,12 +99,18 @@
                         <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="اسم المورد" Binding="{Binding Name}" Width="2*"/>
                         <DataGridTextColumn Header="الهاتف" Binding="{Binding Phone}" Width="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="العنوان" Binding="{Binding Address}" Width="*"/>
                         <DataGridTextColumn Header="المديونية" Binding="{Binding TotalDebt, Converter={StaticResource FlexibleNumberConverter}}" Width="150">
                             <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                     <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="العنوان" Binding="{Binding Address}" Width="*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextTruncate}">
+                                    <Setter Property="ToolTip" Value="{Binding Address}"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
@@ -120,9 +126,22 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
-                <TextBlock Style="{DynamicResource DataGridEmptyState}"
-                           Text="لا يوجد موردون للعرض"
-                           Visibility="{Binding HasItems, ElementName=SuppliersGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا يوجد موردون للعرض">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoData">
+                            <Binding Path="HasItems" ElementName="SuppliersGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد نتائج مطابقة للبحث">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoResults">
+                            <Binding Path="HasItems" ElementName="SuppliersGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
                 </Grid>
             </Grid>
         </Border>

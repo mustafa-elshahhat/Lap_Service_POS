@@ -106,8 +106,8 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="#" Binding="{Binding Id}" Width="60" MinWidth="50" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                             <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*" MinWidth="140"/>
-                            <DataGridTextColumn Header="السعر" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                            <DataGridTextColumn Header="المخزون" Binding="{Binding Quantity}" Width="90" MinWidth="80" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="السعر" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="90" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                            <DataGridTextColumn Header="المخزون" Binding="{Binding Quantity}" Width="90" MinWidth="80" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                         </DataGrid.Columns>
                         
                         <DataGrid.ContextMenu>
@@ -116,6 +116,9 @@
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                     </DataGrid>
+                    <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                               Text="🔍 ابحث لإظهار المنتجات"
+                               Visibility="{Binding HasItems, ElementName=ProductsGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
                 </Grid>
             </Border>
@@ -180,8 +183,8 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="المنتج" Binding="{Binding ProductName}" Width="*"/>
-                        <DataGridTextColumn Header="العدد" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="إجمالي" Binding="{Binding Total, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}" FontWeight="Bold"/>
+                        <DataGridTextColumn Header="العدد" Binding="{Binding Quantity}" Width="50" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
+                        <DataGridTextColumn Header="إجمالي" Binding="{Binding Total, Converter={StaticResource FlexibleNumberConverter}}" Width="90" ElementStyle="{DynamicResource DataGridTextNumeric}" FontWeight="Bold"/>
                     </DataGrid.Columns>
                     
                     <DataGrid.InputBindings>
@@ -197,6 +200,9 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
+                <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                           Text="🛒 السلة فارغة"
+                           Visibility="{Binding Cart.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                 
                 <Border Grid.Row="2" Margin="12,8" CornerRadius="12" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20">

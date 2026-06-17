@@ -84,18 +84,24 @@
                           IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="م" Binding="{Binding [id]}" Width="60" MinWidth="50" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الوصف" Binding="{Binding [description]}" Width="2*"/>
+                        <DataGridTextColumn Header="التاريخ" Binding="{Binding [expense_date]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الوصف" Binding="{Binding [description]}" Width="2*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextTruncate}">
+                                    <Setter Property="ToolTip" Value="{Binding [description]}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                         <DataGridTextColumn Header="الفئة" Binding="{Binding [category]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="المبلغ" Binding="{Binding [amount], Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="90">
                             <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextNumeric}">
                                     <Setter Property="Foreground" Value="{DynamicResource WarningDarkBrush}"/>
                                     <Setter Property="FontWeight" Value="SemiBold"/>
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="طريقة الدفع" Binding="{Binding [payment_method]}" Width="100" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="التاريخ" Binding="{Binding [expense_date]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         <DataGridTextColumn Header="المستخدم" Binding="{Binding [user_name]}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                     </DataGrid.Columns>
                     <DataGrid.ContextMenu>
@@ -104,9 +110,22 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
-                <TextBlock Style="{DynamicResource DataGridEmptyState}"
-                           Text="لا توجد مصروفات للعرض"
-                           Visibility="{Binding HasItems, ElementName=ExpensesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد مصروفات للعرض">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoData">
+                            <Binding Path="HasItems" ElementName="ExpensesGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد نتائج مطابقة للبحث">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoResults">
+                            <Binding Path="HasItems" ElementName="ExpensesGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
                 </Grid>
             </Grid>
         </Border>

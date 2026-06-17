@@ -97,6 +97,7 @@
             </Border>
 
             <DataGrid Grid.Row="3"
+                      x:Name="LinesGrid"
                       Style="{DynamicResource DialogDataGrid}"
                       ItemsSource="{Binding Lines}"
                       SelectedItem="{Binding SelectedLine}"
@@ -109,33 +110,37 @@
                     <DataGridTemplateColumn Header="اسم المنتج" Width="2*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding ProductName}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding ProductName}" Style="{DynamicResource DataGridTextRight}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="الكمية" Width="90">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Quantity}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding Quantity}" Style="{DynamicResource DataGridTextNumeric}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="سعر الشراء" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding UnitPurchasePrice, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextNumeric}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="الإجمالي" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextCenter}"/>
+                                <TextBlock Text="{Binding LineTotal, Converter={StaticResource FlexibleNumberConverter}}" Style="{DynamicResource DataGridTextNumeric}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+            <TextBlock Grid.Row="3" Style="{DynamicResource DataGridEmptyState}"
+                       Margin="0,0,0,16"
+                       Text="أضف أسطر المشتريات"
+                       Visibility="{Binding HasItems, ElementName=LinesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
             <Grid Grid.Row="4" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>

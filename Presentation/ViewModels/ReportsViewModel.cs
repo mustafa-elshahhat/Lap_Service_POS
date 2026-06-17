@@ -417,18 +417,22 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
             var operations = _reportService.GetFinancialOperations(startDate, endDate);
             ReportData = new ObservableCollection<object>(operations.Cast<object>());
 
+            // UI-tables §7: financial log reads date-first (rightmost in RTL) with the money
+            // columns grouped and التأثير الصافي as the emphasized final figure. On-screen
+            // order = reverse of this list. Headers/paths/formats unchanged (CSV/print column
+            // order follows this list per §6 — values/totals are not affected).
             _currentColumns = new List<ReportColumn>
             {
-                new ReportColumn { Header = "التاريخ", BindingPath = "Date", Format = "yyyy-MM-dd HH:mm" },
-                new ReportColumn { Header = "نوع العملية", BindingPath = "OperationType" },
-                new ReportColumn { Header = "رقم المرجع", BindingPath = "Reference" },
-                new ReportColumn { Header = "التفاصيل", BindingPath = "Details" },
-                new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
-                new ReportColumn { Header = "وارد", BindingPath = "MoneyIn", Format = "FlexibleNumber" },
-                new ReportColumn { Header = "صادر", BindingPath = "MoneyOut", Format = "FlexibleNumber" },
-                new ReportColumn { Header = "خصم / تسوية", BindingPath = "Deduction", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "الموظف", BindingPath = "UserName" },
                 new ReportColumn { Header = "التأثير الصافي", BindingPath = "NetEffect", Format = "FlexibleNumber" },
-                new ReportColumn { Header = "الموظف", BindingPath = "UserName" }
+                new ReportColumn { Header = "خصم / تسوية", BindingPath = "Deduction", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "صادر", BindingPath = "MoneyOut", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "وارد", BindingPath = "MoneyIn", Format = "FlexibleNumber" },
+                new ReportColumn { Header = "طريقة الدفع", BindingPath = "PaymentMethod" },
+                new ReportColumn { Header = "التفاصيل", BindingPath = "Details" },
+                new ReportColumn { Header = "رقم المرجع", BindingPath = "Reference" },
+                new ReportColumn { Header = "نوع العملية", BindingPath = "OperationType" },
+                new ReportColumn { Header = "التاريخ", BindingPath = "Date", Format = "yyyy-MM-dd HH:mm" }
             };
             ColumnsChanged?.Invoke(this, _currentColumns);
         }
@@ -459,8 +463,8 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 new ReportColumn { Header = "السبب / المرتجع", BindingPath = "Reason", IsProperty = true },
                 new ReportColumn { Header = "القيمة", BindingPath = "TotalAmount", Format = "FlexibleNumber", IsProperty = true },
                 new ReportColumn { Header = "العميل", BindingPath = "CustomerName", IsProperty = true },
-                new ReportColumn { Header = "رقم الفاتورة", BindingPath = "InvoiceNumber", IsProperty = true },
                 new ReportColumn { Header = "تاريخ", BindingPath = "ReturnDate", Format = "yyyy-MM-dd HH:mm", IsProperty = true },
+                new ReportColumn { Header = "رقم الفاتورة", BindingPath = "InvoiceNumber", IsProperty = true },
                 new ReportColumn { Header = "رقم المرتجع", BindingPath = "ReturnNumber", IsProperty = true }
             };
             ColumnsChanged?.Invoke(this, _currentColumns);
