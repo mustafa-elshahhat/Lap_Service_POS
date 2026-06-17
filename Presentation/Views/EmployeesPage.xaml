@@ -158,9 +158,22 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
-                <TextBlock Style="{DynamicResource DataGridEmptyState}"
-                           Text="لا يوجد موظفون للعرض"
-                           Visibility="{Binding HasItems, ElementName=EmployeesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا يوجد موظفون للعرض">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoData">
+                            <Binding Path="HasItems" ElementName="EmployeesGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد نتائج مطابقة للبحث">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoResults">
+                            <Binding Path="HasItems" ElementName="EmployeesGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
                 </Grid>
             </Grid>
         </Border>

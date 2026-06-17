@@ -211,6 +211,7 @@
                         </StackPanel>
 
                         <DataGrid Grid.Row="1"
+                                  x:Name="DevicesGrid"
                                   Style="{DynamicResource MainDataGrid}"
                                   ItemsSource="{Binding Devices}"
                                   SelectedItem="{Binding SelectedDevice}"
@@ -224,6 +225,9 @@
                                 <DataGridTextColumn Header="أجر العمل"  Binding="{Binding LaborCost, Converter={StaticResource FlexibleNumberConverter}}" Width="90" ElementStyle="{DynamicResource DataGridTextNumeric}"/>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                                   Text="لا توجد أجهزة مضافة"
+                                   Visibility="{Binding HasItems, ElementName=DevicesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
                         <TextBlock Grid.Row="2" Text="💡 احفظ بيانات الطلب أولاً ثم أضف الأجهزة"
                                    Foreground="{DynamicResource TextMutedBrush}" FontSize="12"
@@ -294,6 +298,7 @@
                         </StackPanel>
 
                         <DataGrid Grid.Row="1"
+                                  x:Name="PaymentsGrid"
                                   Style="{DynamicResource MainDataGrid}"
                                   ItemsSource="{Binding Payments}"
                                   AutoGenerateColumns="False"
@@ -305,6 +310,9 @@
                                 <DataGridTextColumn Header="ملاحظات"      Binding="{Binding Notes}"                   Width="*"/>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                                   Text="لا توجد مدفوعات مسجلة"
+                                   Visibility="{Binding HasItems, ElementName=PaymentsGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
                         <!-- Totals -->
                         <Border Grid.Row="2"

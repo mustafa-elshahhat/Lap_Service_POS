@@ -175,9 +175,26 @@
                             <DataGridTextColumn Header="التسليم المتوقع" Binding="{Binding ExpectedDelivery}" Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBlock Style="{DynamicResource DataGridEmptyState}"
-                               Text="لا توجد طلبات صيانة للعرض"
-                               Visibility="{Binding HasItems, ElementName=MaintenanceGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد طلبات صيانة للعرض">
+                        <TextBlock.Visibility>
+                            <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoData">
+                                <Binding Path="HasItems" ElementName="MaintenanceGrid"/>
+                                <Binding Path="SearchText"/>
+                            </MultiBinding>
+                        </TextBlock.Visibility>
+                    </TextBlock>
+                    <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد نتائج مطابقة للبحث">
+                        <TextBlock.Visibility>
+                            <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoResults">
+                                <Binding Path="HasItems" ElementName="MaintenanceGrid"/>
+                                <Binding Path="SearchText"/>
+                            </MultiBinding>
+                        </TextBlock.Visibility>
+                    </TextBlock>
+                    <Border Style="{DynamicResource DataGridLoadingState}"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Style="{DynamicResource DataGridLoadingText}" Text="⏳ جاري التحميل..."/>
+                    </Border>
                 </Grid>
 
                 <!-- Status bar -->

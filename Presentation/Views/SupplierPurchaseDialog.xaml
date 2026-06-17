@@ -97,6 +97,7 @@
             </Border>
 
             <DataGrid Grid.Row="3"
+                      x:Name="LinesGrid"
                       Style="{DynamicResource DialogDataGrid}"
                       ItemsSource="{Binding Lines}"
                       SelectedItem="{Binding SelectedLine}"
@@ -136,6 +137,10 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+            <TextBlock Grid.Row="3" Style="{DynamicResource DataGridEmptyState}"
+                       Margin="0,0,0,16"
+                       Text="أضف أسطر المشتريات"
+                       Visibility="{Binding HasItems, ElementName=LinesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
             <Grid Grid.Row="4" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>

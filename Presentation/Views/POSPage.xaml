@@ -116,6 +116,9 @@
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                     </DataGrid>
+                    <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                               Text="🔍 ابحث لإظهار المنتجات"
+                               Visibility="{Binding HasItems, ElementName=ProductsGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
 
                 </Grid>
             </Border>
@@ -197,6 +200,9 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
+                <TextBlock Grid.Row="1" Style="{DynamicResource DataGridEmptyState}"
+                           Text="🛒 السلة فارغة"
+                           Visibility="{Binding Cart.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                 
                 <Border Grid.Row="2" Margin="12,8" CornerRadius="12" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20">

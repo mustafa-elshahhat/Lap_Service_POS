@@ -104,9 +104,22 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
-                <TextBlock Style="{DynamicResource DataGridEmptyState}"
-                           Text="لا توجد مصروفات للعرض"
-                           Visibility="{Binding HasItems, ElementName=ExpensesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد مصروفات للعرض">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoData">
+                            <Binding Path="HasItems" ElementName="ExpensesGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}" Text="لا توجد نتائج مطابقة للبحث">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource SearchEmptyStateConverter}" ConverterParameter="NoResults">
+                            <Binding Path="HasItems" ElementName="ExpensesGrid"/>
+                            <Binding Path="SearchText"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
                 </Grid>
             </Grid>
         </Border>
