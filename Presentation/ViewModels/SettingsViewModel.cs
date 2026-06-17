@@ -136,7 +136,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     Title = "حفظ نسخة احتياطية"
                 };
 
-                if (dialog.ShowDialog() == true)
+                if (AlJohary.ServiceHub.Presentation.Helpers.WindowHelper.ShowDialogOwned(dialog) == true)
                 {
                     File.Copy(_settingsService.GetDatabasePath(), dialog.FileName, true);
                     _dialogService.ShowSuccess("نجاح", "تم إنشاء نسخة احتياطية بنجاح");
@@ -171,7 +171,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                     Title = "اختيار نسخة للاستعادة"
                 };
 
-                if (dialog.ShowDialog() == true)
+                if (AlJohary.ServiceHub.Presentation.Helpers.WindowHelper.ShowDialogOwned(dialog) == true)
                 {
                     if (_dialogService.Confirm("تأكيد الاستعادة", "تحذير: استعادة النسخة سيؤدي إلى حذف البيانات الحالية واستبدالها. هل تريد الاستمرار؟"))
                     {

@@ -62,7 +62,6 @@ namespace AlJohary.ServiceHub.Presentation.Views
                 SystemCommands.RestoreWindow(this);
                 this.WindowStyle = WindowStyle.None;
                 this.ResizeMode = ResizeMode.NoResize;
-                this.Topmost = true;
 
                 _windowResizer.IsFullScreen = true;
             }

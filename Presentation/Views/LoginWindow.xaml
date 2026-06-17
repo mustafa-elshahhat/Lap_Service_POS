@@ -36,24 +36,11 @@
             
             <Border Grid.Row="0" Background="{DynamicResource PrimaryBrush}">
                 <Grid>
-                    <Button Style="{DynamicResource CloseButton}" 
+                    <Button Style="{DynamicResource CloseButtonOnColor}"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center"
-                            Foreground="White"
                             Margin="15,0"
-                            Click="CloseButton_Click">
-                        <Button.Resources>
-                            
-                            <Style TargetType="Button" BasedOn="{StaticResource CloseButton}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#30FFFFFF"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                            Click="CloseButton_Click"/>
                 </Grid>
             </Border>
 
@@ -97,6 +84,8 @@
                                    BorderThickness="0"
                                    Margin="4,0,0,0"
                                    Cursor="Hand"
+                                   ToolTip="عرض/إخفاء كلمة المرور"
+                                   AutomationProperties.Name="عرض أو إخفاء كلمة المرور"
                                    Click="ShowPasswordToggle_Click">
                          <ToggleButton.Template>
                              <ControlTemplate TargetType="ToggleButton">

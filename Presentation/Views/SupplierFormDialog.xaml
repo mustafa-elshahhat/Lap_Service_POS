@@ -23,22 +23,22 @@
 
             
             <Grid Grid.Row="0" Margin="0,0,0,24">
-                <Button Style="{DynamicResource CloseButton}" 
-                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                <Button Style="{DynamicResource CloseButton}"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
                         Click="CancelButton_Click"/>
 
-                <TextBlock x:Name="TitleTextBlock" 
-                            Text="{Binding Title}" 
+                <TextBlock x:Name="TitleTextBlock"
+                            Text="{Binding Title}"
                             FontFamily="{DynamicResource MainFontSemibold}"
-                            FontSize="18" 
-                            FontWeight="SemiBold" 
+                            FontSize="18"
+                            FontWeight="SemiBold"
                             Foreground="{DynamicResource PrimaryBrush}"
-                            HorizontalAlignment="Left"
+                            HorizontalAlignment="Right"
                             VerticalAlignment="Center"/>
             </Grid>
 
             <StackPanel Grid.Row="1">
-                <Label Content="اسم المورد (مطلوب)"/>
+                <Label Content="اسم المورد *"/>
                 <TextBox x:Name="NameTextBox" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
 
                 <Label Content="رقم الهاتف"/>
@@ -48,7 +48,7 @@
                 <TextBox x:Name="AddressTextBox" Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" Height="80" TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="12,10"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
                 <Button x:Name="SaveButton" Content="{Binding SaveButtonContent}" Style="{DynamicResource PrimaryButton}" MinWidth="120" Margin="8,0" IsDefault="True" Click="SaveButton_Click"/>
                 <Button Content="إلغاء" Style="{DynamicResource DarkButton}" MinWidth="100" Margin="8,0" IsCancel="True" Click="CancelButton_Click"/>
             </StackPanel>

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="الجوهري"
         Height="768" Width="1366"
-        MinHeight="800" MinWidth="1400"
+        MinHeight="720" MinWidth="1280"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         WindowStyle="None"
@@ -190,9 +190,9 @@
                             VerticalAlignment="Center">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="border" 
-                                        Background="#FFF5F5F7" 
-                                        CornerRadius="10" 
+                                <Border x:Name="border"
+                                        Background="{DynamicResource LightBrush}"
+                                        CornerRadius="10"
                                         Padding="14,8"
                                         BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
@@ -204,8 +204,8 @@
                                         <TextBlock x:Name="logoutText" 
                                                    Text="تسجيل الخروج" 
                                                    FontSize="12" 
-                                                   FontWeight="SemiBold" 
-                                                   Foreground="#FF64748B"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    VerticalAlignment="Center"/>
                                         <TextBlock x:Name="logoutIcon" 
                                                    Text="🚪" 
@@ -404,14 +404,12 @@
                 </Border>
                 
                 <Grid Grid.Column="1" Background="{DynamicResource BgMainBrush}">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <Frame Content="{Binding CurrentPage}" 
-                               NavigationUIVisibility="Hidden"
-                               BorderThickness="0"
-                               Background="{x:Null}"
-                               Margin="0"
-                               Focusable="False"/>
-                    </ScrollViewer>
+                    <Frame Content="{Binding CurrentPage}"
+                           NavigationUIVisibility="Hidden"
+                           BorderThickness="0"
+                           Background="{x:Null}"
+                           Margin="0"
+                           Focusable="False"/>
                 </Grid>
             </Grid>
         </Grid>

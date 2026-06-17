@@ -119,15 +119,29 @@
                         <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenOrderCommand}"/>
                     </DataGrid.InputBindings>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="رقم الطلب"      Binding="{Binding OrderNumber}"            Width="140"/>
-                        <DataGridTextColumn Header="العميل"          Binding="{Binding CustomerName}"           Width="*"/>
-                        <DataGridTextColumn Header="الهاتف"          Binding="{Binding CustomerPhone}"          Width="110"/>
-                        <DataGridTextColumn Header="الفني"           Binding="{Binding TechnicianName}"         Width="100"/>
-                        <DataGridTextColumn Header="الأجهزة"         Binding="{Binding DeviceCount}"            Width="60"/>
-                        <DataGridTextColumn Header="الإجمالي"        Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}"    Width="90"/>
-                        <DataGridTextColumn Header="المدفوع"         Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}"     Width="90"/>
-                        <DataGridTextColumn Header="المتبقي"         Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="90"/>
-                        <DataGridTemplateColumn Header="الحالة"      Width="110">
+                        <DataGridTextColumn Header="رقم الطلب"      Binding="{Binding OrderNumber}"            Width="130" MinWidth="110" ElementStyle="{DynamicResource DataGridCodeStyle}"/>
+                        <DataGridTextColumn Header="العميل"          Binding="{Binding CustomerName}"           Width="*" MinWidth="130">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextRight}">
+                                    <Setter Property="ToolTip" Value="{Binding CustomerName}"/>
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="الهاتف"          Binding="{Binding CustomerPhone}"          Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridCodeStyle}"/>
+                        <DataGridTextColumn Header="الفني"           Binding="{Binding TechnicianName}"         Width="110" MinWidth="90">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
+                                    <Setter Property="ToolTip" Value="{Binding TechnicianName}"/>
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="الأجهزة"         Binding="{Binding DeviceCount}"            Width="70" MinWidth="60" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الإجمالي"        Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}"    Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المدفوع"         Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}"     Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المتبقي"         Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="85" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTemplateColumn Header="الحالة"      Width="110" MinWidth="100">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border CornerRadius="4" Padding="6,2"
@@ -158,8 +172,8 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="تاريخ الاستلام"  Binding="{Binding IntakeDate}"             Width="100"/>
-                        <DataGridTextColumn Header="التسليم المتوقع" Binding="{Binding ExpectedDelivery}"       Width="100"/>
+                        <DataGridTextColumn Header="تاريخ الاستلام"  Binding="{Binding IntakeDate}"             Width="110" MinWidth="95" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="التسليم المتوقع" Binding="{Binding ExpectedDelivery}"       Width="110" MinWidth="95" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 

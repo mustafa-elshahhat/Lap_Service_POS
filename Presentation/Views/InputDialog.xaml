@@ -14,23 +14,9 @@
         ShowInTaskbar="False"
         FlowDirection="RightToLeft">
 
-    <Window.Resources>
-        <Storyboard x:Key="OnLoadedStoryboard">
-            <DoubleAnimation Storyboard.TargetName="MainBorder" 
-                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                             From="0.8" To="1.0" Duration="0:0:0.2" DecelerationRatio="0.5"/>
-            <DoubleAnimation Storyboard.TargetName="MainBorder" 
-                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                             From="0.8" To="1.0" Duration="0:0:0.2" DecelerationRatio="0.5"/>
-            <DoubleAnimation Storyboard.TargetName="MainBorder" 
-                             Storyboard.TargetProperty="Opacity"
-                             From="0" To="1" Duration="0:0:0.2"/>
-        </Storyboard>
-    </Window.Resources>
-
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
-            <BeginStoryboard Storyboard="{StaticResource OnLoadedStoryboard}"/>
+            <BeginStoryboard Storyboard="{StaticResource DialogOpenStoryboard}"/>
         </EventTrigger>
     </Window.Triggers>
 

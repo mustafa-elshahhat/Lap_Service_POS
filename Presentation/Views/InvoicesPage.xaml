@@ -7,7 +7,7 @@
       UseLayoutRounding="True"
       SnapsToDevicePixels="True">
 
-    <Grid Margin="16">
+    <Grid Margin="{DynamicResource PageContentMargin}">
         <Border Background="{DynamicResource BgCardBrush}" 
                 BorderBrush="{DynamicResource BorderBrush}" 
                 BorderThickness="1" 
@@ -86,8 +86,8 @@
                     </DataGrid.InputBindings>
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTemplateColumn Header="رقم الفاتورة" Width="Auto">
+                        <DataGridTextColumn Header="م" Binding="{Binding Id}" Width="60" MinWidth="50" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTemplateColumn Header="رقم الفاتورة" Width="150" MinWidth="120">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Background="Transparent">
@@ -119,16 +119,19 @@
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="CopyBtn" Property="Visibility" Value="Visible"/>
                                         </Trigger>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                            <Setter TargetName="CopyBtn" Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
                                     </DataTemplate.Triggers>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="التاريخ" Binding="{Binding SaleDate, StringFormat='yyyy-MM-dd hh:mm tt'}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="العميل" Binding="{Binding CustomerName}" Width="*"/>
-                        <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto">
+                        <DataGridTextColumn Header="التاريخ" Binding="{Binding SaleDate, StringFormat='yyyy-MM-dd hh:mm tt'}" Width="160" MinWidth="150" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="العميل" Binding="{Binding CustomerName}" Width="*" MinWidth="160"/>
+                        <DataGridTextColumn Header="المستخدم" Binding="{Binding UserName}" Width="120" MinWidth="100" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المدفوع" Binding="{Binding PaidAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                        <DataGridTextColumn Header="المتبقي" Binding="{Binding RemainingAmount, Converter={StaticResource FlexibleNumberConverter}}" Width="110" MinWidth="90">
                              <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">
                                     <Setter Property="Foreground" Value="{DynamicResource WarningDarkBrush}"/>

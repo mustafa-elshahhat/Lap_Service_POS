@@ -554,7 +554,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 FileName = $"{_currentReportType}_{DateTime.Now:yyyyMMdd}.csv"
             };
 
-            if (dialog.ShowDialog() != true)
+            if (AlJohary.ServiceHub.Presentation.Helpers.WindowHelper.ShowDialogOwned(dialog) != true)
                 return;
 
             try

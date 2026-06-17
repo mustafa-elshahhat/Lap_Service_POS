@@ -100,8 +100,8 @@
                                 <StackPanel Grid.Column="0">
                                     <Label Content="المشكلة المبلغ عنها *"/>
                                     <TextBox Text="{Binding ReportedIssue, UpdateSourceTrigger=PropertyChanged}"
-                                             AcceptsReturn="True" Height="52" TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"/>
+                                             AcceptsReturn="True" Height="80" TextWrapping="Wrap"
+                                             VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <Label Content="أجر العمل (ربح الخدمة)"/>
@@ -123,14 +123,14 @@
                                 <StackPanel Grid.Column="0">
                                     <Label Content="ملاحظات الفحص"/>
                                     <TextBox Text="{Binding DiagnosisNotes, UpdateSourceTrigger=PropertyChanged}"
-                                             AcceptsReturn="True" Height="52" TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"/>
+                                             AcceptsReturn="True" Height="80" TextWrapping="Wrap"
+                                             VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <Label Content="ملاحظات الإصلاح"/>
                                     <TextBox Text="{Binding RepairNotes, UpdateSourceTrigger=PropertyChanged}"
-                                             AcceptsReturn="True" Height="52" TextWrapping="Wrap"
-                                             VerticalScrollBarVisibility="Auto"/>
+                                             AcceptsReturn="True" Height="80" TextWrapping="Wrap"
+                                             VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>

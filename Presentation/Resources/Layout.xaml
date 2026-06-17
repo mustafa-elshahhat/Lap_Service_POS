@@ -1,7 +1,10 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:services="clr-namespace:AlJohary.ServiceHub.Application.Services">
-    
+
+    <!-- Shared page shell padding token so CRUD pages align across navigation. UI-033. -->
+    <Thickness x:Key="PageContentMargin">16</Thickness>
+
     <Style TargetType="Separator">
         <Setter Property="Height" Value="1"/>
         <Setter Property="Margin" Value="8,4"/>

@@ -78,6 +78,21 @@
     </Style>
     
     
+    <!-- Shared dialog open animation (scale-up + fade). Targets an element named
+         "MainBorder" in the consuming window's namescope. UI-036. -->
+    <Storyboard x:Key="DialogOpenStoryboard">
+        <DoubleAnimation Storyboard.TargetName="MainBorder"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                         From="0.8" To="1.0" Duration="0:0:0.2" DecelerationRatio="0.5"/>
+        <DoubleAnimation Storyboard.TargetName="MainBorder"
+                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                         From="0.8" To="1.0" Duration="0:0:0.2" DecelerationRatio="0.5"/>
+        <DoubleAnimation Storyboard.TargetName="MainBorder"
+                         Storyboard.TargetProperty="Opacity"
+                         From="0" To="1" Duration="0:0:0.2"/>
+    </Storyboard>
+
+
     <Style x:Key="StandardWindowContentBorder" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource BgCardBrush}"/>
         <Setter Property="CornerRadius" Value="12"/>

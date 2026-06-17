@@ -24,7 +24,7 @@
 
             <Grid Grid.Row="0" Margin="0,0,0,24">
                 <Button Style="{DynamicResource CloseButton}"
-                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
                         Click="CancelButton_Click"/>
 
                 <TextBlock Text="{Binding Title, StringFormat='👨‍💼 {0}'}"
@@ -32,12 +32,12 @@
                            FontSize="18"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource PrimaryBrush}"
-                           HorizontalAlignment="Left"
+                           HorizontalAlignment="Right"
                            VerticalAlignment="Center"/>
             </Grid>
 
             <StackPanel Grid.Row="1">
-                <Label Content="اسم الموظف (مطلوب)"/>
+                <Label Content="اسم الموظف *"/>
                 <TextBox x:Name="FullNameTextBox"
                          Style="{DynamicResource MainTextBox}"
                          Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
@@ -79,7 +79,7 @@
                          Padding="12,10"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
                 <Button Content="{Binding SaveButtonContent}"
                         Style="{DynamicResource PrimaryButton}"
                         MinWidth="140" Margin="8,0"

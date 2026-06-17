@@ -87,7 +87,9 @@
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="12,8"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <!-- UI-016: default to right (RTL reading edge) for Arabic text legibility;
+             numeric/ID/status columns opt into centering via DataGridTextCenter etc. -->
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="DataGridCell">
@@ -111,6 +113,21 @@
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Padding" Value="5,0"/>
+    </Style>
+
+    <!-- Shared empty-state overlay text for tables. UI-011. Overlay a TextBlock with
+         this style on top of a DataGrid inside a Grid and bind its Visibility to the
+         grid's HasItems via InverseBooleanToVisibilityConverter. -->
+    <Style x:Key="DataGridEmptyState" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontFamily" Value="{DynamicResource MainFont}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Setter Property="Margin" Value="24"/>
     </Style>
 
     <Style x:Key="DataGridCodeStyle" TargetType="TextBlock" BasedOn="{StaticResource DataGridTextCenter}">

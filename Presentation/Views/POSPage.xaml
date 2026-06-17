@@ -7,12 +7,12 @@
       UseLayoutRounding="True"
       SnapsToDevicePixels="True">
 
-    <Grid Margin="16">
+    <Grid Margin="{DynamicResource PageContentMargin}" x:Name="PosRootGrid" SizeChanged="PosRootGrid_SizeChanged">
         <Grid.ColumnDefinitions>
-            
-            <ColumnDefinition Width="*"/>
-            
-            <ColumnDefinition Width="320"/>
+
+            <ColumnDefinition Width="*" MinWidth="480"/>
+
+            <ColumnDefinition x:Name="CartColumn" Width="320" MinWidth="280"/>
         </Grid.ColumnDefinitions>
 
         
@@ -104,10 +104,10 @@
                             <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding AddToCartCommand}"/>
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="#" Binding="{Binding Id}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                            <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*"/>
-                            <DataGridTextColumn Header="السعر" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
-                            <DataGridTextColumn Header="المخزون" Binding="{Binding Quantity}" Width="Auto" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="#" Binding="{Binding Id}" Width="60" MinWidth="50" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="اسم المنتج" Binding="{Binding Name}" Width="*" MinWidth="140"/>
+                            <DataGridTextColumn Header="السعر" Binding="{Binding SellingPrice, Converter={StaticResource FlexibleNumberConverter}}" Width="100" MinWidth="90" ElementStyle="{DynamicResource DataGridTextCenter}"/>
+                            <DataGridTextColumn Header="المخزون" Binding="{Binding Quantity}" Width="90" MinWidth="80" ElementStyle="{DynamicResource DataGridTextCenter}"/>
                         </DataGrid.Columns>
                         
                         <DataGrid.ContextMenu>

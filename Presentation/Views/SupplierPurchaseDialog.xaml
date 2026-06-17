@@ -4,6 +4,9 @@
         xmlns:helpers="clr-namespace:AlJohary.ServiceHub.Presentation.Helpers"
         Title="تسجيل مشتريات"
         Width="1012" Height="812"
+        MinWidth="820" MinHeight="560"
+        MaxWidth="{x:Static SystemParameters.MaximizedPrimaryScreenWidth}"
+        MaxHeight="{x:Static SystemParameters.MaximizedPrimaryScreenHeight}"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
         ResizeMode="NoResize"
@@ -166,13 +169,26 @@
                 </StackPanel>
             </Grid>
 
-            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="🗑️ حذف السطر" Style="{DynamicResource DangerButton}" MinWidth="130" Margin="6,0" Command="{Binding RemoveLineCommand}"/>
-                <Button Content="📥 استيراد CSV / XLSX" Style="{DynamicResource SecondaryButton}" MinWidth="170" Margin="6,0" Command="{Binding ImportExcelCommand}"/>
-                <Button Content="📋 نسخ برومبت الذكاء الاصطناعي" Style="{DynamicResource DarkButton}" MinWidth="240" Margin="6,0" Command="{Binding CopyAiPromptCommand}"/>
-                <Button Content="حفظ" Style="{DynamicResource WarningButton}" MinWidth="120" Margin="6,0" IsDefault="True" Command="{Binding SaveCommand}"/>
-                <Button Content="إلغاء" Style="{DynamicResource DarkButton}" MinWidth="120" Margin="6,0" IsCancel="True" Command="{Binding CancelCommand}"/>
-            </StackPanel>
+            <!-- UI-006: primary save/cancel isolated at the RTL start; secondary line/import
+                 actions grouped at the RTL end and allowed to wrap so labels never clip. -->
+            <Grid Grid.Row="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="حفظ" Style="{DynamicResource WarningButton}" MinWidth="120" Margin="0,0,8,0" IsDefault="True" Command="{Binding SaveCommand}"/>
+                    <Button Content="إلغاء" Style="{DynamicResource DarkButton}" MinWidth="120" Margin="0" IsCancel="True" Command="{Binding CancelCommand}"/>
+                </StackPanel>
+
+                <WrapPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <Button Content="🗑️ حذف السطر" Style="{DynamicResource DangerButton}" MinWidth="130" Margin="6,3" Command="{Binding RemoveLineCommand}"/>
+                    <Button Content="📥 استيراد CSV / XLSX" Style="{DynamicResource SecondaryButton}" MinWidth="170" Margin="6,3" Command="{Binding ImportExcelCommand}"/>
+                    <Button Content="📋 نسخ برومبت الذكاء الاصطناعي" Style="{DynamicResource DarkButton}" MinWidth="240" Margin="6,3" Command="{Binding CopyAiPromptCommand}"/>
+                </WrapPanel>
+            </Grid>
         </Grid>
     </Border>
 </Window>

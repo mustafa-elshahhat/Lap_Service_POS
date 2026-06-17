@@ -7,7 +7,7 @@
       UseLayoutRounding="True"
       SnapsToDevicePixels="True">
     
-    <Grid Margin="16">
+    <Grid Margin="{DynamicResource PageContentMargin}">
         <Border Background="{DynamicResource BgCardBrush}" 
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
@@ -116,6 +116,9 @@
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="CopyBtn" Property="Visibility" Value="Visible"/>
                                         </Trigger>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                            <Setter TargetName="CopyBtn" Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
                                     </DataTemplate.Triggers>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -146,6 +149,9 @@
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="CopyBtn" Property="Visibility" Value="Visible"/>
                                         </Trigger>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                            <Setter TargetName="CopyBtn" Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
                                     </DataTemplate.Triggers>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

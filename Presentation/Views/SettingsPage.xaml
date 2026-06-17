@@ -11,7 +11,7 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Page.Resources>
     
-    <Grid Margin="16" x:Name="SettingsRoot">
+    <Grid Margin="{DynamicResource PageContentMargin}" x:Name="SettingsRoot">
         
         <Grid.OpacityMask>
             <VisualBrush>
@@ -41,7 +41,7 @@
                 
                 
                 <Border Grid.Column="0" Background="{DynamicResource BgSidebarBrush}" BorderBrush="{DynamicResource BorderDarkBrush}" BorderThickness="0,0,1,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Hidden" Margin="0,0,0,20">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,0,20">
                         <StackPanel Margin="0,32">
                             <TextBlock Text="⚙️ أقسام الإعدادات" 
                                        FontSize="13" 
@@ -92,6 +92,8 @@
                                                       Width="44"
                                                       Height="38"
                                                       Margin="8,0,0,0"
+                                                      ToolTip="حذف رقم الهاتف"
+                                                      AutomationProperties.Name="حذف رقم الهاتف"
                                                       Command="{Binding DataContext.RemovePhoneCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                       CommandParameter="{Binding}"/>
                                           </Grid>

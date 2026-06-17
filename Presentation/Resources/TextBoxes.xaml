@@ -41,14 +41,39 @@
                             <Setter TargetName="border" Property="Background" Value="{DynamicResource BgMainBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
                         </Trigger>
+                        <Trigger Property="Validation.HasError" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                            <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    
+
     <Style TargetType="TextBox" BasedOn="{StaticResource MainTextBox}"/>
+
+    <!-- Shared form validation / required-field conventions. UI-024, UI-025. -->
+    <Style x:Key="ValidationErrorText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontFamily" Value="{DynamicResource MainFont}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="2,4,2,0"/>
+    </Style>
+
+    <Style x:Key="RequiredMark" TargetType="TextBlock">
+        <Setter Property="Text" Value=" *"/>
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style x:Key="OptionalHint" TargetType="TextBlock">
+        <Setter Property="Text" Value=" (اختياري)"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+        <Setter Property="FontSize" Value="11"/>
+    </Style>
 
     
     <Style x:Key="SearchTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource MainTextBox}">
@@ -188,9 +213,15 @@
                                     <Border.Effect>
                                         <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="10" ShadowDepth="2"/>
                                     </Border.Effect>
-                                    <ScrollViewer Margin="4" SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
-                                    </ScrollViewer>
+                                    <Grid>
+                                        <ScrollViewer Margin="4" SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                        </ScrollViewer>
+                                        <TextBlock x:Name="EmptyText" Text="لا توجد عناصر"
+                                                   Visibility="Collapsed"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextMutedBrush}" FontSize="13"/>
+                                    </Grid>
                                 </Border>
                             </Grid>
                         </Popup>
@@ -198,6 +229,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="HasItems" Value="false">
                             <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
+                            <Setter TargetName="EmptyText" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsEditable" Value="true">
                             <Setter Property="IsTabStop" Value="false"/>

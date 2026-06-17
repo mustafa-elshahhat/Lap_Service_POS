@@ -54,6 +54,11 @@
     <Color x:Key="BorderDarkColor">#D1D5DB</Color>
     <Color x:Key="BorderFocusColor">#3B82F6</Color>
 
+
+    <Color x:Key="DangerOverlayColor">#10FF0000</Color>
+    <Color x:Key="DangerHoverTextColor">#FFFF4D4D</Color>
+    <Color x:Key="WhiteOverlayColor">#30FFFFFF</Color>
+
     
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
     <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDarkColor}"/>
@@ -98,4 +103,8 @@
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
     <SolidColorBrush x:Key="BorderDarkBrush" Color="{StaticResource BorderDarkColor}"/>
     <SolidColorBrush x:Key="BorderFocusBrush" Color="{StaticResource BorderFocusColor}"/>
+
+    <SolidColorBrush x:Key="DangerOverlayBrush" Color="{StaticResource DangerOverlayColor}"/>
+    <SolidColorBrush x:Key="DangerHoverTextBrush" Color="{StaticResource DangerHoverTextColor}"/>
+    <SolidColorBrush x:Key="WhiteOverlayBrush" Color="{StaticResource WhiteOverlayColor}"/>
 </ResourceDictionary>

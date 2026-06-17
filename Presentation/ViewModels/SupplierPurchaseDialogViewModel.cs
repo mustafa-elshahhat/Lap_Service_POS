@@ -190,7 +190,7 @@ namespace AlJohary.ServiceHub.Presentation.ViewModels
                 Title = "استيراد مشتريات المورد"
             };
 
-            if (dialog.ShowDialog() != true) return;
+            if (AlJohary.ServiceHub.Presentation.Helpers.WindowHelper.ShowDialogOwned(dialog) != true) return;
 
             try
             {

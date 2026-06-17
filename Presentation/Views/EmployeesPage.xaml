@@ -7,7 +7,7 @@
       UseLayoutRounding="True"
       SnapsToDevicePixels="True">
 
-    <Grid Margin="16">
+    <Grid Margin="{DynamicResource PageContentMargin}">
         <Border Background="{DynamicResource BgCardBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
@@ -89,7 +89,8 @@
                     </StackPanel>
                 </Grid>
 
-                <DataGrid Grid.Row="2"
+                <Grid Grid.Row="2">
+                <DataGrid x:Name="EmployeesGrid"
                           Style="{DynamicResource MainDataGrid}"
                           Margin="24,0,24,24"
                           ItemsSource="{Binding Employees}"
@@ -150,6 +151,10 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>
+                <TextBlock Style="{DynamicResource DataGridEmptyState}"
+                           Text="لا يوجد موظفون للعرض"
+                           Visibility="{Binding HasItems, ElementName=EmployeesGrid, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

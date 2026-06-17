@@ -17,7 +17,8 @@
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     Margin="0,0,12,12"
-                    Width="220"
+                    MinWidth="200"
+                    MaxWidth="280"
                     MinHeight="78"
                     Padding="14"
                     ToolTip="{Binding ToolTip}">
@@ -36,7 +37,7 @@
                                         <Setter Property="Background" Value="{DynamicResource SecondaryLightBrush}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ColorKey}" Value="Danger">
-                                        <Setter Property="Background" Value="#15FF4D4D"/>
+                                        <Setter Property="Background" Value="{DynamicResource DangerLightBrush}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding ColorKey}" Value="Warning">
                                         <Setter Property="Background" Value="{DynamicResource WarningLightBrush}"/>
@@ -72,7 +73,7 @@
         </CollectionViewSource>
     </Page.Resources>
     
-    <Grid Margin="16" x:Name="ReportsRoot">
+    <Grid Margin="{DynamicResource PageContentMargin}" x:Name="ReportsRoot">
         
         <Grid.OpacityMask>
             <VisualBrush>
@@ -118,7 +119,7 @@
                             </StackPanel>
                         </Border>
                         
-                        <ScrollViewer VerticalScrollBarVisibility="Disabled" Margin="0,0,0,20">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,0,20">
                             <StackPanel Margin="0,12">
                                 <RadioButton Content="📅 التقرير اليومي" Style="{DynamicResource TabRadioButton}" IsChecked="True" Command="{Binding LoadReportCommand}" CommandParameter="Daily"/>
                                 <RadioButton Content="📆 التقرير الشهري" Style="{DynamicResource TabRadioButton}" Command="{Binding LoadReportCommand}" CommandParameter="Monthly"/>
@@ -178,13 +179,13 @@
                                 Padding="16,10"
                                 Margin="0,0,0,18"
                                 HorizontalAlignment="Right">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <WrapPanel VerticalAlignment="Center">
                                 <TextBlock Text="🗓️ الفترة:" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                                 <TextBlock Text="من" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <DatePicker SelectedDate="{Binding FilterStartDate, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,20,0"/>
                                 <TextBlock Text="إلى" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <DatePicker SelectedDate="{Binding FilterEndDate, Mode=TwoWay}" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding DateValidationMessage}" FontSize="12" Foreground="Red" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <TextBlock Text="{Binding DateValidationMessage}" FontSize="12" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="16,0,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -199,20 +200,20 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                            </StackPanel>
+                            </WrapPanel>
                         </Border>
 
-                        <!-- Single main scroll area: grouped KPI cards and/or the details grid.
-                             Cards-only reports fill and scroll here; operations pages show the
-                             grid (height-capped to the viewport so it keeps virtualizing and
-                             does not force an oversized page). -->
-                        <ScrollViewer Grid.Row="2" x:Name="MainScroll"
-                                      VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      Padding="0,0,4,0">
-                            <StackPanel>
-                                <ItemsControl Visibility="{Binding KpiVisibility}"
-                                              ItemsSource="{Binding Source={StaticResource GroupedKpiCards}}"
+                        <!-- Single main content area. Cards-only reports scroll their own KPI
+                             list; operations reports give the details grid a grid-owned viewport
+                             (Row=* below) so the table virtualizes and owns its own scroll
+                             instead of being capped inside a page-level ScrollViewer. -->
+                        <Grid Grid.Row="2">
+                            <ScrollViewer x:Name="MainScroll"
+                                          Visibility="{Binding KpiVisibility}"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Padding="0,0,4,0">
+                                <ItemsControl ItemsSource="{Binding Source={StaticResource GroupedKpiCards}}"
                                               ItemTemplate="{DynamicResource KpiCardTemplate}">
                                     <ItemsControl.GroupStyle>
                                         <GroupStyle>
@@ -246,44 +247,43 @@
                                         </GroupStyle>
                                     </ItemsControl.GroupStyle>
                                 </ItemsControl>
+                            </ScrollViewer>
 
-                                <Border Visibility="{Binding OperationsVisibility}"
-                                        MaxHeight="{Binding ViewportHeight, ElementName=MainScroll}"
-                                        Background="{DynamicResource BgCardBrush}"
-                                        CornerRadius="16"
-                                        BorderBrush="{DynamicResource BorderBrush}"
-                                        BorderThickness="1"
-                                        Padding="20">
-                                    <Border.Effect>
-                                        <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.05" Color="#000000"/>
-                                    </Border.Effect>
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
+                            <Border Visibility="{Binding OperationsVisibility}"
+                                    Background="{DynamicResource BgCardBrush}"
+                                    CornerRadius="16"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    Padding="20">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.05" Color="#000000"/>
+                                </Border.Effect>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
 
-                                        <TextBlock Text="{Binding DetailHeader}"
-                                                   FontSize="18"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   Margin="0,0,0,16"
-                                                   FontFamily="{DynamicResource MainFontSemibold}"/>
+                                    <TextBlock Text="{Binding DetailHeader}"
+                                               FontSize="18"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               Margin="0,0,0,16"
+                                               FontFamily="{DynamicResource MainFontSemibold}"/>
 
-                                         <DataGrid x:Name="ReportDataGrid"
-                                                   Grid.Row="1"
-                                                   Style="{DynamicResource MainDataGrid}"
-                                                   ItemsSource="{Binding ReportData}"
-                                                   IsReadOnly="True"
-                                                   BorderThickness="0"
-                                                   behaviors:DataGridScrollBehavior.ForwardMouseWheelToParent="True"
-                                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                        </DataGrid>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-                        </ScrollViewer>
+                                     <DataGrid x:Name="ReportDataGrid"
+                                               Grid.Row="1"
+                                               Style="{DynamicResource MainDataGrid}"
+                                               ItemsSource="{Binding ReportData}"
+                                               IsReadOnly="True"
+                                               BorderThickness="0"
+                                               behaviors:DataGridScrollBehavior.ForwardMouseWheelToParent="True"
+                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                               ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>

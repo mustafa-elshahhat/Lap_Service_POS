@@ -13,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:EqualityConverter x:Key="EqualityConverter"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
             <converters:FlexibleNumberConverter x:Key="FlexibleNumberConverter"/>
             <converters:FlexibleCurrencyConverter x:Key="FlexibleCurrencyConverter"/>
         </ResourceDictionary>
